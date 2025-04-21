@@ -8,7 +8,7 @@ pygame.init()
 # Screen settings
 WIDTH, HEIGHT = 600, 400
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Math Catch Game")
+pygame.display.set_caption("Catch The Right ")
 
 # Colors
 WHITE = (255, 255, 255)
@@ -26,7 +26,7 @@ basket_y = HEIGHT - basket_height - 10
 basket_speed = 5
 basket_thickness = 4
 
-# Ball settings
+# Ball physics
 ball_radius = 20
 ball_speed = 3
 num_balls = 3
@@ -38,7 +38,7 @@ for _ in range(num_balls):
     y = random.randint(-HEIGHT, 0)
     balls.append({"x": x, "y": y})
 
-# Game clock
+# Game FPS
 clock = pygame.time.Clock()
 FPS = 75
 
@@ -52,18 +52,18 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-    # --- Key Presses ---
+    # left snd right movement
     keys = pygame.key.get_pressed()
     if keys[pygame.K_LEFT] and basket_x > 0:
         basket_x -= basket_speed
     if keys[pygame.K_RIGHT] and basket_x < WIDTH - basket_width:
         basket_x += basket_speed
 
-    # --- Move and Draw Balls ---
+    # ball moving and shape of ball
     for ball in balls:
         ball["y"] += ball_speed
 
-        # Check collision with basket
+        # what happens when ball touch the basket
         if (
             basket_x < ball["x"] < basket_x + basket_width
             and basket_y < ball["y"] + ball_radius < basket_y + basket_height
@@ -80,7 +80,7 @@ while running:
         # Draw the ball
         pygame.draw.circle(screen, BALL_COLOR, (ball["x"], ball["y"]), ball_radius)
 
-    # --- Draw Open-Top Box Basket ---
+    #  Drawing for Open-Top Box Basket 
     left_start = (basket_x, basket_y)
     left_end = (basket_x, basket_y + basket_height)
 
@@ -94,7 +94,7 @@ while running:
     pygame.draw.line(screen, BASKET_COLOR, right_start, right_end, basket_thickness)
     pygame.draw.line(screen, BASKET_COLOR, bottom_start, bottom_end, basket_thickness)
 
-    # --- Update Display ---
+    #  Reset Display 
     pygame.display.flip()
     clock.tick(FPS)
 
