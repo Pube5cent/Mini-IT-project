@@ -31,7 +31,7 @@ title_font = pygame.font.Font(None,100)
 font = pygame.font.Font(None,36)
 
 #set bg if it works
-background_image = pygame.image.load("wallpep.jpg")
+background_image = pygame.image.load("Yeap Stuff/wallpep.jpg")
 background_image = pygame.transform.scale(background_image, (screen_width, screen_height))
 screen.blit(background_image,(0,0))
 #update as of 19/4,it works now
