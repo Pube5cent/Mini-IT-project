@@ -281,27 +281,27 @@ class Note(pygame.sprite.Sprite):
         self.hit = False
         self.difference = -2000000
         if position == 1:
-            self.image = pygame.image.load('noteA.png')
+            self.image = pygame.image.load('assets/noteA.png')
             self.rect = self.image.get_rect()
             self.rect.move_ip(POSITION_A, -100)
         if position == 2:
-            self.image = pygame.image.load('noteB.png')
+            self.image = pygame.image.load('assets/noteB.png')
             self.rect = self.image.get_rect()
             self.rect.move_ip(POSITION_B, -100)
         if position == 3:
-            self.image = pygame.image.load('noteC.png')
+            self.image = pygame.image.load('assets/noteC.png')
             self.rect = self.image.get_rect()
             self.rect.move_ip(POSITION_C, -100)
         if position == 4:
-            self.image = pygame.image.load('noteC.png')
+            self.image = pygame.image.load('assets/noteC.png')
             self.rect = self.image.get_rect()
             self.rect.move_ip(POSITION_D, -100)
         if position == 5:
-            self.image = pygame.image.load('noteB.png')
+            self.image = pygame.image.load('assets/noteB.png')
             self.rect = self.image.get_rect()
             self.rect.move_ip(POSITION_E, -100)
         if position == 6:
-            self.image = pygame.image.load('noteA.png')
+            self.image = pygame.image.load('assets/noteA.png')
             self.rect = self.image.get_rect()
             self.rect.move_ip(POSITION_F, -100)
 
