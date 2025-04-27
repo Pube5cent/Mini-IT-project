@@ -108,7 +108,7 @@ def draw_task(color, y_coord, value, speed, draw, length):
     screen.blit(value_text, (16, y_coord - 10))
 
     return task, length, draw
-
++
 # Game loop
 running = True
 while running:
