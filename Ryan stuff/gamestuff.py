@@ -16,7 +16,7 @@ purple = (127, 0, 255)
 orange = (255, 165, 0)
 
 # Setup screen
-screen = pygame.display.set_mode([800, 450])
+screen = pygame.display.set_mode([1080, 720])
 pygame.display.set_caption('Core Game Engine')
 
 # Particle group

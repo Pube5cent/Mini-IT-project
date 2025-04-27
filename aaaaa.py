@@ -1,5 +1,7 @@
 import pygame
 import sys
+import math
+from random import randint, choice, uniform
 
 # Initialize Pygame
 pygame.init()
@@ -7,7 +9,7 @@ pygame.init()
 # Screen settings
 WIDTH, HEIGHT = 1080, 720
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Game for NIGGERS")
+pygame.display.set_caption("Knowledge Clicker")  # <-- Fixed
 
 # Fonts
 font = pygame.font.SysFont("Arial", 24)
@@ -19,6 +21,13 @@ GRAY = (200, 200, 200)
 LIGHT_GRAY = (230, 230, 230)
 GREEN = (0, 200, 0)
 DARK_GREEN = (0, 150, 0)
+RED = (255, 0, 0)
+BLUE = (0, 0, 255)
+PURPLE = (128, 0, 128)
+ORANGE = (255, 165, 0)
+
+# Ripple Group
+ripple_group = pygame.sprite.Group()
 
 # Global Variables
 Knowledge = 0
@@ -27,7 +36,7 @@ Book = pygame.image.load('AdamStuff/bookicon.png')
 
 # Items for sale
 items = {
-    "Cursor": {"cost": 15, "cps": 0.2, "owned": 0, "progress": 0.0, "speed": 2.0},   # speed = seconds for every cycle (idk how to make it change)
+    "Cursor": {"cost": 15, "cps": 0.2, "owned": 0, "progress": 0.0, "speed": 2.0},
     "Grandma": {"cost": 100, "cps": 1, "owned": 0, "progress": 0.0, "speed": 5.0},
 }
 
@@ -40,6 +49,28 @@ clock = pygame.time.Clock()
 # Button Settings
 book_button = pygame.Rect(WIDTH//2 - 50, HEIGHT//2 - 50, 100, 100)
 
+# Ripple Class
+class Ripple(pygame.sprite.Sprite):
+    def __init__(self, x, color):
+        super().__init__()
+        self.image = pygame.Surface((20, 20), pygame.SRCALPHA)
+        self.color = color
+        pygame.draw.circle(self.image, self.color, (10, 10), 10)
+        self.rect = self.image.get_rect(center=(x, HEIGHT//2))
+        self.speed = 2
+        self.alpha = 255
+        self.fade_rate = 3
+
+    def update(self):
+        self.rect.y -= self.speed  # Move up
+        self.alpha -= self.fade_rate
+        if self.alpha < 0:
+            self.alpha = 0
+        self.image.fill((self.color[0], self.color[1], self.color[2], self.alpha))  # Fade
+        if self.alpha == 0:
+            self.kill()
+
+# Functions
 def draw_book_button():
     pygame.draw.ellipse(screen, (150, 75, 0), book_button)
     click_text = font.render("Click!", True, WHITE)
@@ -51,7 +82,7 @@ def draw_shop():
     for idx, (item_name, item) in enumerate(items.items()):
         button_rect = pygame.Rect(20, y_offset, 360, 80)
         shop_buttons[item_name] = button_rect
-        
+
         # Highlight if hover
         mouse_pos = pygame.mouse.get_pos()
         if button_rect.collidepoint(mouse_pos):
@@ -101,7 +132,6 @@ def update_items(dt):
         if item["owned"] > 0:
             item["progress"] += dt / item["speed"]
             if item["progress"] >= 1.0:
-                # Add "cookies" based on how many you own
                 Knowledge += item["cps"] * item["owned"]
                 item["progress"] = 0.0
 
@@ -114,6 +144,8 @@ def draw():
     draw_book_button()
     draw_knowledge_counter()
     draw_shop()
+    ripple_group.update()
+    ripple_group.draw(screen)
 
 # Main Game Loop
 while True:
@@ -126,10 +158,13 @@ while True:
         if event.type == pygame.MOUSEBUTTONDOWN:
             if book_button.collidepoint(event.pos):
                 Knowledge += Knowledge_per_click
+                # Spawn a ripple when clicking the book
+                random_color = choice([RED, GREEN, BLUE, PURPLE, ORANGE, WHITE])
+                ripple = Ripple(book_button.centerx, random_color)
+                ripple_group.add(ripple)
             else:
                 handle_shop_click(event.pos)
 
     update_items(dt)
     draw()
     pygame.display.update()
- #empty message
