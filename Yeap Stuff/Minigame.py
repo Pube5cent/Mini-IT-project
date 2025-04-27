@@ -71,7 +71,7 @@ def main_menu():
     quit_button = Button(pos=(400, 400), text_input="Quit", font=pygame.font.SysFont("Roboto", 80), base_color="#60d4fc", hover_color="White")
 
     while True:
-        background_image = pygame.image.load("Yeap Stuff/wallpep.jpg")
+        background_image = pygame.image.load("wallpep.jpg")
         background_image = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
         screen.blit(background_image,(0,0))
         pygame.display.update()
