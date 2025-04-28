@@ -71,9 +71,9 @@ def main_menu():
     quit_button = Button(pos=(400, 400), text_input="Quit", font=pygame.font.SysFont("Roboto", 80), base_color="#60d4fc", hover_color="White")
 
     while True:
-        background_image = pygame.image.load("wallpep.jpg")
-        background_image = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
-        screen.blit(background_image,(0,0))
+       # background_image = pygame.image.load("wallpep.jpg")
+       # background_image = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
+       # screen.blit(background_image,(0,0))
         pygame.display.update()
 
         pos = pygame.mouse.get_pos()
@@ -458,17 +458,17 @@ def game_loop(file_name, beatmap, ending_time):
         score_count(score)
 
         if keypressS:
-            screen.blit(pressed, (POSITION_A, 494))
+            screen.blit('assets/pressed.png', (POSITION_A, 494))
         if keypressD:
-            screen.blit(pressed, (POSITION_B, 494))
+            screen.blit('assets/pressed.png', (POSITION_B, 494))
         if keypressF:
-            screen.blit(pressed, (POSITION_C, 494))
+            screen.blit('assets/pressed.png', (POSITION_C, 494))
         if keypressJ:
-            screen.blit(pressed, (POSITION_D, 494))
+            screen.blit('assets/pressed.png', (POSITION_D, 494))
         if keypressK:
-            screen.blit(pressed, (POSITION_E, 494))
+            screen.blit('assets/pressed.png', (POSITION_E, 494))
         if keypressL:
-            screen.blit(pressed, (POSITION_F, 494))
+            screen.blit('assets/pressed.png', (POSITION_F, 494))
 
         notesA.draw(screen)
         notesB.draw(screen)
@@ -477,7 +477,7 @@ def game_loop(file_name, beatmap, ending_time):
         notesE.draw(screen)
         notesF.draw(screen)
 
-        screen.blit(strum, (0, 0))
+        screen.blit('assets/notestrum.png', (0, 0))
 
         for note in notesA:
             distance = STRUM_POSITION - (note.strum/SPEED - mostaccurate/SPEED) + VISUAL_LATENCY
