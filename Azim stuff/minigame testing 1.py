@@ -46,7 +46,7 @@ FPS = 75
 
 # Timer
 start_ticks = pygame.time.get_ticks()
-time_limit = 30  # 30 seconds timer
+time_limit = 15  # 15 seconds timer
 
 # Score
 score = 0
