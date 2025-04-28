@@ -46,7 +46,7 @@ FPS = 75
 
 # Timer
 start_ticks = pygame.time.get_ticks()
-time_limit = 30  # 30 seconds timer
+time_limit = 15 # 15 second timer
 
 # Score
 score = 0
@@ -76,7 +76,7 @@ while running:
         for ball in balls:
             ball["y"] += ball_speed
 
-            # Disappear only after going through the basket (crossing the basket's bottom)
+            # Disappear only after going through the basket 
             if (
                 basket_x < ball["x"] < basket_x + basket_width
                 and basket_y + basket_height < ball["y"] + ball_radius < basket_y + basket_height + 20
@@ -91,14 +91,14 @@ while running:
 
             pygame.draw.circle(screen, BALL_COLOR, (ball["x"], ball["y"]), ball_radius)
 
-        # Timer handling
+        # Timer 
         seconds_passed = (pygame.time.get_ticks() - start_ticks) / 1000
         time_left = max(0, int(time_limit - seconds_passed))
 
         if time_left == 0:
             game_over = True
 
-        # Draw basket image
+        # basket image
         screen.blit(basket_image, (basket_x, basket_y))
 
         # Timer box
