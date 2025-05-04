@@ -23,7 +23,6 @@ DARK_GREEN = (0, 150, 0)
 # Global Variables
 Knowledge = 0
 Knowledge_per_click = 1
-Book = pygame.image.load('AdamStuff/bookicon.png')
 
 # Items for sale
 items = {
