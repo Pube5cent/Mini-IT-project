@@ -21,7 +21,7 @@ clock = pygame.time.Clock()
 
 
 screen = pygame.display.set_mode((width,height))
-#will put as 800,600, otherwise it will be the same size as the pc window
+#will put as 800,600
 width, height = pygame.display.get_surface().get_size()
 
 pygame.display.set_caption('IDLEStudy:BEAT RHYTHM')
