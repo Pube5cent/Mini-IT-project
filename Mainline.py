@@ -7,7 +7,7 @@ pygame.init()
 # Screen settings
 WIDTH, HEIGHT = 1080, 720
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Cookie Clicker Inventory with Loading Bars")
+pygame.display.set_caption("Game for NIGGERS")
 
 # Fonts
 font = pygame.font.SysFont("Arial", 24)
