@@ -3,8 +3,6 @@ import math
 from random import choice, randint, uniform
 from particles import Particle
 from particles import Ripple
-from game_background import GifAnimation
-from Rebirth import perform_rebirth 
 
 pygame.init()
 
@@ -18,11 +16,8 @@ purple = (127, 0, 255)
 orange = (255, 165, 0)
 
 # Setup screen
-screen = pygame.display.set_mode([800, 450])
+screen = pygame.display.set_mode([1080, 720])
 pygame.display.set_caption('Core Game Engine')
-
-# Load animated gif
-gif_anim = GifAnimation("your_animation.gif")
 
 # Particle group
 particle_group = pygame.sprite.Group()
@@ -64,13 +59,6 @@ red_length = 0
 orange_length = 0
 white_length = 0
 purple_length = 0
-
-# Game state
-player_state = {
-    "score": 0,
-    "rebirths": 0,
-    "multiplier": 1.0
-}
 
 # Auto Miner (always active)
 auto_miner_timer = pygame.USEREVENT + 1
@@ -130,18 +118,8 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-       
         if event.type == auto_miner_timer:
-             player_state["score"] += 1 * player_state["multiplier"]
-
-
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_r:
-                if perform_rebirth(player_state):
-                    print("Rebirth successful!")
-                else:
-                    print("Not enough knowledge to rebirth.")
-
+            score += 1
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             pos = pygame.mouse.get_pos()  # Get mouse position
@@ -221,15 +199,9 @@ while running:
     ripple_group.draw(screen)
 
     # Draw score
-    f'Knowledge: {round(player_state["score"])} | Rebirths: {player_state["rebirths"]}', True, white, black)
+    display_score = font.render(f'Knowledge: {round(score)}', True, white, black)
     screen.blit(display_score, (10, 5))
 
-    #Draw the animated GIF on the screen
-    gif_anim.update()
-    gif_anim.draw(screen, (550, 320))  # Adjust position as needed
-
-
-
-pygame.display.flip()
+    pygame.display.flip()
 
 pygame.quit()

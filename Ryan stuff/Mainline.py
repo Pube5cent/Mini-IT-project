@@ -1,11 +1,14 @@
 import pygame
 import sys
+# from game_background import GifAnimation
+from Rebirth import perform_rebirth
+from PIL import Image, ImageSequence
 
 # Initialize Pygame
 pygame.init()
 
 # Screen settings
-WIDTH, HEIGHT = 1080, 720
+WIDTH, HEIGHT = 1290, 800
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("")
 
@@ -24,9 +27,16 @@ DARK_GREEN = (0, 150, 0)
 Knowledge = 0
 Knowledge_per_click = 1
 
+# Game state
+player_state = {
+    "score": 0,
+    "rebirths": 0,
+    "multiplier": 1.0
+}
+
 # Items for sale
 items = {
-    "Cursor": {"cost": 15, "cps": 0.2, "owned": 0, "progress": 0.0, "speed": 2.0},   # speed = seconds for every cycle (idk how to make it change)
+    "Cursor": {"cost": 15, "cps": 0.2, "owned": 0, "progress": 0.0, "speed": 2.0},
     "Grandma": {"cost": 100, "cps": 1, "owned": 0, "progress": 0.0, "speed": 5.0},
 }
 
@@ -36,8 +46,30 @@ shop_buttons = {}
 # Timers
 clock = pygame.time.Clock()
 
+
+#gif background
+class GifAnimation():
+    def __init__(self, gif_path):
+        image = Image.open(gif_path)
+        self.frames = [pygame.image.fromstring(frame.convert("RGBA").tobytes(), frame.size, "RGBA")
+                       for frame in ImageSequence.Iterator(image)]
+        self.frame_index = 0
+        self.size = image.size
+
+    def update(self):
+        self.frame_index = (self.frame_index + 1) % len(self.frames)
+
+    def draw(self, screen, position):
+        screen.blit(self.frames[self.frame_index], position)
+
+
+
+# Load animated gif
+gif_anim = GifAnimation("Ryan stuff/main_wallpaper.gif")
+
+
 # Button Settings
-book_button = pygame.Rect(WIDTH//2 - 50, HEIGHT//2 - 50, 100, 100)
+book_button = pygame.Rect(WIDTH // 2 - 50, HEIGHT // 2 - 50, 100, 100)
 
 def draw_book_button():
     pygame.draw.ellipse(screen, (150, 75, 0), book_button)
@@ -50,8 +82,7 @@ def draw_shop():
     for idx, (item_name, item) in enumerate(items.items()):
         button_rect = pygame.Rect(20, y_offset, 360, 80)
         shop_buttons[item_name] = button_rect
-        
-        # Highlight if hover
+
         mouse_pos = pygame.mouse.get_pos()
         if button_rect.collidepoint(mouse_pos):
             pygame.draw.rect(screen, LIGHT_GRAY, button_rect)
@@ -60,7 +91,6 @@ def draw_shop():
 
         pygame.draw.rect(screen, BLACK, button_rect, 3)
 
-        # Text inside
         item_text = font.render(f"{item_name}", True, BLACK)
         cost_text = font.render(f"Cost: {int(item['cost'])}", True, BLACK)
         owned_text = font.render(f"Owned: {item['owned']}", True, BLACK)
@@ -69,14 +99,12 @@ def draw_shop():
         screen.blit(cost_text, (button_rect.x + 10, button_rect.y + 30))
         screen.blit(owned_text, (button_rect.x + 200, button_rect.y + 30))
 
-        # Progress bar (loading bar)
-            bar_back = pygame.Rect(button_rect.x + 10, button_rect.y + 60, 340, 10)
-            pygame.draw.rect(screen, DARK_GREEN, bar_back)
+        bar_back = pygame.Rect(button_rect.x + 10, button_rect.y + 60, 340, 10)
+        pygame.draw.rect(screen, DARK_GREEN, bar_back)
 
-            # Fill based on progress
-            fill_width = int(340 * (item['progress']))
-            bar_fill = pygame.Rect(button_rect.x + 10, button_rect.y + 60, fill_width, 10)
-            pygame.draw.rect(screen, GREEN, bar_fill)
+        fill_width = int(340 * item['progress'])
+        bar_fill = pygame.Rect(button_rect.x + 10, button_rect.y + 60, fill_width, 10)
+        pygame.draw.rect(screen, GREEN, bar_fill)
 
         y_offset += 100
 
@@ -91,8 +119,7 @@ def buy_item(item_name):
     if Knowledge >= item["cost"]:
         Knowledge -= item["cost"]
         item["owned"] += 1
-        item["cost"] *= 1.15  # Cost increase        if item['owned'] > 0:
-
+        item["cost"] *= 1.15
 
 def update_items(dt):
     global Knowledge
@@ -100,7 +127,6 @@ def update_items(dt):
         if item["owned"] > 0:
             item["progress"] += dt / item["speed"]
             if item["progress"] >= 1.0:
-                # Add "cookies" based on how many you own
                 Knowledge += item["cps"] * item["owned"]
                 item["progress"] = 0.0
 
@@ -109,10 +135,22 @@ def draw_knowledge_counter():
     screen.blit(cookie_text, (20, 20))
 
 def draw():
-    screen.fill(WHITE)
+    # Draw animated background 
+    gif_anim.update()
+    frame = gif_anim.frames[gif_anim.frame_index]
+    scaled_frame = pygame.transform.scale(frame, (WIDTH, HEIGHT))
+    screen.blit(scaled_frame, (0, 0))
+
+    # draw everything else
     draw_book_button()
     draw_knowledge_counter()
     draw_shop()
+
+    # Score display 
+    display_score = font.render(
+        f'Knowledge: {round(player_state["score"])} | Rebirths: {player_state["rebirths"]}', 
+        True, WHITE, BLACK)
+    screen.blit(display_score, (10, 5))
 
 # Main Game Loop
 while True:
@@ -121,14 +159,35 @@ while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
-            sys.exit()
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if book_button.collidepoint(event.pos):
-                Knowledge += Knowledge_per_click
+        sys.exit()
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+        sys.exit()
+
+    if event.type == pygame.MOUSEBUTTONDOWN:
+        if book_button.collidepoint(event.pos):
+            Knowledge += Knowledge_per_click
+            player_state["score"] += Knowledge_per_click * player_state["multiplier"]
+        elif perform_rebirth.collidepoint(event.pos):
+            if perform_rebirth(player_state):
+                print("Rebirth successful!")
+                Knowledge = 0
             else:
-                handle_shop_click(event.pos)
+                print("Not enough knowledge to rebirth.")
+        else:
+            handle_shop_click(event.pos)
+
+    if event.type == pygame.KEYDOWN:
+        if event.key == pygame.K_r:
+            if perform_rebirth(player_state):
+                print("Rebirth successful!")
+                Knowledge = 0
+            else:
+                print("Not enough knowledge to rebirth.")
+
 
     update_items(dt)
     draw()
     pygame.display.update()
- #empty message
