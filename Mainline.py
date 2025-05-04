@@ -23,6 +23,7 @@ DARK_GREEN = (0, 150, 0)
 # Global Variables
 Knowledge = 0
 Knowledge_per_click = 1
+Book = pygame.image.load('AdamStuff/bookicon.png')
 
 # Items for sale
 items = {
@@ -131,4 +132,3 @@ while True:
     update_items(dt)
     draw()
     pygame.display.update()
- #empty message
