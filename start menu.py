@@ -34,6 +34,10 @@ menu_state = "main"
 TITLE_Y = 150
 SHADOW_OFFSET = 4
 
+# Music Stuff
+music_on = True
+Music_Path = "AdamStuff/AlanWalker.mp3"
+
 # Drawing Button
 class Button:
     def __init__(self, text, y_pos, callback):
@@ -67,9 +71,14 @@ def back_to_main():
     menu_state = "main"
 
 def toggle_music():
+    # Optional: load background music
+    # pygame.mixer.music.load("background_music.mp3")
+    # pygame.mixer.music.play(-1)
+
     global music_on
     music_on = not music_on
     if music_on:
+        pygame.mixer.music.load(Music_Path)
         pygame.mixer.music.play(-1)
     else:
         pygame.mixer.music.stop()
@@ -132,10 +141,6 @@ def draw_title(surface):
 def main():
     global current_frame, frame_timer
     clock = pygame.time.Clock()
-
-    # Optional: load background music
-    # pygame.mixer.music.load("background_music.mp3")
-    # pygame.mixer.music.play(-1)
 
     while True:
         dt = clock.tick(FPS)
