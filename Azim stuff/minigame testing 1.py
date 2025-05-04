@@ -64,6 +64,19 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
+        # Restart logic when game over and R key pressed
+        if game_over and event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_r:
+                game_over = False
+                score = 0
+                start_ticks = pygame.time.get_ticks()
+                basket_x = WIDTH // 2 - basket_width // 2
+                balls = []
+                for _ in range(num_balls):
+                    x = random.randint(ball_radius, WIDTH - ball_radius)
+                    y = random.randint(-HEIGHT, 0)
+                    balls.append({"x": x, "y": y})
+
     if not game_over:
         # Movement
         keys = pygame.key.get_pressed()
@@ -112,9 +125,11 @@ while running:
         screen.blit(score_text, (WIDTH - 100, 20))
 
     else:
-        # Game Over
-        over_text = big_font.render("Game Over Nigga", True, (200, 0, 0))
-        screen.blit(over_text, (WIDTH // 2 - over_text.get_width() // 2, HEIGHT // 2 - over_text.get_height() // 2))
+        # Game Over screen
+        over_text = big_font.render("Game Over!", True, (200, 0, 0))
+        restart_text = font.render("Press 'R' to Restart", True, (0, 0, 0))
+        screen.blit(over_text, (WIDTH // 2 - over_text.get_width() // 2, HEIGHT // 2 - 40))
+        screen.blit(restart_text, (WIDTH // 2 - restart_text.get_width() // 2, HEIGHT // 2 + 20))
 
     # Refresh
     pygame.display.flip()
