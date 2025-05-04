@@ -131,4 +131,3 @@ while True:
     update_items(dt)
     draw()
     pygame.display.update()
- #empty message
