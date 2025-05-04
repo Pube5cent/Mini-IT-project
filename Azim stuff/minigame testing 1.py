@@ -102,14 +102,14 @@ while running:
             text_rect = num_text.get_rect(center=(ball["x"], ball["y"]))
             screen.blit(num_text, text_rect)
 
-        # Timer handling
+        # Timer 
         seconds_passed = (pygame.time.get_ticks() - start_ticks) / 1000
         time_left = max(0, int(time_limit - seconds_passed))
 
         if time_left == 0:
             game_over = True
 
-        # Draw basket image
+        # basket image
         screen.blit(basket_image, (basket_x, basket_y))
 
         # Timer box
