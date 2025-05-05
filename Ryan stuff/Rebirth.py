@@ -13,6 +13,6 @@ def perform_rebirth(player_state):
     # Reset score and add rebirth bonuses
     player_state["rebirths"] += 1
     player_state["score"] = 0
-    player_state["multiplier"] += 1000.0  # Increase score gain rate
+    player_state["multiplier"] += 0.1  # Increase score gain rate
 
     return True

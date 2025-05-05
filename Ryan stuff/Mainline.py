@@ -159,34 +159,22 @@ while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
-        sys.exit()
+            sys.exit()
 
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-        sys.exit()
-
-    if event.type == pygame.MOUSEBUTTONDOWN:
-        if book_button.collidepoint(event.pos):
-            Knowledge += Knowledge_per_click
-            player_state["score"] += Knowledge_per_click * player_state["multiplier"]
-        elif perform_rebirth.collidepoint(event.pos):
-            if perform_rebirth(player_state):
-                print("Rebirth successful!")
-                Knowledge = 0
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if book_button.collidepoint(event.pos):
+                Knowledge += Knowledge_per_click
+                player_state["score"] += Knowledge_per_click
             else:
-                print("Not enough knowledge to rebirth.")
-        else:
-            handle_shop_click(event.pos)
+                handle_shop_click(event.pos)
 
-    if event.type == pygame.KEYDOWN:
-        if event.key == pygame.K_r:
-            if perform_rebirth(player_state):
-                print("Rebirth successful!")
-                Knowledge = 0
-            else:
-                print("Not enough knowledge to rebirth.")
-
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_r:
+                if perform_rebirth(player_state):
+                    print("Rebirth successful!")
+                    Knowledge = 0
+                else:
+                    print("Not enough knowledge to rebirth.")
 
     update_items(dt)
     draw()
