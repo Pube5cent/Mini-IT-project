@@ -46,7 +46,6 @@ shop_buttons = {}
 # Timers
 clock = pygame.time.Clock()
 
-
 #gif background
 class GifAnimation():
     def __init__(self, gif_path):
@@ -62,11 +61,8 @@ class GifAnimation():
     def draw(self, screen, position):
         screen.blit(self.frames[self.frame_index], position)
 
-
-
 # Load animated gif
 gif_anim = GifAnimation("Ryan stuff/main_wallpaper.gif")
-
 
 # Button Settings
 book_button = pygame.Rect(WIDTH // 2 - 50, HEIGHT // 2 - 50, 100, 100)
