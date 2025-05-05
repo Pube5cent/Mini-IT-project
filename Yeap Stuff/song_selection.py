@@ -43,7 +43,7 @@ def song_selection_screen(screen,clock,stage_speed, offset, judgement_shown, gui
     # stage_speed, offset, judgement_shown, guide_line_shown, high_quality_verifying_graphics
 
     pygame.mixer.music.stop()
-    #music_Q(scoreboardMusic,True)
+    
     song_selection_run = True
 
 
@@ -150,11 +150,12 @@ def song_selection_screen(screen,clock,stage_speed, offset, judgement_shown, gui
                         pygame.display.flip()
                         clock.tick(main_loop_render_fps)
                     ######################################## transition screen
+                
                     run_FGHJ(screen, clock, song_name, stage_speed, offset, judgement_shown, guide_line_shown,
                              high_quality_verifying_graphics)
                     song_selection_run = False
                     return exit_song_selection_screen(music_list, music_pointer, song_name)
-
+                #list going up /down
                 elif event.key == pygame.K_UP:
                     music_pointer -= 1
                     music_pointer = boundary_checker(0, number_of_musics - 1, music_pointer)
@@ -228,9 +229,6 @@ def song_selection_screen(screen,clock,stage_speed, offset, judgement_shown, gui
         write_text(screen, song_info_x_level, song_info_y_level + 1 * small_text,
                    f"{'Total points':<13}| {song_info_list[3]:>4}" , tiny_text, background_color[0],
                    highlight_text_color)
-        # write_text(screen, song_info_x_level, song_info_y_level + 2 * small_text,
-        #            f"{'FPS':<15}| {song_info_list[4]:>4}", tiny_text, background_color[0],
-        #            highlight_text_color)
 
         write_text(screen, song_info_x_level, song_info_y_level + 3 * small_text,
                    f"{'Score':<10}| {round(song_highest_score,2):>4} %", tiny_text, background_color[0],
@@ -246,10 +244,9 @@ def song_selection_screen(screen,clock,stage_speed, offset, judgement_shown, gui
 
 
         if mouse_particle_list:  # if not empty
-            # print(len(mouse_particle_list))
+           
             current_run_time = pygame.time.get_ticks()
             for mouse_particle in mouse_particle_list:
-                # draw_particle(screen, mouse_particle)
                 mouse_click_time = mouse_particle[0]
                 position = mouse_particle[1]
                 delta = (current_run_time - (mouse_click_time)) / 1000
