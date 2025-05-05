@@ -115,20 +115,21 @@ def draw():
     draw_shop()
 
 # Main Game Loop
-while True:
-    dt = clock.tick(60) / 1000  # Delta time in seconds
+def main():
+    while True:
+        dt = clock.tick(60) / 1000  # Delta time in seconds
 
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if book_button.collidepoint(event.pos):
-                Knowledge += Knowledge_per_click
-            else:
-                handle_shop_click(event.pos)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if book_button.collidepoint(event.pos):
+                    Knowledge += Knowledge_per_click
+                else:
+                    handle_shop_click(event.pos)
 
-    update_items(dt)
-    draw()
-    pygame.display.update()
+        update_items(dt)
+        draw()
+        pygame.display.update()
  #empty message
