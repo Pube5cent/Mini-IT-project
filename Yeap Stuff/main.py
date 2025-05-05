@@ -51,7 +51,7 @@ while meta_run:
 
             if event.type == pygame.MOUSEMOTION:
                 
-                # point.pos = pygame.mouse.get_pos()
+
                 pass
 
             if event.type == pygame.MOUSEBUTTONUP:
@@ -61,18 +61,14 @@ while meta_run:
 
                 if abs(xp - option_key_x_level) < big_text*6:
                     if abs(yp - (option_key_y_level)) < big_text:
-                        print('option clicked!')
                         run = False
                         stage_speed, offset, judgement_shown, guide_line_shown, high_quality_verifying_graphics = option_screen(screen,clock,stage_speed, offset, judgement_shown, guide_line_shown, high_quality_verifying_graphics)
-                        #print(stage_speed, offset, judgement_shown, guide_line_shown, high_quality_verifying_graphics)
                         break
 
                 if abs(xp - song_selection_key_x_level) < big_text*6:
                     if abs(yp - (song_selection_key_y_level)) < big_text:
-                        print('song selection clicked!')
                         run = False
                         music_list, music_pointer, song_name = song_selection_screen(screen,clock,stage_speed, offset, judgement_shown, guide_line_shown, high_quality_verifying_graphics)
-                        #print(music_list, music_pointer, song_name)
                         break
                     
             if event.type == pygame.KEYDOWN:
@@ -81,7 +77,6 @@ while meta_run:
                     break
 
                 elif event.key == pygame.K_RETURN:
-                    print('Going to song selection!')
                     run = False
                     music_list, music_pointer, song_name = song_selection_screen(screen, clock, stage_speed, offset,
                                                                                  judgement_shown, guide_line_shown,
@@ -90,33 +85,33 @@ while meta_run:
 
 
 
-            if not run:
+        if not run:
                 break
-            screen.fill(background_color[0])
+        screen.fill(background_color[0])
             
-    if creater_mode:
-        write_text(screen, width // 2, small_text*2, '- This is a creater mode -', small_text, background_color[0],
+        if creater_mode:
+            write_text(screen, width // 2, small_text*2, '- This is a creater mode -', small_text, background_color[0],
                    debug_color)
 
             
-    write_text(screen, width//2, height//8 , 'Beat Rhythm', big_text, background_color[0], highlight_text_color)
+        write_text(screen, width//2, height//8 , 'Beat Rhythm', big_text, background_color[0], highlight_text_color)
 
-    write_text(screen, option_key_x_level, option_key_y_level,
+        write_text(screen, option_key_x_level, option_key_y_level,
                    'Options/Calibrations', big_text, background_color[0],
                    highlight_text_color)
-    pygame.draw.rect(screen, highlight_text_color, [width//4 - big_text, option_key_y_level - button_y_offset, button_x_size, button_y_size], 4,8)
+        pygame.draw.rect(screen, highlight_text_color, [width//4 - big_text, option_key_y_level - button_y_offset, button_x_size, button_y_size], 4,8)
 
-    write_text(screen, song_selection_key_x_level, song_selection_key_y_level,
+        write_text(screen, song_selection_key_x_level, song_selection_key_y_level,
                    'Song selection', big_text, background_color[0],
                    highlight_text_color)
-    pygame.draw.rect(screen, highlight_text_color, [width//4 - big_text,  song_selection_key_y_level - button_y_offset, button_x_size, button_y_size], 4,8)
+        pygame.draw.rect(screen, highlight_text_color, [width//4 - big_text,  song_selection_key_y_level - button_y_offset, button_x_size, button_y_size], 4,8)
         
-    write_text(screen, width // 2, height-small_text*4, 'How to play: ', small_text, background_color[0],
+        write_text(screen, width // 2, height-small_text*4, 'How to play: ', small_text, background_color[0],
                    highlight_text_color)
-    write_text(screen, width // 2, height-small_text*2, 'press %s,%s,%s,%s in appropriate timing!'%(guide_keys[0],guide_keys[1],guide_keys[2],guide_keys[3]), small_text, background_color[0],
+        write_text(screen, width // 2, height-small_text*2, 'press %s,%s,%s,%s in appropriate timing!'%(guide_keys[0],guide_keys[1],guide_keys[2],guide_keys[3]), small_text, background_color[0],
                    highlight_text_color)
 
-    if mouse_particle_list:  # if not empty
+        if mouse_particle_list:  # if not empty
             #print(len(mouse_particle_list))
             current_run_time = pygame.time.get_ticks()
             for mouse_particle in mouse_particle_list:
@@ -132,5 +127,5 @@ while meta_run:
 
 
 
-    pygame.display.flip()
-    clock.tick(main_loop_render_fps)
+        pygame.display.flip()
+        clock.tick(main_loop_render_fps)
