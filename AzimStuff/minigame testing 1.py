@@ -20,7 +20,7 @@ font = pygame.font.SysFont(None, 30)
 big_font = pygame.font.SysFont(None, 60)
 
 # Load basket image
-basket_image = pygame.image.load("basket.png")
+basket_image = pygame.image.load("AzimStuff/basket.png")
 basket_width = 100
 basket_height = 60
 basket_image = pygame.transform.smoothscale(basket_image, (basket_width, basket_height))
