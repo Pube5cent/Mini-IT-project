@@ -1,3 +1,7 @@
 test
 Dogsong
+<<<<<<< HEAD
 NyanCat (Neuro)
+=======
+NyanCat (Neuro)
+>>>>>>> BeatRhythm_pyto

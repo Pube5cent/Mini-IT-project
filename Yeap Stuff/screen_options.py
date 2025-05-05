@@ -49,7 +49,11 @@ def option_screen(screen,clock,stage_speed, offset, judgement_shown, guide_line_
                 return exit_option_screen(stage_speed, offset, judgement_shown, guide_line_shown, high_quality_verifying_graphics)
 
             if event.type == pygame.MOUSEMOTION:  
+<<<<<<< HEAD
                 # point.pos = pygame.mouse.get_pos()
+=======
+                
+>>>>>>> BeatRhythm_pyto
                 pass
 
             if event.type == pygame.MOUSEBUTTONUP:
