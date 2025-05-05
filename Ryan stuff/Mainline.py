@@ -31,7 +31,7 @@ Knowledge_per_click = 1
 player_state = {
     "score": 0,
     "rebirths": 0,
-    "multiplier": 1.0
+    "multiplier": 1000.0
 }
 
 # Items for sale
