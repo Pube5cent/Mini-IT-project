@@ -30,16 +30,21 @@ BG_COLOR = (30, 30, 30)
 title_font = pygame.font.Font(None,100)
 font = pygame.font.Font(None,36)
 
-#set bg if it works
-background_image = pygame.image.load("Yeap Stuff/wallpep.jpg")
-background_image = pygame.transform.scale(background_image, (screen_width, screen_height))
-screen.blit(background_image,(0,0))
-#update as of 19/4,it works now
 
+#code to run the main game
+run = True
+while run:
+    
+    #set bg if it works
+    background_image = pygame.image.load("Yeap Stuff/wallpep.jpg")
+    background_image = pygame.transform.scale(background_image, (screen_width, screen_height))
+    screen.blit(background_image,(0,0))
+    pygame.display.update()
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            run = False
 
-                    
+#update as of 19/4,it works now                    
 #this to make sure the game proceeds and do not crash on startup
 #not sure how to not have it respond atm
 #DONT REMOVE IT
-while True:
-    pygame.display.update()
