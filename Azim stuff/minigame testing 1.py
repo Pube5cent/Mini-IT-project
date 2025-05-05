@@ -8,7 +8,7 @@ pygame.init()
 # Screen settings
 WIDTH, HEIGHT = 600, 400
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Catch The Right ")
+pygame.display.set_caption("Catch The Right")
 
 # Colors
 WHITE = (255, 255, 255)
@@ -16,22 +16,24 @@ BASKET_COLOR = (100, 200, 255)
 BALL_COLOR = (255, 100, 100)
 
 # Fonts
-font = pygame.font.SysFont(None, 40)
+font = pygame.font.SysFont(None, 30)
+big_font = pygame.font.SysFont(None, 60)
 
-# Basket settings
+# Load basket image
+basket_image = pygame.image.load("basket.png")
 basket_width = 100
-basket_height = 20
+basket_height = 60
+basket_image = pygame.transform.smoothscale(basket_image, (basket_width, basket_height))
+
 basket_x = WIDTH // 2 - basket_width // 2
 basket_y = HEIGHT - basket_height - 10
 basket_speed = 5
-basket_thickness = 4
 
 # Ball physics
 ball_radius = 20
 ball_speed = 3
 num_balls = 3
 
-# Create multiple balls with random positions
 balls = []
 for _ in range(num_balls):
     x = random.randint(ball_radius, WIDTH - ball_radius)
@@ -41,6 +43,16 @@ for _ in range(num_balls):
 # Game FPS
 clock = pygame.time.Clock()
 FPS = 75
+
+# Timer
+start_ticks = pygame.time.get_ticks()
+time_limit = 15 # 15 second timer
+
+# Score
+score = 0
+
+# Game state
+game_over = False
 
 # Game loop
 running = True
@@ -52,49 +64,59 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-    # left snd right movement
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_LEFT] and basket_x > 0:
-        basket_x -= basket_speed
-    if keys[pygame.K_RIGHT] and basket_x < WIDTH - basket_width:
-        basket_x += basket_speed
+    if not game_over:
+        # Movement
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_LEFT] and basket_x > 0:
+            basket_x -= basket_speed
+        if keys[pygame.K_RIGHT] and basket_x < WIDTH - basket_width:
+            basket_x += basket_speed
 
-    # ball moving and shape of ball
-    for ball in balls:
-        ball["y"] += ball_speed
+        # Ball movement
+        for ball in balls:
+            ball["y"] += ball_speed
 
-        # what happens when ball touch the basket
-        if (
-            basket_x < ball["x"] < basket_x + basket_width
-            and basket_y < ball["y"] + ball_radius < basket_y + basket_height
-        ):
-            # Reset ball to top at random x
-            ball["x"] = random.randint(ball_radius, WIDTH - ball_radius)
-            ball["y"] = random.randint(-HEIGHT, 0)
+            # Disappear only after going through the basket 
+            if (
+                basket_x < ball["x"] < basket_x + basket_width
+                and basket_y + basket_height < ball["y"] + ball_radius < basket_y + basket_height + 20
+            ):
+                score += 1
+                ball["x"] = random.randint(ball_radius, WIDTH - ball_radius)
+                ball["y"] = random.randint(-HEIGHT, 0)
 
-        # If ball goes off screen, reset to top
-        elif ball["y"] > HEIGHT:
-            ball["x"] = random.randint(ball_radius, WIDTH - ball_radius)
-            ball["y"] = random.randint(-HEIGHT, 0)
+            elif ball["y"] > HEIGHT:
+                ball["x"] = random.randint(ball_radius, WIDTH - ball_radius)
+                ball["y"] = random.randint(-HEIGHT, 0)
 
-        # Draw the ball
-        pygame.draw.circle(screen, BALL_COLOR, (ball["x"], ball["y"]), ball_radius)
+            pygame.draw.circle(screen, BALL_COLOR, (ball["x"], ball["y"]), ball_radius)
 
-    #  Drawing for Open-Top Box Basket 
-    left_start = (basket_x, basket_y)
-    left_end = (basket_x, basket_y + basket_height)
+        # Timer 
+        seconds_passed = (pygame.time.get_ticks() - start_ticks) / 1000
+        time_left = max(0, int(time_limit - seconds_passed))
 
-    right_start = (basket_x + basket_width, basket_y)
-    right_end = (basket_x + basket_width, basket_y + basket_height)
+        if time_left == 0:
+            game_over = True
 
-    bottom_start = (basket_x, basket_y + basket_height)
-    bottom_end = (basket_x + basket_width, basket_y + basket_height)
+        # basket image
+        screen.blit(basket_image, (basket_x, basket_y))
 
-    pygame.draw.line(screen, BASKET_COLOR, left_start, left_end, basket_thickness)
-    pygame.draw.line(screen, BASKET_COLOR, right_start, right_end, basket_thickness)
-    pygame.draw.line(screen, BASKET_COLOR, bottom_start, bottom_end, basket_thickness)
+        # Timer box
+        pygame.draw.rect(screen, (0, 0, 0), (10, 10, 100, 40), 2)
+        timer_text = font.render(f"Time: {time_left}", True, (0, 0, 0))
+        screen.blit(timer_text, (20, 20))
 
-    #  Reset Display 
+        # Score box
+        pygame.draw.rect(screen, (0, 0, 0), (WIDTH - 110, 10, 100, 40), 2)
+        score_text = font.render(f"Score: {score}", True, (0, 0, 0))
+        screen.blit(score_text, (WIDTH - 100, 20))
+
+    else:
+        # Game Over
+        over_text = big_font.render("Game Over Nigga", True, (200, 0, 0))
+        screen.blit(over_text, (WIDTH // 2 - over_text.get_width() // 2, HEIGHT // 2 - over_text.get_height() // 2))
+
+    # Refresh
     pygame.display.flip()
     clock.tick(FPS)
 
