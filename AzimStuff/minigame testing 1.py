@@ -41,7 +41,7 @@ def reset_game():
     for _ in range(num_balls):
         x = random.randint(ball_radius, WIDTH - ball_radius)
         y = random.randint(-HEIGHT, 0)
-        value = random.randint(1, 9)  # Each ball has a fixed number between 1 and 9
+        value = random.randint(1, 9)  # Each ball has ada fixed number between 1 and 9
         balls.append({"x": x, "y": y, "value": value})
     score = 0
     start_ticks = pygame.time.get_ticks()
