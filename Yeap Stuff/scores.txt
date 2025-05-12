@@ -3,3 +3,7 @@ Drops of H2O,0.00
 Destructoid,0.00
 Hmm Heu Ming Remix (Rcol),98.59
 BadApple,0.00
+<<<<<<< HEAD
+=======
+test,0.00
+>>>>>>> BeatRhythm_pyto
