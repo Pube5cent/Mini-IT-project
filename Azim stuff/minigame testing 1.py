@@ -35,11 +35,7 @@ font = pygame.font.SysFont(None, 30)
 big_font = pygame.font.SysFont(None, 60)
 
 # Load basket image
-<<<<<<< HEAD:Azim stuff/minigame testing 1.py
 basket_image = pygame.image.load("Azim stuff/basket.png")
-=======
-basket_image = pygame.image.load("AzimStuff/basket.png")
->>>>>>> 708417600c6e1f04006203de26188926499b7ff7:AzimStuff/minigame testing 1.py
 basket_width = 100
 basket_height = 60
 basket_image = pygame.transform.smoothscale(basket_image, (basket_width, basket_height))
@@ -66,7 +62,6 @@ def generate_balls():
 
     for i in range(num_balls):
         x = random.randint(ball_radius, WIDTH - ball_radius)
-<<<<<<< HEAD:Azim stuff/minigame testing 1.py
         y = random.randint(-HEIGHT, -20)
         if not correct_ball_placed:
             value = correct_answer
@@ -78,10 +73,6 @@ def generate_balls():
                     used_values.add(wrong)
                     value = wrong
                     break
-=======
-        y = random.randint(-HEIGHT, 0)
-        value = random.randint(1, 9)  # Each ball has ada fixed number between 1 and 9
->>>>>>> 708417600c6e1f04006203de26188926499b7ff7:AzimStuff/minigame testing 1.py
         balls.append({"x": x, "y": y, "value": value})
 
 def reset_game():
