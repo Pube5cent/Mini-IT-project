@@ -55,19 +55,30 @@ items = {
 for item_name, item in items.items():
     item["frames"] = load_gif_frames(item["gif_path"])
 
+# Centre GIF file location
+center_gif_path = "AdamStuff/assets/floating_book.gif"
+center_gif_frames = load_gif_frames(center_gif_path, scale=(150, 150)) # Book Size
+
 # Shop Buttons
 shop_buttons = {}
 
 # Timers
 clock = pygame.time.Clock()
 
-# Button Settings
-book_button = pygame.Rect(WIDTH//2 - 50, HEIGHT//2 - 50, 100, 100)
+# Button Settings (the clickable area)
+book_button = pygame.Rect(WIDTH // 2 - 50, HEIGHT // 2 - 50, 100, 100)
 
 def draw_book_button():
-    pygame.draw.ellipse(screen, (150, 75, 0), book_button)
+    pygame.draw.ellipse(screen, (WHITE), book_button)
     click_text = font.render("Click!", True, WHITE)
     screen.blit(click_text, (book_button.x + 15, book_button.y + 35))
+
+# Drawing the book in the centre of the screen
+def draw_center_gif(current_frame_index):
+    if center_gif_frames:
+        current_frame = center_gif_frames[current_frame_index]
+        gif_pos = (WIDTH // 2 - current_frame.get_width() // 2, HEIGHT // 2 - current_frame.get_height() // 2)
+        screen.blit(current_frame, gif_pos)
 
 def draw_shop():
     y_offset = 100
@@ -146,6 +157,11 @@ def draw():
     draw_book_button()
     draw_knowledge_counter()
     draw_shop()
+
+    # Drawing the centre gif
+    if center_gif_frames:
+        current_frame_index = pygame.time.get_ticks() // 100 % len(center_gif_frames)
+        draw_center_gif(current_frame_index)
 
 # Main Game Loop
 while True:
