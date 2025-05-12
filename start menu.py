@@ -9,7 +9,7 @@ pygame.mixer.init()
 pygame.display.set_caption("Start Menu")
 
 # Wallpaper stuff
-GIF_PATH = "AdamStuff/wallpaper.gif"
+GIF_PATH = "AdamStuff/assets/wallpaper.gif"
 WIDTH, HEIGHT = 1080, 720
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 FPS = 60
@@ -36,7 +36,7 @@ TITLE_Y = 150
 SHADOW_OFFSET = 4
 
 # Music Stuff
-Music_Path = "AdamStuff/AlanWalker.mp3"
+Music_Path = "AdamStuff/assets/AlanWalker.mp3"
 
 # Drawing Button
 class Button:
