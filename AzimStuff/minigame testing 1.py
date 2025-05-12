@@ -1,14 +1,29 @@
 import pygame
 import sys
 import random
+import os
+import re
 
 # Initialize pygame
 pygame.init()
+
+# Load and play background music
+pygame.mixer.music.load("Azim stuff/bgm_music.mp3")
+pygame.mixer.music.set_volume(0.5)
+pygame.mixer.music.play(-1)
 
 # Screen settings
 WIDTH, HEIGHT = 600, 400
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Catch The Right")
+
+# Load and sort background frames
+frame_files = sorted(os.listdir('Azim stuff/gif_frames'), key=lambda f: int(re.search(r'frame_(\d+)', f).group(1)))
+background_frames = [pygame.transform.scale(pygame.image.load(os.path.join('Azim stuff/gif_frames', f)).convert(), (WIDTH, HEIGHT)) for f in frame_files]
+
+current_frame = 0
+frame_interval = 100
+last_update = pygame.time.get_ticks()
 
 # Colors
 WHITE = (255, 255, 255)
@@ -20,65 +35,101 @@ font = pygame.font.SysFont(None, 30)
 big_font = pygame.font.SysFont(None, 60)
 
 # Load basket image
+<<<<<<< HEAD:Azim stuff/minigame testing 1.py
+basket_image = pygame.image.load("Azim stuff/basket.png")
+=======
 basket_image = pygame.image.load("AzimStuff/basket.png")
+>>>>>>> 708417600c6e1f04006203de26188926499b7ff7:AzimStuff/minigame testing 1.py
 basket_width = 100
 basket_height = 60
 basket_image = pygame.transform.smoothscale(basket_image, (basket_width, basket_height))
 
 basket_x = WIDTH // 2 - basket_width // 2
-basket_y = HEIGHT - basket_height - 10
+basket_y = HEIGHT - basket_height - 60
 basket_speed = 5
 
 # Ball physics
 ball_radius = 20
-ball_speed = 3
-num_balls = 3
+ball_speed = 2
+num_balls = 2
 
-# Function to reset the game state
-def reset_game():
-    global balls, score, start_ticks, game_over, basket_x
+def generate_question():
+    a = random.randint(1, 9)
+    b = random.randint(1, 9)
+    return f"{a} + {b}", a + b
+
+def generate_balls():
+    global balls
     balls = []
-    for _ in range(num_balls):
+    used_values = {correct_answer}
+    correct_ball_placed = False
+
+    for i in range(num_balls):
         x = random.randint(ball_radius, WIDTH - ball_radius)
+<<<<<<< HEAD:Azim stuff/minigame testing 1.py
+        y = random.randint(-HEIGHT, -20)
+        if not correct_ball_placed:
+            value = correct_answer
+            correct_ball_placed = True
+        else:
+            while True:
+                wrong = random.randint(1, 18)
+                if wrong != correct_answer and wrong not in used_values:
+                    used_values.add(wrong)
+                    value = wrong
+                    break
+=======
         y = random.randint(-HEIGHT, 0)
         value = random.randint(1, 9)  # Each ball has ada fixed number between 1 and 9
+>>>>>>> 708417600c6e1f04006203de26188926499b7ff7:AzimStuff/minigame testing 1.py
         balls.append({"x": x, "y": y, "value": value})
+
+def reset_game():
+    global score, start_ticks, game_over, question, correct_answer
+    question, correct_answer = generate_question()
+    generate_balls()
     score = 0
     start_ticks = pygame.time.get_ticks()
     game_over = False
-    basket_x = WIDTH // 2 - basket_width // 2
 
-# Initialize game state
+def new_question():
+    global question, correct_answer
+    question, correct_answer = generate_question()
+    generate_balls()
+
 score = 0
 game_over = False
 reset_game()
 
-# Game FPS
 clock = pygame.time.Clock()
-FPS = 75
+FPS = 100
+time_limit = 60
 
-# Timer duration
-time_limit = 25  # 25 seconds
-
-# Game loop
 running = True
 while running:
-    screen.fill(WHITE)
+    now = pygame.time.get_ticks()
+    if now - last_update >= frame_interval:
+        current_frame = (current_frame + 1) % len(background_frames)
+        last_update = now
+    screen.blit(background_frames[current_frame], (0, 0))
 
-    # --- Events ---
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
     if not game_over:
-        # Movement
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT] and basket_x > 0:
             basket_x -= basket_speed
         if keys[pygame.K_RIGHT] and basket_x < WIDTH - basket_width:
             basket_x += basket_speed
 
-        # Ball movement
+        seconds_passed = (pygame.time.get_ticks() - start_ticks) / 1000
+        time_left = max(0, int(time_limit - seconds_passed))
+
+        if time_left == 0:
+            game_over = True
+
         for ball in balls:
             ball["y"] += ball_speed
 
@@ -86,56 +137,62 @@ while running:
                 basket_x < ball["x"] < basket_x + basket_width
                 and basket_y + basket_height < ball["y"] + ball_radius < basket_y + basket_height + 20
             ):
-                score += 1
-                ball["x"] = random.randint(ball_radius, WIDTH - ball_radius)
-                ball["y"] = random.randint(-HEIGHT, 0)
-                ball["value"] = random.randint(1, 9)
+                if ball["value"] == correct_answer:
+                    score += 1
+                    new_question()
+                    break  # Skip further checks after correct answer is caught
+                else:
+                    # Reposition wrong answer
+                    ball["x"] = random.randint(ball_radius, WIDTH - ball_radius)
+                    ball["y"] = random.randint(-HEIGHT, 0)
+                    while True:
+                        new_val = random.randint(1, 18)
+                        if new_val != correct_answer:
+                            ball["value"] = new_val
+                            break
 
             elif ball["y"] > HEIGHT:
                 ball["x"] = random.randint(ball_radius, WIDTH - ball_radius)
                 ball["y"] = random.randint(-HEIGHT, 0)
-                ball["value"] = random.randint(1, 9)
+                if ball["value"] != correct_answer:
+                    while True:
+                        new_val = random.randint(1, 18)
+                        if new_val != correct_answer:
+                            ball["value"] = new_val
+                            break
 
-            # Draw the ball
             pygame.draw.circle(screen, BALL_COLOR, (ball["x"], ball["y"]), ball_radius)
             num_text = font.render(str(ball["value"]), True, (0, 0, 0))
             text_rect = num_text.get_rect(center=(ball["x"], ball["y"]))
             screen.blit(num_text, text_rect)
 
-        # Timer 
-        seconds_passed = (pygame.time.get_ticks() - start_ticks) / 1000
-        time_left = max(0, int(time_limit - seconds_passed))
-
-        if time_left == 0:
-            game_over = True
-
-        # basket image
         screen.blit(basket_image, (basket_x, basket_y))
 
-        # Timer box
         pygame.draw.rect(screen, (0, 0, 0), (10, 10, 100, 40), 2)
         timer_text = font.render(f"Time: {time_left}", True, (0, 0, 0))
         screen.blit(timer_text, (20, 20))
 
-        # Score box
+        question_box_height = 40
+        question_box_y = basket_y + basket_height + 5
+        pygame.draw.rect(screen, (0, 0, 0), (0, question_box_y, WIDTH, question_box_height), 2)
+        question_text = font.render(f"Q: {question}", True, (0, 0, 0))
+        screen.blit(question_text, (WIDTH // 2 - question_text.get_width() // 2, question_box_y + (question_box_height - question_text.get_height()) // 2))
+
         pygame.draw.rect(screen, (0, 0, 0), (WIDTH - 110, 10, 100, 40), 2)
         score_text = font.render(f"Score: {score}", True, (0, 0, 0))
         screen.blit(score_text, (WIDTH - 105, 20))
 
     else:
-        # Game Over screen
-        over_text = big_font.render("Game Over Nigger", True, (200, 0, 0))
+        over_text = big_font.render("Game Over", True, (200, 0, 0))
         screen.blit(over_text, (WIDTH // 2 - over_text.get_width() // 2, HEIGHT // 2 - over_text.get_height()))
 
-        restart_text = font.render("Press Enter to Restart (Loser)", True, (0, 0, 0))
+        restart_text = font.render("Press Enter to Restart", True, (0, 0, 0))
         screen.blit(restart_text, (WIDTH // 2 - restart_text.get_width() // 2, HEIGHT // 2 + 10))
 
-        # Press Enter to restart
         keys = pygame.key.get_pressed()
         if keys[pygame.K_RETURN]:
             reset_game()
 
-    # Refresh
     pygame.display.flip()
     clock.tick(FPS)
 
