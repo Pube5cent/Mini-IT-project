@@ -1,5 +1,7 @@
 import pygame
 import sys
+import os
+from PIL import Image
 
 # Initialize Pygame
 pygame.init()
@@ -7,7 +9,7 @@ pygame.init()
 # Screen settings
 WIDTH, HEIGHT = 1080, 720
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Game for NIGGERS")
+pygame.display.set_caption("Knowledge Clicker")
 
 # Fonts
 font = pygame.font.SysFont("Arial", 24)
@@ -24,11 +26,34 @@ DARK_GREEN = (0, 150, 0)
 Knowledge = 0
 Knowledge_per_click = 1
 
-# Items for sale
+# Load GIF frames
+def load_gif_frames(path, scale=(64, 64)):
+    frames = []
+    if not os.path.exists(path):
+        print(f"GIF not found at {path}")
+        return frames
+    gif = Image.open(path)
+    try:
+        while True:
+            frame = gif.convert("RGBA")
+            pygame_image = pygame.image.fromstring(frame.tobytes(), frame.size, frame.mode)
+            if scale:
+                pygame_image = pygame.transform.scale(pygame_image, scale)
+            frames.append(pygame_image)
+            gif.seek(gif.tell() + 1)
+    except EOFError:
+        pass
+    return frames
+
+# Items for sale with unique GIFs for each
 items = {
-    "Cursor": {"cost": 15, "cps": 0.2, "owned": 0, "progress": 0.0, "speed": 2.0},   # speed = seconds for every cycle (idk how to make it change)
-    "Grandma": {"cost": 100, "cps": 1, "owned": 0, "progress": 0.0, "speed": 5.0},
+    "Cursor": {"cost": 15, "cps": 0.2, "owned": 0, "progress": 0.0, "speed": 2.0, "gif_path": "AdamStuff/assets/gif_0.gif"},
+    "Grandma": {"cost": 100, "cps": 1, "owned": 0, "progress": 0.0, "speed": 5.0, "gif_path": "AdamStuff/assets/gif_1.gif"},
 }
+
+# Load GIF frames for each item
+for item_name, item in items.items():
+    item["frames"] = load_gif_frames(item["gif_path"])
 
 # Shop Buttons
 shop_buttons = {}
@@ -51,7 +76,7 @@ def draw_shop():
         button_rect = pygame.Rect(20, y_offset, 360, 80)
         shop_buttons[item_name] = button_rect
         
-        # Highlight if hover
+        # Highlight box when hover
         mouse_pos = pygame.mouse.get_pos()
         if button_rect.collidepoint(mouse_pos):
             pygame.draw.rect(screen, LIGHT_GRAY, button_rect)
@@ -79,6 +104,14 @@ def draw_shop():
             bar_fill = pygame.Rect(button_rect.x + 10, button_rect.y + 60, fill_width, 10)
             pygame.draw.rect(screen, GREEN, bar_fill)
 
+            # Draw looping animation synced with progress
+            if 'frames' in item and item['frames']:
+                frame_count = len(item['frames'])
+                current_frame_index = int(item['progress'] * frame_count) % frame_count
+                current_frame = item['frames'][current_frame_index]
+                gif_pos = (button_rect.right + 10, button_rect.y + 10)
+                screen.blit(current_frame, gif_pos)
+
         y_offset += 100
 
 def handle_shop_click(pos):
@@ -100,7 +133,7 @@ def update_items(dt):
         if item["owned"] > 0:
             item["progress"] += dt / item["speed"]
             if item["progress"] >= 1.0:
-                # Add "cookies" based on how many you own
+                # Add knowledge based on how many you own
                 Knowledge += item["cps"] * item["owned"]
                 item["progress"] = 0.0
 
@@ -131,4 +164,3 @@ while True:
     update_items(dt)
     draw()
     pygame.display.update()
- #empty message
