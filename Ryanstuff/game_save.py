@@ -18,6 +18,6 @@ def load_game():
         return data["Knowledge"], data["player_state"], data["items"]
     except (FileNotFoundError, json.JSONDecodeError):
         return 0, {"score": 0, "rebirths": 0, "multiplier": 1000.0}, {
-            "Cursor": {"cost": 15, "cps": 0.2, "owned": 0, "progress": 0.0, "speed": 2.0},
-            "Grandma": {"cost": 100, "cps": 1, "owned": 0, "progress": 0.0, "speed": 5.0},
+            "Cursor": {"cost": 15, "cps": 1, "owned": 0, "progress": 0.0, "speed": 2.0},
+            "Grandma": {"cost": 100, "cps": 4, "owned": 0, "progress": 0.0, "speed": 5.0},
         }
