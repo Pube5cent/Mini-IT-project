@@ -202,8 +202,7 @@ def mini_game_1():
     subprocess.run(["python", "Azimstuff/minigame_testing_1.py"])
 
 def mini_game_2():
-    # subprocess.run(["python", "Yeap Stuff/main.py"])
-    print("Yeaps game is running")
+    subprocess.run(["python", "Yeap Stuff/main.py"])
 
 # Game Loop
 while True:
