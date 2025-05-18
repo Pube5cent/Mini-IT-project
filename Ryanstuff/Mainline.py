@@ -1,19 +1,17 @@
 import pygame
 import sys
-from Rebirth import perform_rebirth
 from PIL import Image, ImageSequence
-import game_save  # <-- save/load module
+from Rebirth import perform_rebirth
+import game_save #sva load module
 import music_manager
 import os
 
 #music
-pygame.init()
+pygame.init() # Initialize Pygame
 music_manager.init_music()
-music_manager.pause_music("Ryan stuff/Game.mp3")
+music_manager.pause_music("Ryanstuff/Game.mp3")
 
 
-# Initialize Pygame
-pygame.init()
 
 # Screen settings
 WIDTH, HEIGHT = 1290, 800
@@ -57,7 +55,7 @@ class GifAnimation():
         screen.blit(self.frames[self.frame_index], position)
 
 # Load animated gif
-gif_anim = GifAnimation("Ryan stuff/main_wallpaper.gif")
+gif_anim = GifAnimation("Ryanstuff/main_wallpaper.gif")
 
 # Button Settings
 book_button = pygame.Rect(WIDTH // 2 - 50, HEIGHT // 2 - 50, 100, 100)
