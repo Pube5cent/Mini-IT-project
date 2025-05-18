@@ -1,8 +1,8 @@
 import pygame
 import sys
 import os
-import random
 import time
+import random
 from PIL import Image
 
 # Initialize Pygame
@@ -10,70 +10,10 @@ pygame.init()
 
 # Screen settings
 WIDTH, HEIGHT = 1080, 720
+FPS = 60
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Knowledge Clicker")
-
-# Fonts
-font = pygame.font.SysFont("Arial", 24)
-
-# Game Variables
-Knowledge = 0
-Knowledge_per_click = 1
-
-# Colors
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-GRAY = (200, 200, 200)
-LIGHT_GRAY = (230, 230, 230)
-GREEN = (0, 200, 0)
-DARK_GREEN = (0, 150, 0)
-RED = (255, 100, 100)
-
-# Pop up Menu Timing
-bonus_interval = 10  # {its in seconds}
-last_bonus_time = time.time()
-
-def show_bonus_popup():
-    popup_rect = pygame.Rect(WIDTH // 4, HEIGHT // 3, WIDTH // 2, HEIGHT // 3)
-    yes_button = pygame.Rect(popup_rect.left + 50, popup_rect.bottom - 70, 100, 50)
-    no_button = pygame.Rect(popup_rect.right - 150, popup_rect.bottom - 70, 100, 50)
-
-    while True:
-        # Continue drawing the game underneath
-        draw()
-        pygame.display.update()
-
-        # Create semi-transparent overlay
-        overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
-        overlay.fill((0, 0, 0, 128))  # RGBA - black with 50% opacity
-        screen.blit(overlay, (0, 0))
-
-        # Draw popup
-        pygame.draw.rect(screen, (255, 255, 255), popup_rect)
-        pygame.draw.rect(screen, BLACK, popup_rect, 3)
-
-        question = font.render("Play a mini-game for a bonus?", True, BLACK)
-        screen.blit(question, (popup_rect.centerx - question.get_width() // 2, popup_rect.top + 40))
-
-        # Draw buttons
-        pygame.draw.rect(screen, GREEN, yes_button)
-        pygame.draw.rect(screen, RED, no_button)
-        screen.blit(font.render("Yes", True, BLACK), (yes_button.centerx - 20, yes_button.centery - 10))
-        screen.blit(font.render("No", True, BLACK), (no_button.centerx - 15, no_button.centery - 10))
-
-        pygame.display.update()
-
-        # Handle events
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit(); sys.exit()
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                if yes_button.collidepoint(event.pos):
-                    return "yes"
-                elif no_button.collidepoint(event.pos):
-                    return "no"
-
-
+clock = pygame.time.Clock()
 
 # Load GIF frames
 def load_gif_frames(path, scale=(64, 64)):
@@ -94,13 +34,36 @@ def load_gif_frames(path, scale=(64, 64)):
         pass
     return frames
 
+# Background GIF
+background_gif_path = "RyanStuff/main_wallpaper.gif"
+background_frames = load_gif_frames(background_gif_path, scale=(WIDTH, HEIGHT))
+
+# Fonts
+font = pygame.font.SysFont("Arial", 24)
+
+# Game Variables
+Knowledge = 0
+Knowledge_per_click = 1
+
+# Colors
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+GRAY = (200, 200, 200)
+LIGHT_GRAY = (230, 230, 230)
+GREEN = (0, 200, 0)
+DARK_GREEN = (0, 150, 0)
+RED = (255, 100, 100)
+
+# Pop up Menu Timing
+bonus_interval = 10  #[10 minutes in seconds]
+last_bonus_time = time.time()
+
 # Items
 items = {
     "Cursor": {"cost": 15, "cps": 0.2, "owned": 0, "elapsed": 0.0, "gif_path": "AdamStuff/assets/gif_0.gif"},
     "Grandma": {"cost": 100, "cps": 1, "owned": 0, "elapsed": 0.0, "gif_path": "AdamStuff/assets/gif_1.gif"},
 }
 
-# Load GIFs
 for item in items.values():
     item["frames"] = load_gif_frames(item["gif_path"])
 
@@ -110,23 +73,15 @@ center_gif_frames = load_gif_frames(center_gif_path, scale=(150, 150))
 
 # UI Elements
 shop_buttons = {}
-clock = pygame.time.Clock()
 book_button = pygame.Rect(WIDTH // 2 - 50, HEIGHT // 2 - 50, 100, 100)
 
 # Draw Click Button
-def draw_book_button():
-    pygame.draw.ellipse(screen, WHITE, book_button)
-    click_text = font.render("Click!", True, BLACK)
-    screen.blit(click_text, (book_button.x + 15, book_button.y + 35))
-
-# Center gif
 def draw_center_gif(current_frame_index):
     if center_gif_frames:
         current_frame = center_gif_frames[current_frame_index]
         gif_pos = (WIDTH // 2 - current_frame.get_width() // 2, HEIGHT // 2 - current_frame.get_height() // 2)
         screen.blit(current_frame, gif_pos)
 
-# Shop
 def draw_shop():
     y_offset = 100
     shop_buttons.clear()
@@ -134,12 +89,10 @@ def draw_shop():
         button_rect = pygame.Rect(20, y_offset, 360, 80)
         shop_buttons[item_name] = button_rect
 
-        # Hover highlight
         mouse_pos = pygame.mouse.get_pos()
         pygame.draw.rect(screen, LIGHT_GRAY if button_rect.collidepoint(mouse_pos) else GRAY, button_rect)
         pygame.draw.rect(screen, BLACK, button_rect, 3)
 
-        # Text
         item_text = font.render(f"{item_name}", True, BLACK)
         cost_text = font.render(f"Cost: {int(item['cost'])}", True, BLACK)
         owned_text = font.render(f"Owned: {item['owned']}", True, BLACK)
@@ -147,14 +100,12 @@ def draw_shop():
         screen.blit(cost_text, (button_rect.x + 10, button_rect.y + 30))
         screen.blit(owned_text, (button_rect.x + 200, button_rect.y + 30))
 
-        # Progress bar (synced to knowledge gain)
         if item["owned"] > 0 and item["cps"] > 0:
             interval = 1.0 / item["cps"]
             progress = min(item["elapsed"] / interval, 1.0)
 
             bar_back = pygame.Rect(button_rect.x + 10, button_rect.y + 60, 340, 10)
             pygame.draw.rect(screen, DARK_GREEN, bar_back)
-
             fill_width = int(340 * progress)
             bar_fill = pygame.Rect(button_rect.x + 10, button_rect.y + 60, fill_width, 10)
             pygame.draw.rect(screen, GREEN, bar_fill)
@@ -192,27 +143,75 @@ def update_items(dt):
                 item["elapsed"] -= interval
 
 def draw_knowledge_counter():
-    text = font.render(f"Knowledge: {int(Knowledge)}", True, BLACK)
+    text = font.render(f"Knowledge: {int(Knowledge)}", True, WHITE)
     screen.blit(text, (20, 20))
 
 def draw():
-    screen.fill(WHITE)
-    draw_book_button()
+    if background_frames:
+        bg_frame_index = (pygame.time.get_ticks() // 100) % len(background_frames)
+        screen.blit(background_frames[bg_frame_index], (0, 0))
+    else:
+        screen.fill(WHITE)
+
     draw_knowledge_counter()
     draw_shop()
+
     if center_gif_frames:
         center_frame_index = pygame.time.get_ticks() // 100 % len(center_gif_frames)
         draw_center_gif(center_frame_index)
 
+def show_bonus_popup():
+    popup_rect = pygame.Rect(WIDTH // 4, HEIGHT // 3, WIDTH // 2, HEIGHT // 3)
+    yes_button = pygame.Rect(popup_rect.left + 50, popup_rect.bottom - 70, 100, 50)
+    no_button = pygame.Rect(popup_rect.right - 150, popup_rect.bottom - 70, 100, 50)
+
+    while True:
+        dt = clock.tick(FPS) / 1000
+        update_items(dt)
+        draw()
+
+        overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+        overlay.fill((0, 0, 0, 128))
+        screen.blit(overlay, (0, 0))
+
+        pygame.draw.rect(screen, (255, 255, 255), popup_rect)
+        pygame.draw.rect(screen, BLACK, popup_rect, 3)
+
+        question = font.render("Play a mini-game for a bonus?", True, BLACK)
+        screen.blit(question, (popup_rect.centerx - question.get_width() // 2, popup_rect.top + 40))
+
+        pygame.draw.rect(screen, GREEN, yes_button)
+        pygame.draw.rect(screen, RED, no_button)
+
+        screen.blit(font.render("Yes", True, BLACK), (yes_button.centerx - 20, yes_button.centery - 10))
+        screen.blit(font.render("No", True, BLACK), (no_button.centerx - 20, no_button.centery - 10))
+
+        pygame.display.update()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit(); sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if yes_button.collidepoint(event.pos):
+                    return "yes"
+                elif no_button.collidepoint(event.pos):
+                    return "no"
+
 def mini_game_1():
-    print("dees")
+    print("Mini Game 1 Triggered!")
 
 def mini_game_2():
-    print("nuts")
+    print("Mini Game 2 Triggered!")
 
 # Game Loop
 while True:
-    dt = clock.tick(60) / 1000
+    dt = clock.tick(FPS) / 1000
+
+    # Check for popup interval
+    if time.time() - last_bonus_time > bonus_interval:
+        if show_bonus_popup() == "yes":
+            random.choice([mini_game_1, mini_game_2])()
+        last_bonus_time = time.time()
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -223,11 +222,6 @@ while True:
                 Knowledge += Knowledge_per_click
             else:
                 handle_shop_click(event.pos)
-    if time.time() - last_bonus_time >= bonus_interval:
-        response = show_bonus_popup()
-        last_bonus_time = time.time()
-        if response == "yes":
-            random.choice([mini_game_1, mini_game_2])()
 
     update_items(dt)
     draw()
