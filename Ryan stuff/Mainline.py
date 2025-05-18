@@ -1,8 +1,16 @@
 import pygame
 import sys
-# from game_background import GifAnimation
 from Rebirth import perform_rebirth
 from PIL import Image, ImageSequence
+import game_save  # <-- save/load module
+import music_manager
+import os
+
+#music
+pygame.init()
+music_manager.init_music()
+music_manager.pause_music("Ryan stuff/Game.mp3")
+
 
 # Initialize Pygame
 pygame.init()
@@ -23,22 +31,9 @@ LIGHT_GRAY = (230, 230, 230)
 GREEN = (0, 200, 0)
 DARK_GREEN = (0, 150, 0)
 
-# Global Variables
-Knowledge = 0
+# Load saved game state or default values
+Knowledge, player_state, items = game_save.load_game()
 Knowledge_per_click = 1
-
-# Game state
-player_state = {
-    "score": 0,
-    "rebirths": 0,
-    "multiplier": 1000.0
-}
-
-# Items for sale
-items = {
-    "Cursor": {"cost": 15, "cps": 0.2, "owned": 0, "progress": 0.0, "speed": 2.0},
-    "Grandma": {"cost": 100, "cps": 1, "owned": 0, "progress": 0.0, "speed": 5.0},
-}
 
 # Shop Buttons
 shop_buttons = {}
@@ -46,7 +41,7 @@ shop_buttons = {}
 # Timers
 clock = pygame.time.Clock()
 
-#gif background
+# gif background
 class GifAnimation():
     def __init__(self, gif_path):
         image = Image.open(gif_path)
@@ -131,29 +126,27 @@ def draw_knowledge_counter():
     screen.blit(cookie_text, (20, 20))
 
 def draw():
-    # Draw animated background 
     gif_anim.update()
     frame = gif_anim.frames[gif_anim.frame_index]
     scaled_frame = pygame.transform.scale(frame, (WIDTH, HEIGHT))
     screen.blit(scaled_frame, (0, 0))
 
-    # draw everything else
     draw_book_button()
     draw_knowledge_counter()
     draw_shop()
 
-    # Score display 
     display_score = font.render(
-        f'Knowledge: {round(player_state["score"])} | Rebirths: {player_state["rebirths"]}', 
+        f'Knowledge: {round(player_state["score"])} | Rebirths: {player_state["rebirths"]}',
         True, WHITE, BLACK)
     screen.blit(display_score, (10, 5))
 
-# Main Game Loop
+# === Main Game Loop ===
 while True:
-    dt = clock.tick(60) / 1000  # Delta time in seconds
+    dt = clock.tick(60) / 1000
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
+            game_save.save_game(Knowledge, player_state, items)
             pygame.quit()
             sys.exit()
 
@@ -171,6 +164,11 @@ while True:
                     Knowledge = 0
                 else:
                     print("Not enough knowledge to rebirth.")
+
+            # === SAVE ON 'S' KEY ===
+            if event.key == pygame.K_s:
+                game_save.save_game(Knowledge, player_state, items)
+                print("Game saved manually.")
 
     update_items(dt)
     draw()
