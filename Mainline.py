@@ -3,6 +3,7 @@ import sys
 import os
 import time
 import random
+import subprocess
 from PIL import Image
 
 # Initialize Pygame
@@ -198,10 +199,11 @@ def show_bonus_popup():
                     return "no"
 
 def mini_game_1():
-    print("Mini Game 1 Triggered!")
+    subprocess.run(["python", "Azimstuff/minigame_testing_1.py"])
 
 def mini_game_2():
-    print("Mini Game 2 Triggered!")
+    # subprocess.run(["python", "Yeap Stuff/main.py"])
+    print("Yeaps game is running")
 
 # Game Loop
 while True:

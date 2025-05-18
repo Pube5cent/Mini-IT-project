@@ -102,7 +102,7 @@ while running:
     if now - last_update >= frame_interval:
         current_frame = (current_frame + 1) % len(background_frames)
         last_update = now
-    screen.blit(background_frames[current_frame], (0, 0))
+        screen.blit(background_frames[current_frame], (0, 0))
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
