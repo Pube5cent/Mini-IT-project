@@ -1,6 +1,8 @@
 import pygame
 import sys
 import os
+import random
+import time
 from PIL import Image
 
 # Initialize Pygame
@@ -14,6 +16,10 @@ pygame.display.set_caption("Knowledge Clicker")
 # Fonts
 font = pygame.font.SysFont("Arial", 24)
 
+# Game Variables
+Knowledge = 0
+Knowledge_per_click = 1
+
 # Colors
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -21,10 +27,53 @@ GRAY = (200, 200, 200)
 LIGHT_GRAY = (230, 230, 230)
 GREEN = (0, 200, 0)
 DARK_GREEN = (0, 150, 0)
+RED = (255, 100, 100)
 
-# Game Variables
-Knowledge = 0
-Knowledge_per_click = 1
+# Pop up Menu Timing
+bonus_interval = 10  # {its in seconds}
+last_bonus_time = time.time()
+
+def show_bonus_popup():
+    popup_rect = pygame.Rect(WIDTH // 4, HEIGHT // 3, WIDTH // 2, HEIGHT // 3)
+    yes_button = pygame.Rect(popup_rect.left + 50, popup_rect.bottom - 70, 100, 50)
+    no_button = pygame.Rect(popup_rect.right - 150, popup_rect.bottom - 70, 100, 50)
+
+    while True:
+        # Continue drawing the game underneath
+        draw()
+        pygame.display.update()
+
+        # Create semi-transparent overlay
+        overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+        overlay.fill((0, 0, 0, 128))  # RGBA - black with 50% opacity
+        screen.blit(overlay, (0, 0))
+
+        # Draw popup
+        pygame.draw.rect(screen, (255, 255, 255), popup_rect)
+        pygame.draw.rect(screen, BLACK, popup_rect, 3)
+
+        question = font.render("Play a mini-game for a bonus?", True, BLACK)
+        screen.blit(question, (popup_rect.centerx - question.get_width() // 2, popup_rect.top + 40))
+
+        # Draw buttons
+        pygame.draw.rect(screen, GREEN, yes_button)
+        pygame.draw.rect(screen, RED, no_button)
+        screen.blit(font.render("Yes", True, BLACK), (yes_button.centerx - 20, yes_button.centery - 10))
+        screen.blit(font.render("No", True, BLACK), (no_button.centerx - 15, no_button.centery - 10))
+
+        pygame.display.update()
+
+        # Handle events
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit(); sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if yes_button.collidepoint(event.pos):
+                    return "yes"
+                elif no_button.collidepoint(event.pos):
+                    return "no"
+
+
 
 # Load GIF frames
 def load_gif_frames(path, scale=(64, 64)):
@@ -155,6 +204,12 @@ def draw():
         center_frame_index = pygame.time.get_ticks() // 100 % len(center_gif_frames)
         draw_center_gif(center_frame_index)
 
+def mini_game_1():
+    print("dees")
+
+def mini_game_2():
+    print("nuts")
+
 # Game Loop
 while True:
     dt = clock.tick(60) / 1000
@@ -168,6 +223,11 @@ while True:
                 Knowledge += Knowledge_per_click
             else:
                 handle_shop_click(event.pos)
+    if time.time() - last_bonus_time >= bonus_interval:
+        response = show_bonus_popup()
+        last_bonus_time = time.time()
+        if response == "yes":
+            random.choice([mini_game_1, mini_game_2])()
 
     update_items(dt)
     draw()
