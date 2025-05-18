@@ -9,7 +9,7 @@ import os
 #music
 pygame.init() # Initialize Pygame
 music_manager.init_music()
-music_manager.pause_music("Ryanstuff/Game.mp3")
+music_manager.play_music("Ryanstuff/Game.mp3")
 
 
 
