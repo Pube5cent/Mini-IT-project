@@ -10,6 +10,7 @@ import os, sys
 from variables import update_chart_flag
 ########################################## Import your chart builder python file here as follows
 from chart_test import Chart_Test
+
 #from chart_AnotherWay import *
 #from chart_Crystal import *
 #from chart_H2O import *
