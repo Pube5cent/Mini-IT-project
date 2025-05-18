@@ -6,17 +6,17 @@ import random
 import subprocess
 from PIL import Image
 
-# Initialize Pygame
+#Initialize Pygame
 pygame.init()
 
-# Screen settings
+#Screen settings
 WIDTH, HEIGHT = 1080, 720
 FPS = 60
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Knowledge Clicker")
 clock = pygame.time.Clock()
 
-# Load GIF frames
+#Load GIF frames
 def load_gif_frames(path, scale=(64, 64)):
     frames = []
     if not os.path.exists(path):
@@ -35,18 +35,21 @@ def load_gif_frames(path, scale=(64, 64)):
         pass
     return frames
 
-# Background GIF
+#Background GIF
 background_gif_path = "RyanStuff/main_wallpaper.gif"
 background_frames = load_gif_frames(background_gif_path, scale=(WIDTH, HEIGHT))
 
-# Fonts
+#Fonts
 font = pygame.font.SysFont("Arial", 24)
 
-# Game Variables
+#Pause menu state
+paused = False
+
+#Game Variables
 Knowledge = 0
 Knowledge_per_click = 1
 
-# Colors
+#Colors
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 GRAY = (200, 200, 200)
@@ -55,28 +58,55 @@ GREEN = (0, 200, 0)
 DARK_GREEN = (0, 150, 0)
 RED = (255, 100, 100)
 
-# Pop up Menu Timing
-bonus_interval = 10  #[10 minutes in seconds]
+#Pop up Menu Timing
+bonus_interval = 10  #10 minutes in seconds
 last_bonus_time = time.time()
 
-# Items
+#Items
 items = {
-    "Cursor": {"cost": 15, "cps": 0.2, "owned": 0, "elapsed": 0.0, "gif_path": "AdamStuff/assets/gif_0.gif"},
-    "Grandma": {"cost": 100, "cps": 1, "owned": 0, "elapsed": 0.0, "gif_path": "AdamStuff/assets/gif_1.gif"},
+    "Manual research": {"cost": 15, "cps": 0.2, "owned": 0, "elapsed": 0.0, "gif_path": "AdamStuff/assets/gif_0.gif"},
+    "Turbo Learn": {"cost": 100, "cps": 1, "owned": 0, "elapsed": 0.0, "gif_path": "AdamStuff/assets/gif_1.gif"},
 }
 
 for item in items.values():
     item["frames"] = load_gif_frames(item["gif_path"])
 
-# Centre gif
+#Centre gif
 center_gif_path = "AdamStuff/assets/floating_book.gif"
 center_gif_frames = load_gif_frames(center_gif_path, scale=(150, 150))
 
-# UI Elements
+#UI Elements
 shop_buttons = {}
 book_button = pygame.Rect(WIDTH // 2 - 50, HEIGHT // 2 - 50, 100, 100)
 
-# Draw Click Button
+#Drawing the Pause Menu
+def draw_pause_menu():
+    overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+    overlay.fill((0, 0, 0, 180))  # semi-transparent background
+    screen.blit(overlay, (0, 0))
+
+    # Pause text
+    text = font.render("Game Paused", True, WHITE)
+    screen.blit(text, (WIDTH // 2 - text.get_width() // 2, 150))
+
+    # Buttons
+    resume_button = pygame.Rect(WIDTH // 2 - 100, 250, 200, 60)
+    quit_button = pygame.Rect(WIDTH // 2 - 100, 330, 200, 60)
+
+    pygame.draw.rect(screen, GREEN, resume_button)
+    pygame.draw.rect(screen, RED, quit_button)
+
+    resume_text = font.render("Resume", True, BLACK)
+    quit_text = font.render("Quit", True, BLACK)
+
+    screen.blit(resume_text, (resume_button.centerx - resume_text.get_width() // 2,
+                              resume_button.centery - resume_text.get_height() // 2))
+    screen.blit(quit_text, (quit_button.centerx - quit_text.get_width() // 2,
+                            quit_button.centery - quit_text.get_height() // 2))
+
+    return resume_button, quit_button
+
+#Draw Click Button
 def draw_center_gif(current_frame_index):
     if center_gif_frames:
         current_frame = center_gif_frames[current_frame_index]
@@ -204,26 +234,43 @@ def mini_game_1():
 def mini_game_2():
     subprocess.run(["python", "Yeap Stuff/main.py"])
 
-# Game Loop
+#Game Loop
 while True:
     dt = clock.tick(FPS) / 1000
-
-    # Check for popup interval
-    if time.time() - last_bonus_time > bonus_interval:
-        if show_bonus_popup() == "yes":
-            random.choice([mini_game_1, mini_game_2])()
-        last_bonus_time = time.time()
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-        elif event.type == pygame.MOUSEBUTTONDOWN:
+
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                paused = not paused
+
+        elif event.type == pygame.MOUSEBUTTONDOWN and not paused:
             if book_button.collidepoint(event.pos):
                 Knowledge += Knowledge_per_click
             else:
                 handle_shop_click(event.pos)
 
-    update_items(dt)
+    # Update only if not paused
+    if not paused:
+        # Check for popup interval
+        if time.time() - last_bonus_time > bonus_interval:
+            if show_bonus_popup() == "yes":
+                random.choice([mini_game_1, mini_game_2])()
+            last_bonus_time = time.time()
+
+        update_items(dt)
     draw()
+
+    # Draw pause overlay
+    if paused:
+        overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+        overlay.fill((0, 0, 0, 180))  # semi-transparent black
+        screen.blit(overlay, (0, 0))
+
+        pause_text = font.render("PAUSED - Press ESC to Resume", True, WHITE)
+        screen.blit(pause_text, (WIDTH // 2 - pause_text.get_width() // 2, HEIGHT // 2 - 20))
+
     pygame.display.update()
