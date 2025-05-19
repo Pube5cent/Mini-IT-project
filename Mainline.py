@@ -5,6 +5,8 @@ import time
 import random
 import subprocess
 from PIL import Image
+from Ryanstuff import music_manager
+from Ryanstuff import game_save
 
 #Initialize Pygame
 pygame.init()
@@ -39,6 +41,14 @@ def load_gif_frames(path, scale=(64, 64)):
 background_gif_path = "RyanStuff/main_wallpaper.gif"
 background_frames = load_gif_frames(background_gif_path, scale=(WIDTH, HEIGHT))
 
+#Music Path [Rhayyan]
+music_manager.init_music()
+music_manager.play_music("Ryanstuff/Game.mp3")
+
+#Load saved game state or default values [Rhayyan]
+Knowledge, player_state, items = game_save.load_game()
+Knowledge_per_click = 1
+
 #Fonts
 font = pygame.font.SysFont("Arial", 24)
 
@@ -59,7 +69,7 @@ DARK_GREEN = (0, 150, 0)
 RED = (255, 100, 100)
 
 #Pop up Menu Timing
-bonus_interval = 10  #10 minutes in seconds
+bonus_interval = 10  #seconds
 last_bonus_time = time.time()
 
 #Items
@@ -228,8 +238,9 @@ def show_bonus_popup():
                 elif no_button.collidepoint(event.pos):
                     return "no"
 
+#Mini Game Path
 def mini_game_1():
-    subprocess.run(["python", "Azimstuff/minigame_testing_1.py"])
+    subprocess.run(["python", "Yeap Stuff/main.py"])
 
 def mini_game_2():
     subprocess.run(["python", "Yeap Stuff/main.py"])
@@ -253,7 +264,7 @@ while True:
             else:
                 handle_shop_click(event.pos)
 
-    # Update only if not paused
+    #Update only if not paused
     if not paused:
         # Check for popup interval
         if time.time() - last_bonus_time > bonus_interval:
@@ -264,7 +275,7 @@ while True:
         update_items(dt)
     draw()
 
-    # Draw pause overlay
+    #Draw pause overlay
     if paused:
         overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
         overlay.fill((0, 0, 0, 180))  # semi-transparent black
