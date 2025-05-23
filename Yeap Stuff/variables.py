@@ -88,7 +88,7 @@ line_color = (240,240,235)
 
 node_color = [(180,180,180),(80, 80, 70)]
 
-hold_color = [(190,190,190),(70,70,60)] # listify
+hold_color = [(190,190,190),(80,80,70)] # listify
 holding_middle_color = (160,160,160)
 not_holding_middle_color = (120,120,120)
 
