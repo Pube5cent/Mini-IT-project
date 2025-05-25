@@ -7,10 +7,17 @@ import subprocess
 from PIL import Image
 from Rebirth import RebirthSystem
 from game_save import save_game, load_game
+from music_manager import init_music, play_music, pause_music, unpause_music, stop_music
 
 
-# Initialize Pygame
+
+# Initialize Pygame and music
 pygame.init()
+init_music()
+
+# Play background music
+play_music("Ryanstuff/Game.mp3") 
+
 
 # Screen settings
 WIDTH, HEIGHT = 1080, 720
