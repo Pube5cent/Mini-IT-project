@@ -5,21 +5,19 @@ import time
 import random
 import subprocess
 from PIL import Image
-from Rebirth import try_rebirth, get_multiplier, get_rebirth_info
-from game_save import save_game, load_game 
-import json
+from Rebirth import RebirthSystem# Import rebirth system
 
-#Initialize Pygame
+# Initialize Pygame
 pygame.init()
 
-#Screen settings
+# Screen settings
 WIDTH, HEIGHT = 1080, 720
 FPS = 60
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Knowledge Clicker")
 clock = pygame.time.Clock()
 
-#Load GIF frames
+# Load GIF frames
 def load_gif_frames(path, scale=(64, 64)):
     frames = []
     if not os.path.exists(path):
@@ -38,18 +36,26 @@ def load_gif_frames(path, scale=(64, 64)):
         pass
     return frames
 
-#Background GIF
+# Background GIF
 background_gif_path = "RyanStuff/main_wallpaper.gif"
 background_frames = load_gif_frames(background_gif_path, scale=(WIDTH, HEIGHT))
 
-#Fonts
+# Fonts
 font = pygame.font.SysFont("Arial", 24)
 
-#Pause menu state
+# Pause menu state
 paused = False
 
+# Game Variables
+Knowledge = 0
+Knowledge_per_click = 1
 
-#Colors
+# Initialize rebirth system
+rebirth = RebirthSystem(initial_cost=2)
+Insight = 0
+Rebirth_multiplier = 1
+
+# Colors
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 GRAY = (200, 200, 200)
@@ -57,40 +63,41 @@ LIGHT_GRAY = (230, 230, 230)
 GREEN = (0, 200, 0)
 DARK_GREEN = (0, 150, 0)
 RED = (255, 100, 100)
+BLUE = (100, 100, 255)
 
-#Pop up Menu Timing
-bonus_interval = 10  #10 minutes in seconds
+# Pop up Menu Timing
+bonus_interval = 10  # 10 seconds for testing; adjust as needed
 last_bonus_time = time.time()
 
-# === [SAVE/LOAD] START ===
-Knowledge, player_state, items = load_game()
-Knowledge_per_click = 1  # Static unless upgraded
+# Items
+items = {
+    "Manual research": {"cost": 15, "cps": 0.5, "owned": 0, "elapsed": 0.0, "gif_path": "AdamStuff/assets/gif_0.gif"},
+    "Turbo Learn": {"cost": 100, "cps": 2, "owned": 0, "elapsed": 0.0, "gif_path": "AdamStuff/assets/gif_1.gif"},
+}
 
-# Reload GIFs after loading
 for item in items.values():
     item["frames"] = load_gif_frames(item["gif_path"])
 
-rebirth_count = player_state.get("rebirths", 0)
-rebirth_multiplier = player_state.get("multiplier", 1.0)
-# === [SAVE/LOAD] END ===
-
-
-#Centre gif
+# Centre gif
 center_gif_path = "AdamStuff/assets/floating_book.gif"
 center_gif_frames = load_gif_frames(center_gif_path, scale=(150, 150))
 
-#UI Elements
+# UI Elements
 shop_buttons = {}
 book_button = pygame.Rect(WIDTH // 2 - 50, HEIGHT // 2 - 50, 100, 100)
+rebirth_button = pygame.Rect(WIDTH - 150, 20, 130, 50)
 
+# Drawing the Pause Menu
 def draw_pause_menu():
     overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
-    overlay.fill((0, 0, 0, 180))
+    overlay.fill((0, 0, 0, 180))  # semi-transparent background
     screen.blit(overlay, (0, 0))
 
+    # Pause text
     text = font.render("Game Paused", True, WHITE)
     screen.blit(text, (WIDTH // 2 - text.get_width() // 2, 150))
 
+    # Buttons
     resume_button = pygame.Rect(WIDTH // 2 - 100, 250, 200, 60)
     quit_button = pygame.Rect(WIDTH // 2 - 100, 330, 200, 60)
 
@@ -107,6 +114,7 @@ def draw_pause_menu():
 
     return resume_button, quit_button
 
+# Draw Click Button
 def draw_center_gif(current_frame_index):
     if center_gif_frames:
         current_frame = center_gif_frames[current_frame_index]
@@ -165,22 +173,17 @@ def buy_item(item_name):
 
 def update_items(dt):
     global Knowledge
-    multiplier = get_multiplier()
     for item in items.values():
         if item["owned"] > 0 and item["cps"] > 0:
             interval = 1.0 / item["cps"]
             item["elapsed"] += dt
             while item["elapsed"] >= interval:
-                Knowledge += item["cps"] * item["owned"] * multiplier
+                Knowledge += item["cps"] * item["owned"] * Rebirth_multiplier
                 item["elapsed"] -= interval
 
 def draw_knowledge_counter():
     text = font.render(f"Knowledge: {int(Knowledge)}", True, WHITE)
     screen.blit(text, (20, 20))
-
-    rebirth_count, multiplier, rebirth_cost = get_rebirth_info()
-    rebirth_text = font.render(f"Rebirths: {rebirth_count}  Multiplier: x{multiplier:.1f}", True, WHITE)
-    screen.blit(rebirth_text, (20, 50))
 
 def draw():
     if background_frames:
@@ -195,6 +198,17 @@ def draw():
     if center_gif_frames:
         center_frame_index = pygame.time.get_ticks() // 100 % len(center_gif_frames)
         draw_center_gif(center_frame_index)
+
+    # Draw rebirth button and info
+    pygame.draw.rect(screen, BLUE, rebirth_button)
+    rebirth_text = font.render("Rebirth", True, WHITE)
+    screen.blit(rebirth_text, (rebirth_button.centerx - rebirth_text.get_width() // 2,
+                               rebirth_button.centery - rebirth_text.get_height() // 2))
+
+    insight_text = font.render(f"Insight: {Insight}", True, WHITE)
+    multiplier_text = font.render(f"Multiplier: x{Rebirth_multiplier}", True, WHITE)
+    screen.blit(insight_text, (WIDTH - 150, 80))
+    screen.blit(multiplier_text, (WIDTH - 150, 110))
 
 def show_bonus_popup():
     popup_rect = pygame.Rect(WIDTH // 4, HEIGHT // 3, WIDTH // 2, HEIGHT // 3)
@@ -226,7 +240,8 @@ def show_bonus_popup():
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit(); sys.exit()
+                pygame.quit()
+                sys.exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if yes_button.collidepoint(event.pos):
                     return "yes"
@@ -239,45 +254,47 @@ def mini_game_1():
 def mini_game_2():
     subprocess.run(["python", "Yeap Stuff/main.py"])
 
-#Game Loop
+# Game Loop
 while True:
     dt = clock.tick(FPS) / 1000
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-    # === [SAVE/LOAD] START ===
-            player_state["rebirths"] = rebirth_count
-            player_state["multiplier"] = get_multiplier()
-            save_game(Knowledge, player_state, items)
-    # === [SAVE/LOAD] END ===
             pygame.quit()
             sys.exit()
-
 
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 paused = not paused
-            elif event.key == pygame.K_r:
-                Knowledge = try_rebirth(Knowledge, items)
 
         elif event.type == pygame.MOUSEBUTTONDOWN and not paused:
             if book_button.collidepoint(event.pos):
-                Knowledge += Knowledge_per_click
+                Knowledge += Knowledge_per_click * Rebirth_multiplier
+            elif rebirth_button.collidepoint(event.pos):
+                if rebirth.can_rebirth(Knowledge):
+                  Knowledge, Insight, Rebirth_multiplier = rebirth.rebirth(Knowledge, Insight)
+
+                else:
+                    print("Not enough Knowledge to rebirth!")  # Could show a popup instead
             else:
                 handle_shop_click(event.pos)
 
+    # Update only if not paused
     if not paused:
+        # Check for popup interval
         if time.time() - last_bonus_time > bonus_interval:
             if show_bonus_popup() == "yes":
                 random.choice([mini_game_1, mini_game_2])()
             last_bonus_time = time.time()
 
         update_items(dt)
+
     draw()
 
+    # Draw pause overlay
     if paused:
         overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
-        overlay.fill((0, 0, 0, 180))
+        overlay.fill((0, 0, 0, 180))  # semi-transparent black
         screen.blit(overlay, (0, 0))
 
         pause_text = font.render("PAUSED - Press ESC to Resume", True, WHITE)

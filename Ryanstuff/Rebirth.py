@@ -1,30 +1,20 @@
+class RebirthSystem:
+    def __init__(self, initial_cost=2, cost_multiplier=2.0): #price of the rebirth
+        self.initial_cost = initial_cost
+        self.current_cost = initial_cost
+        self.cost_multiplier = cost_multiplier
+        self.rebirth_count = 0
+        self.multiplier = 1.0
 
+    def can_rebirth(self, knowledge):
+        return knowledge >= self.current_cost
 
-rebirth_count = 0
-rebirth_multiplier = 1.0
-rebirth_cost = 2  # Knowledge needed to rebirth
-
-def get_multiplier():
-    return rebirth_multiplier
-
-def get_rebirth_info():
-    return rebirth_count, rebirth_multiplier, rebirth_cost
-
-def try_rebirth(Knowledge, items):
-    global rebirth_count, rebirth_multiplier, rebirth_cost
-
-    if Knowledge >= rebirth_cost:
-        rebirth_count += 1
-        rebirth_multiplier = 1.0 + rebirth_count * 2.0
-        Knowledge = 0
-
-        for item in items.values():
-            item["owned"] = 0
-            item["elapsed"] = 0.0
-            item["cost"] = item["cost"] / (1.15 ** item["owned"])  # Optional cost reset
-        
-        rebirth_cost = int(rebirth_cost * 5.0) #rebirth cost increases 
-
-        print(f"Rebirth successful! Multiplier is now x{rebirth_multiplier:.1f}")
-
-    return Knowledge  # Return updated knowledge after rebirth
+    def rebirth(self, knowledge, insight):
+        if self.can_rebirth(knowledge):
+            self.rebirth_count += 1
+            self.multiplier *= 1.5  # or any multiplier you prefer
+            knowledge = 0
+            insight += 1  # or increase insight as you like
+            self.current_cost = int(self.current_cost * self.cost_multiplier)
+            return knowledge, insight, self.multiplier
+        return knowledge, insight, self.multiplier

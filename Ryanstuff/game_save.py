@@ -3,14 +3,14 @@ import json
 
 DEFAULT_ITEMS = {
     "Book Seller": {
-        "cost": 100,
+        "cost": 12,
         "owned": 0,
         "cps": 0.5,
         "elapsed": 0.0,
         "gif_path": "AdamStuff/assets/book_seller.gif"
     },
     "Student": {
-        "cost": 500,
+        "cost": 100,
         "owned": 0,
         "cps": 2,
         "elapsed": 0.0,

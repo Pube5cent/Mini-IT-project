@@ -1,9 +1,9 @@
 {
-    "Knowledge": 0,
+    "Knowledge": 130,
     "player_state": {
         "score": 72,
         "rebirths": 4,
-        "multiplier": 3.0
+        "multiplier": 1.0
     },
     "items": {
         "Book Seller": {
