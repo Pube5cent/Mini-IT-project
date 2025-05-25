@@ -71,8 +71,8 @@ last_bonus_time = time.time()
 
 # Items
 items = {
-    "Manual research": {"cost": 15, "cps": 0.5, "owned": 0, "elapsed": 0.0, "gif_path": "AdamStuff/assets/gif_0.gif"},
-    "Turbo Learn": {"cost": 100, "cps": 2, "owned": 0, "elapsed": 0.0, "gif_path": "AdamStuff/assets/gif_1.gif"},
+    "Manual research": {"cost": 15, "cps": 1.0, "owned": 0, "elapsed": 0.0, "gif_path": "AdamStuff/assets/gif_0.gif"},
+    "Turbo Learn": {"cost": 100, "cps": 2.5, "owned": 0, "elapsed": 0.0, "gif_path": "AdamStuff/assets/gif_1.gif"},
 }
 
 for item in items.values():
@@ -273,6 +273,8 @@ while True:
             elif rebirth_button.collidepoint(event.pos):
                 if rebirth.can_rebirth(Knowledge):
                   Knowledge, Insight, Rebirth_multiplier = rebirth.rebirth(Knowledge, Insight)
+
+
 
                 else:
                     print("Not enough Knowledge to rebirth!")  # Could show a popup instead
