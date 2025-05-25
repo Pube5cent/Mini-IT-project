@@ -1,1 +1,24 @@
-{"Knowledge": 55.699375, "player_state": {"score": 72, "rebirths": 4, "multiplier": 1002.8000000000002}, "items": {"Cursor": {"cost": 26.235093749999994, "cps": 0.2, "owned": 4, "progress": 0.6774999999999999, "speed": 2.0}, "Grandma": {"cost": 100, "cps": 1, "owned": 0, "progress": 0.0, "speed": 5.0}}}
+{
+    "Knowledge": 64.699375,
+    "player_state": {
+        "score": 72,
+        "rebirths": 4,
+        "multiplier": 1.0
+    },
+    "items": {
+        "Book Seller": {
+            "cost": 100,
+            "owned": 0,
+            "cps": 0.5,
+            "elapsed": 0.0,
+            "gif_path": "AdamStuff/assets/book_seller.gif"
+        },
+        "Student": {
+            "cost": 500,
+            "owned": 0,
+            "cps": 2,
+            "elapsed": 0.0,
+            "gif_path": "AdamStuff/assets/student.gif"
+        }
+    }
+}

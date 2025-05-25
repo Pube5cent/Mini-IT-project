@@ -1,23 +1,53 @@
+import os
 import json
+
+DEFAULT_ITEMS = {
+    "Book Seller": {
+        "cost": 100,
+        "owned": 0,
+        "cps": 0.5,
+        "elapsed": 0.0,
+        "gif_path": "AdamStuff/assets/book_seller.gif"
+    },
+    "Student": {
+        "cost": 500,
+        "owned": 0,
+        "cps": 2,
+        "elapsed": 0.0,
+        "gif_path": "AdamStuff/assets/student.gif"
+    }
+}
 
 SAVE_FILE = "save_data.json"
 
 def save_game(Knowledge, player_state, items):
-    data = {
-        "Knowledge": Knowledge,
-        "player_state": player_state,
-        "items": items
-    }
+    for item in items.values():
+        if "frames" in item:
+            del item["frames"]  # Don't save Pygame surfaces
     with open(SAVE_FILE, "w") as f:
-        json.dump(data, f)
+        json.dump({
+            "Knowledge": Knowledge,
+            "player_state": player_state,
+            "items": items
+        }, f, indent=4)
 
 def load_game():
-    try:
+    if os.path.exists(SAVE_FILE):
         with open(SAVE_FILE, "r") as f:
             data = json.load(f)
-        return data["Knowledge"], data["player_state"], data["items"]
-    except (FileNotFoundError, json.JSONDecodeError):
-        return 0, {"score": 0, "rebirths": 0, "multiplier": 1000.0}, {
-            "Cursor": {"cost": 15, "cps": 1, "owned": 0, "progress": 0.0, "speed": 2.0},
-            "Grandma": {"cost": 100, "cps": 4, "owned": 0, "progress": 0.0, "speed": 5.0},
-        }
+        Knowledge = data.get("Knowledge", 0)
+        player_state = data.get("player_state", {})
+        saved_items = data.get("items", {})
+
+        # Ensure every default item exists and has all required keys
+        items = {}
+        for name, defaults in DEFAULT_ITEMS.items():
+            saved = saved_items.get(name, {})
+            combined = defaults.copy()
+            combined.update(saved)  # saved values override defaults
+            items[name] = combined
+
+        return Knowledge, player_state, items
+
+    # If no save file, return default values
+    return 0, {}, DEFAULT_ITEMS.copy()

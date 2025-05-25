@@ -6,6 +6,10 @@ import random
 import subprocess
 from PIL import Image
 from Rebirth import try_rebirth, get_multiplier, get_rebirth_info
+from game_save import save_game, load_game 
+import json
+
+
 
 #Initialize Pygame
 pygame.init()
@@ -46,9 +50,6 @@ font = pygame.font.SysFont("Arial", 24)
 #Pause menu state
 paused = False
 
-#Game Variables
-Knowledge = 0
-Knowledge_per_click = 1
 
 #Colors
 WHITE = (255, 255, 255)
@@ -63,14 +64,18 @@ RED = (255, 100, 100)
 bonus_interval = 10  #10 minutes in seconds
 last_bonus_time = time.time()
 
-#Items
-items = {
-    "Manual research": {"cost": 15, "cps": 1.0, "owned": 0, "elapsed": 0.0, "gif_path": "AdamStuff/assets/gif_0.gif"},
-    "Turbo Learn": {"cost": 100, "cps": 5.0, "owned": 0, "elapsed": 0.0, "gif_path": "AdamStuff/assets/gif_1.gif"},
-}
+# === [SAVE/LOAD] START ===
+Knowledge, player_state, items = load_game()
+Knowledge_per_click = 1  # Static unless upgraded
 
+# Reload GIFs after loading
 for item in items.values():
     item["frames"] = load_gif_frames(item["gif_path"])
+
+rebirth_count = player_state.get("rebirths", 0)
+rebirth_multiplier = player_state.get("multiplier", 1.0)
+# === [SAVE/LOAD] END ===
+
 
 #Centre gif
 center_gif_path = "AdamStuff/assets/floating_book.gif"
@@ -242,8 +247,14 @@ while True:
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
+    # === [SAVE/LOAD] START ===
+            player_state["rebirths"] = rebirth_count
+            player_state["multiplier"] = get_multiplier()
+            save_game(Knowledge, player_state, items)
+    # === [SAVE/LOAD] END ===
             pygame.quit()
             sys.exit()
+
 
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
