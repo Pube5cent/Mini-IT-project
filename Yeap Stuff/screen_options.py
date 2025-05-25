@@ -46,7 +46,9 @@ def option_screen(screen,clock,stage_speed, offset, judgement_shown, guide_line_
         for event in pygame.event.get():
             if event.type == pygame.QUIT:  
                 option_screen_run = False
+                break
                 return exit_option_screen(stage_speed, offset, judgement_shown, guide_line_shown, high_quality_verifying_graphics)
+                
 
             if event.type == pygame.MOUSEMOTION:  
                 
@@ -111,9 +113,11 @@ def option_screen(screen,clock,stage_speed, offset, judgement_shown, guide_line_
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE or event.key == pygame.K_RETURN:
                     option_screen_run = False
+                    break
                     return exit_option_screen(stage_speed, offset, judgement_shown, guide_line_shown, high_quality_verifying_graphics)
 
         if not option_screen_run:
+            break
             return exit_option_screen(stage_speed, offset, judgement_shown, guide_line_shown, high_quality_verifying_graphics)
 
         screen.fill(background_color[0])

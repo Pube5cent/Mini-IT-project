@@ -1,12 +1,13 @@
 import pygame
 import random
+import sys
 from variables import *
 from music_ import *
 from text_writer import *
 from image_processor import *
 from utility_functions import *
 from score_saver import *
-from Mainline import *
+
 
 def view_score_menu(screen,clock,song_name,score_pointer,song_difficulty,total_points):
     score = score_pointer[0]
@@ -57,6 +58,7 @@ def view_score_menu(screen,clock,song_name,score_pointer,song_difficulty,total_p
         for event in pygame.event.get():
             if event.type == pygame.QUIT:  
                 viewer_run = False
+                pygame.quit()
                 break
 
             if event.type == pygame.MOUSEMOTION:  
@@ -70,12 +72,14 @@ def view_score_menu(screen,clock,song_name,score_pointer,song_difficulty,total_p
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE or event.key == pygame.K_RETURN:  
                     viewer_run = False
+                    pygame.quit()
                     break
 
         if not viewer_run:
+            pygame.quit()
             break
 
-        write_text(screen, width // 2, height//20 , 'Press Enter to continue', small_text, background_color[0],
+        write_text(screen, width // 2, height//20 , 'Press Enter to quit', small_text, background_color[0],
                    highlight_text_color)
 
         write_text(screen, width // 2, height//4 - big_text, '%s' % (song_name), big_text, background_color[0],
