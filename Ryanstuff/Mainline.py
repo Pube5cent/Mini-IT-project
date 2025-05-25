@@ -9,8 +9,6 @@ from Rebirth import try_rebirth, get_multiplier, get_rebirth_info
 from game_save import save_game, load_game 
 import json
 
-
-
 #Initialize Pygame
 pygame.init()
 
