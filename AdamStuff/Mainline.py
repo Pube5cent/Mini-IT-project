@@ -68,6 +68,14 @@ GREEN = (0, 200, 0)
 DARK_GREEN = (0, 150, 0)
 RED = (255, 100, 100)
 
+# Upgrade system
+UPGRADE_DURATION = 30
+active_upgrades = []  # Each item: {type, end_time, color}
+upgrade_effects = {
+    "Click Bonus": {"color": (255, 100, 100), "value": 2},
+    "Auto Click": {"color": (100, 255, 100), "value": 3}
+}
+
 #Pop up Menu Timing
 bonus_interval = 10  #seconds
 last_bonus_time = time.time()
@@ -88,6 +96,58 @@ center_gif_frames = load_gif_frames(center_gif_path, scale=(150, 150))
 #UI Elements
 shop_buttons = {}
 book_button = pygame.Rect(WIDTH // 2 - 50, HEIGHT // 2 - 50, 100, 100)
+
+def apply_upgrade(upgrade_type):
+    global Knowledge_per_click
+    now = time.time()
+    color = upgrade_effects[upgrade_type]["color"]
+    value = upgrade_effects[upgrade_type]["value"]
+
+    # Apply effect
+    if upgrade_type == "Click Bonus":
+        Knowledge_per_click += value
+    elif upgrade_type == "Auto Click":
+        for item in items.values():
+            item["cps"] += value
+
+    # Track it
+    active_upgrades.append({
+        "type": upgrade_type,
+        "end_time": now + UPGRADE_DURATION,
+        "color": color,
+        "value": value
+    })
+
+def remove_upgrade(upgrade):
+    global Knowledge_per_click
+    if upgrade["type"] == "Click Bonus":
+        Knowledge_per_click -= upgrade["value"]
+    elif upgrade["type"] == "Auto Click":
+        for item in items.values():
+            item["cps"] -= upgrade["value"]
+
+def update_upgrades():
+    now = time.time()
+    for upgrade in active_upgrades[:]:
+        if now > upgrade["end_time"]:
+            remove_upgrade(upgrade)
+            active_upgrades.remove(upgrade)
+
+def draw_upgrade_pills():
+    pill_width, pill_height = 50, 20
+    x_offset = WIDTH - 70 - 10  # leave space for pause
+    y = 10
+
+    for i, upgrade in enumerate(active_upgrades):
+        remaining = upgrade["end_time"] - time.time()
+        ratio = max(remaining / UPGRADE_DURATION, 0)
+        rect = pygame.Rect(x_offset - i * (pill_width + 10), y, pill_width, pill_height)
+        pygame.draw.ellipse(screen, upgrade["color"], rect)
+
+        # Timer overlay
+        overlay_width = int(pill_width * ratio)
+        overlay_rect = pygame.Rect(rect.left, rect.top, overlay_width, pill_height)
+        pygame.draw.ellipse(screen, (0, 0, 0), overlay_rect)
 
 #Drawing the Pause Menu
 def draw_pause_menu():
@@ -195,6 +255,7 @@ def draw():
         screen.fill(WHITE)
 
     draw_knowledge_counter()
+    draw_upgrade_pills()
     draw_shop()
 
     if center_gif_frames:
@@ -240,11 +301,12 @@ def show_bonus_popup():
 
 #Mini Game Path
 def mini_game_1():
-    subprocess.run(["python", "Azimstuff/maingame_testing_1.py"])
+    subprocess.run(["python", "Azimstuff/minigame_testing_1.py"])
+    return "Click Bonus"
 
 def mini_game_2():
-    subprocess.run(["python", "Azimstuff/maingame_testing_1.py"])
-
+    subprocess.run(["python", "Azimstuff/minigame_testing_1.py"])
+    return "Auto Click"
 #Game Loop
 while True:
     dt = clock.tick(FPS) / 1000
@@ -269,10 +331,13 @@ while True:
         # Check for popup interval
         if time.time() - last_bonus_time > bonus_interval:
             if show_bonus_popup() == "yes":
-                random.choice([mini_game_1, mini_game_2])()
+                chosen_game = random.choice([mini_game_1, mini_game_2])
+                result = chosen_game()
+                apply_upgrade(result)
             last_bonus_time = time.time()
 
         update_items(dt)
+        update_upgrades()
     draw()
 
     #Draw pause overlay
