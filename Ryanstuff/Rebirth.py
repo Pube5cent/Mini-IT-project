@@ -1,18 +1,30 @@
-def check_rebirth_eligibility(score, threshold=10):
-    """Return True if score meets rebirth threshold."""
-    return score >= threshold
 
-def perform_rebirth(player_state):
-    """
-    Resets score and boosts multipliers or adds perks.
-    Modify player_state dict in-place.
-    """
-    if not check_rebirth_eligibility(player_state["score"]):
-        return False
 
-    # Reset score and add rebirth bonuses
-    player_state["rebirths"] += 1
-    player_state["score"] = 0
-    player_state["multiplier"] += 0.700  # Increase score gain rate
+rebirth_count = 0
+rebirth_multiplier = 1.0
+rebirth_cost = 2  # Knowledge needed to rebirth
 
-    return True
+def get_multiplier():
+    return rebirth_multiplier
+
+def get_rebirth_info():
+    return rebirth_count, rebirth_multiplier, rebirth_cost
+
+def try_rebirth(Knowledge, items):
+    global rebirth_count, rebirth_multiplier, rebirth_cost
+
+    if Knowledge >= rebirth_cost:
+        rebirth_count += 1
+        rebirth_multiplier = 1.0 + rebirth_count * 2.0
+        Knowledge = 0
+
+        for item in items.values():
+            item["owned"] = 0
+            item["elapsed"] = 0.0
+            item["cost"] = item["cost"] / (1.15 ** item["owned"])  # Optional cost reset
+        
+        rebirth_cost = int(rebirth_cost * 5.0) #rebirth cost increases 
+
+        print(f"Rebirth successful! Multiplier is now x{rebirth_multiplier:.1f}")
+
+    return Knowledge  # Return updated knowledge after rebirth
