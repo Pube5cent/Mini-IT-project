@@ -1,18 +1,21 @@
-def check_rebirth_eligibility(score, threshold=10):
-    """Return True if score meets rebirth threshold."""
-    return score >= threshold
+class RebirthSystem:
+    def __init__(self, initial_cost=2, cost_multiplier=2.0):
+        self.initial_cost = initial_cost
+        self.current_cost = initial_cost
+        self.cost_multiplier = cost_multiplier
+        self.rebirth_count = 0
+        self.multiplier = 1.0
 
-def perform_rebirth(player_state):
-    """
-    Resets score and boosts multipliers or adds perks.
-    Modify player_state dict in-place.
-    """
-    if not check_rebirth_eligibility(player_state["score"]):
-        return False
+    def can_rebirth(self, knowledge):
+        return knowledge >= self.current_cost
 
-    # Reset score and add rebirth bonuses
-    player_state["rebirths"] += 1
-    player_state["score"] = 0
-    player_state["multiplier"] += 0.700  # Increase score gain rate
-
-    return True
+    def rebirth(self, knowledge, insight):
+        if self.can_rebirth(knowledge):
+            self.rebirth_count += 1
+            self.multiplier *= 2.0  # Increase multiplier per rebirth
+            knowledge = 0
+            insight = 0  # Reset or modify insight as needed
+            self.current_cost = int(self.current_cost * self.cost_multiplier)
+            return knowledge, insight, self.multiplier
+        # If can't rebirth, return values unchanged
+        return knowledge, insight, self.multiplier
