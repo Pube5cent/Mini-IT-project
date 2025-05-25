@@ -5,7 +5,9 @@ import time
 import random
 import subprocess
 from PIL import Image
-from Rebirth import RebirthSystem# Import rebirth system
+from Rebirth import RebirthSystem
+from game_save import save_game, load_game
+
 
 # Initialize Pygame
 pygame.init()
@@ -69,6 +71,7 @@ BLUE = (100, 100, 255)
 bonus_interval = 10  # 10 seconds for testing; adjust as needed
 last_bonus_time = time.time()
 
+
 # Items
 items = {
     "Manual research": {"cost": 15, "cps": 1.0, "owned": 0, "elapsed": 0.0, "gif_path": "AdamStuff/assets/gif_0.gif"},
@@ -77,6 +80,9 @@ items = {
 
 for item in items.values():
     item["frames"] = load_gif_frames(item["gif_path"])
+
+#loads the game
+Knowledge, Insight, Rebirth_multiplier = load_game(items)
 
 # Centre gif
 center_gif_path = "AdamStuff/assets/floating_book.gif"
@@ -260,6 +266,7 @@ while True:
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
+            save_game(Knowledge, Insight, Rebirth_multiplier, items) #saves the game upon quitting
             pygame.quit()
             sys.exit()
 

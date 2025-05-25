@@ -1,53 +1,39 @@
-import os
 import json
+import time
+import os
 
-DEFAULT_ITEMS = {
-    "Book Seller": {
-        "cost": 12,
-        "owned": 0,
-        "cps": 0.5,
-        "elapsed": 0.0,
-        "gif_path": "AdamStuff/assets/book_seller.gif"
-    },
-    "Student": {
-        "cost": 100,
-        "owned": 0,
-        "cps": 2,
-        "elapsed": 0.0,
-        "gif_path": "AdamStuff/assets/student.gif"
+def save_game(Knowledge, Insight, Rebirth_multiplier, items, filename="save.json"):
+    data = {
+        "knowledge": Knowledge,
+        "insight": Insight,
+        "rebirth_multiplier": Rebirth_multiplier,
+        "items": {name: {"owned": item["owned"]} for name, item in items.items()},
+        "last_time": time.time()
     }
-}
+    with open(filename, "w") as f:
+        json.dump(data, f)
 
-SAVE_FILE = "save_data.json"
-
-def save_game(Knowledge, player_state, items):
-    for item in items.values():
-        if "frames" in item:
-            del item["frames"]  # Don't save Pygame surfaces
-    with open(SAVE_FILE, "w") as f:
-        json.dump({
-            "Knowledge": Knowledge,
-            "player_state": player_state,
-            "items": items
-        }, f, indent=4)
-
-def load_game():
-    if os.path.exists(SAVE_FILE):
-        with open(SAVE_FILE, "r") as f:
+def load_game(items, filename="save.json"):
+    Knowledge = 0
+    Insight = 0
+    Rebirth_multiplier = 1.0
+    if os.path.exists(filename):
+        with open(filename, "r") as f:
             data = json.load(f)
-        Knowledge = data.get("Knowledge", 0)
-        player_state = data.get("player_state", {})
-        saved_items = data.get("items", {})
 
-        # Ensure every default item exists and has all required keys
-        items = {}
-        for name, defaults in DEFAULT_ITEMS.items():
-            saved = saved_items.get(name, {})
-            combined = defaults.copy()
-            combined.update(saved)  # saved values override defaults
-            items[name] = combined
+        Knowledge = data.get("knowledge", 0)
+        Insight = data.get("insight", 0)
+        Rebirth_multiplier = data.get("rebirth_multiplier", 1.0)
+        last_time = data.get("last_time", time.time())
+        offline_seconds = time.time() - last_time
 
-        return Knowledge, player_state, items
+        for name, item_data in data.get("items", {}).items():
+            if name in items:
+                items[name]["owned"] = item_data["owned"]
 
-    # If no save file, return default values
-    return 0, {}, DEFAULT_ITEMS.copy()
+        # Calculate offline Knowledge earned
+        for item in items.values():
+            if item["cps"] > 0 and item["owned"] > 0:
+                Knowledge += item["cps"] * item["owned"] * offline_seconds * Rebirth_multiplier
+
+    return Knowledge, Insight, Rebirth_multiplier
