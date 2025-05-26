@@ -1,11 +1,19 @@
 import pygame
 import sys
-# from game_background import GifAnimation
+import music_manager
 from Rebirth import perform_rebirth
 from PIL import Image, ImageSequence
 
+
+#music
+pygame.init()
+music_manager.init_music()
+music_manager.play_music("Ryan stuff/music.mp3") 
+
+
 # Initialize Pygame
 pygame.init()
+
 
 # Screen settings
 WIDTH, HEIGHT = 1290, 800
@@ -48,21 +56,27 @@ clock = pygame.time.Clock()
 
 #gif background
 class GifAnimation():
-    def __init__(self, gif_path):
+    def __init__(self, gif_path, frame_delay=0.2):
         image = Image.open(gif_path)
         self.frames = [pygame.image.fromstring(frame.convert("RGBA").tobytes(), frame.size, "RGBA")
                        for frame in ImageSequence.Iterator(image)]
         self.frame_index = 0
         self.size = image.size
+        self.frame_delay = frame_delay  # seconds between frames
+        self.time_since_last_frame = 0.0
 
-    def update(self):
-        self.frame_index = (self.frame_index + 1) % len(self.frames)
+    def update(self, dt):
+        self.time_since_last_frame += dt
+        if self.time_since_last_frame >= self.frame_delay:
+            self.frame_index = (self.frame_index + 1) % len(self.frames)
+            self.time_since_last_frame = 0.0
 
     def draw(self, screen, position):
         screen.blit(self.frames[self.frame_index], position)
 
+
 # Load animated gif
-gif_anim = GifAnimation("Ryan stuff/main_wallpaper.gif")
+gif_anim = GifAnimation("Ryan stuff/main_wallpaper.gif", frame_delay=0.2)
 
 # Button Settings
 book_button = pygame.Rect(WIDTH // 2 - 50, HEIGHT // 2 - 50, 100, 100)
@@ -132,7 +146,7 @@ def draw_knowledge_counter():
 
 def draw():
     # Draw animated background 
-    gif_anim.update()
+    gif_anim.update(dt)
     frame = gif_anim.frames[gif_anim.frame_index]
     scaled_frame = pygame.transform.scale(frame, (WIDTH, HEIGHT))
     screen.blit(scaled_frame, (0, 0))
