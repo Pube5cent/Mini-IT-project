@@ -1,0 +1,24 @@
+{
+    "Knowledge": 130,
+    "player_state": {
+        "score": 72,
+        "rebirths": 4,
+        "multiplier": 1.0
+    },
+    "items": {
+        "Book Seller": {
+            "cost": 114.99999999999999,
+            "owned": 0,
+            "cps": 0.5,
+            "elapsed": 0.0,
+            "gif_path": "AdamStuff/assets/book_seller.gif"
+        },
+        "Student": {
+            "cost": 500.0,
+            "owned": 0,
+            "cps": 2,
+            "elapsed": 0.0,
+            "gif_path": "AdamStuff/assets/student.gif"
+        }
+    }
+}
