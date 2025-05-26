@@ -2,10 +2,10 @@ import pygame
 import sys
 import os
 import time
+import json
 import random
 import subprocess
 from PIL import Image
-import Shared_state
 from Ryanstuff import music_manager
 #from Ryanstuff import game_save
 
@@ -18,8 +18,13 @@ FPS = 60
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Knowledge Clicker")
 clock = pygame.time.Clock()
+
+# Auto clicker Delay
 auto_click_timer = 0
 auto_click_delay = 0.1
+
+# Temp upgrade timing
+last_check = time.time()
 
 #Load GIF frames
 def load_gif_frames(path, scale=(64, 64)):
@@ -311,21 +316,29 @@ def show_bonus_popup():
                     return "yes"
                 elif no_button.collidepoint(event.pos):
                     return "no"
+                
+def check_for_triggered_upgrade():
+    try:
+        with open("shared_state.json", "r") as f:
+            data = json.load(f)
+
+        upgrade = data.get("trigger_upgrade")
+        if upgrade:
+            activate_upgrade(upgrade)  # This is your temp upgrade handler
+            # Reset trigger
+            data["trigger_upgrade"] = None
+            with open("shared_state.json", "w") as f:
+                json.dump(data, f)
+    except Exception as e:
+        print("Error checking upgrade:", e)
+
 
 #Mini Game Path
 def mini_game_1():
-    #subprocess.Popen(["python", "temp_mini_game.py"])
-    activate_upgrade("fast_click")
-    #if player_wins:
-    #    Shared_Temp.upgrade_triggered = True
-    #    Shared_Temp.upgrade_type = random.choice(["fast_click", "bonus_click"])
+    subprocess.Popen(["python", "temp_mini_game.py"])
 
 def mini_game_2():
-    #subprocess.Popen(["python", "temp_mini_game.py"])
-    activate_upgrade("bonus_click")
-    #if player_wins:
-    #    Shared_Temp.upgrade_triggered = True
-    #    Shared_Temp.upgrade_type = random.choice(["fast_click", "bonus_click"])
+    subprocess.Popen(["python", "temp_mini_game.py"])
 
 #Game Loop
 while True:
@@ -353,9 +366,9 @@ while True:
             else:
                 handle_shop_click(event.pos)
 
-    if Shared_state.upgrade_triggered:
-        activate_upgrade(Shared_state.upgrade_type)
-        Shared_state.upgrade_triggered = False
+    if time.time() - last_check > 1:
+        check_for_triggered_upgrade()
+        last_check = time.time()
 
     if not paused:
         if time.time() - last_bonus_time > bonus_interval:

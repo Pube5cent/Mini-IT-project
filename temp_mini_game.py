@@ -1,7 +1,7 @@
 import pygame
 import sys
+import json
 import random
-import Shared_state
 
 pygame.init()
 
@@ -32,8 +32,14 @@ def run_mini_game():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if button_rect.collidepoint(event.pos):
                     print("Mini-game won! Activating upgrade...")
-                    Shared_state.upgrade_triggered = True
-                    Shared_state.upgrade_type = random.choice(["fast_click", "bonus_click"])            
+                    with open("shared_state.json", "r") as f:
+                        data = json.load(f)
+
+                    data["trigger_upgrade"] = random.choice(["fast_click", "bonus_click"])
+
+                    with open("shared_state.json", "w") as f:
+                        json.dump(data, f)
+                    running = False      
 
         pygame.display.flip()
         clock.tick(60)
