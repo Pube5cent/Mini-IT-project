@@ -4,6 +4,7 @@ import os
 import time
 import random
 import subprocess
+from AdamStuff import Shared_Temp
 from PIL import Image
 
 
@@ -146,6 +147,10 @@ def draw_active_upgrades():
             for i in range(data["level"]):  # draw icon per level
                 screen.blit(icon, (x - (icon.get_width() + spacing) * i, y))
         y += 50  # move down for next upgrade type
+
+def trigger_random_upgrade():
+    upgrade = random.choice(["fast_click", "bonus_click"])
+    activate_upgrade(upgrade)
 
 # Drawing the Pause Menu
 def draw_pause_menu():
@@ -297,9 +302,15 @@ def show_bonus_popup():
 
 def mini_game_1():
     activate_upgrade("fast_click")
+    if player_wins:
+        Shared_Temp.upgrade_triggered = True
+        Shared_Temp.upgrade_type = random.choice(["fast_click", "bonus_click"])
 
 def mini_game_2():
     activate_upgrade("bonus_click")
+    if player_wins:
+        Shared_Temp.upgrade_triggered = True
+        Shared_Temp.upgrade_type = random.choice(["fast_click", "bonus_click"])
 
 # Game Loop
 while True:
