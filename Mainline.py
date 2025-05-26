@@ -9,8 +9,10 @@ import Shared_state
 
 
 #Initialize Pygame
+#Initialize Pygame
 pygame.init()
 
+#Screen settings
 #Screen settings
 WIDTH, HEIGHT = 1080, 720
 FPS = 60
@@ -20,6 +22,7 @@ clock = pygame.time.Clock()
 auto_click_timer = 0
 auto_click_delay = 0.1
 
+#Load GIF frames
 #Load GIF frames
 def load_gif_frames(path, scale=(64, 64)):
     frames = []
@@ -39,6 +42,7 @@ def load_gif_frames(path, scale=(64, 64)):
         pass
     return frames
 
+#Background GIF
 #Background GIF
 background_gif_path = "RyanStuff/main_wallpaper.gif"
 background_frames = load_gif_frames(background_gif_path, scale=(WIDTH, HEIGHT))
@@ -61,6 +65,7 @@ Knowledge = 0
 Knowledge_per_click = 1
 
 #Colors
+#Colors
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 GRAY = (200, 200, 200)
@@ -74,7 +79,10 @@ bonus_interval = 5  # seconds
 last_bonus_time = time.time()
 
 #Items
+#Items
 items = {
+    "Manual research": {"cost": 15, "cps": 0.2, "owned": 0, "elapsed": 0.0, "gif_path": "AdamStuff/assets/gif_0.gif"},
+    "Turbo Learn": {"cost": 100, "cps": 1, "owned": 0, "elapsed": 0.0, "gif_path": "AdamStuff/assets/gif_1.gif"},
     "Manual research": {"cost": 15, "cps": 0.2, "owned": 0, "elapsed": 0.0, "gif_path": "AdamStuff/assets/gif_0.gif"},
     "Turbo Learn": {"cost": 100, "cps": 1, "owned": 0, "elapsed": 0.0, "gif_path": "AdamStuff/assets/gif_1.gif"},
 }
@@ -83,9 +91,11 @@ for item in items.values():
     item["frames"] = load_gif_frames(item["gif_path"])
 
 #Centre gif
+#Centre gif
 center_gif_path = "AdamStuff/assets/floating_book.gif"
 center_gif_frames = load_gif_frames(center_gif_path, scale=(150, 150))
 
+#UI Elements
 #UI Elements
 shop_buttons = {}
 book_button = pygame.Rect(WIDTH // 2 - 50, HEIGHT // 2 - 50, 100, 100)
@@ -308,6 +318,7 @@ def show_bonus_popup():
                     return "no"
 
 #Mini Game Path
+#Mini Game Path
 def mini_game_1():
     #subprocess.Popen(["python", "temp_mini_game.py"])
     activate_upgrade("fast_click")
@@ -322,6 +333,7 @@ def mini_game_2():
     #    Shared_Temp.upgrade_triggered = True
     #    Shared_Temp.upgrade_type = random.choice(["fast_click", "bonus_click"])
 
+#Game Loop
 #Game Loop
 while True:
     dt = clock.tick(FPS) / 1000
