@@ -11,7 +11,10 @@ from chart_builder import update_chart
 
 
 def exit_option_screen(stage_speed, offset, judgement_shown, guide_line_shown, high_quality_verifying_graphics):
+    pygame.quit()
     return stage_speed, offset, judgement_shown, guide_line_shown, high_quality_verifying_graphics
+    #pygame.quit()
+    
 
 
 def option_screen(screen,clock,stage_speed, offset, judgement_shown, guide_line_shown, high_quality_verifying_graphics):
@@ -46,7 +49,7 @@ def option_screen(screen,clock,stage_speed, offset, judgement_shown, guide_line_
         for event in pygame.event.get():
             if event.type == pygame.QUIT:  
                 option_screen_run = False
-                break
+                #pygame.quit()
                 return exit_option_screen(stage_speed, offset, judgement_shown, guide_line_shown, high_quality_verifying_graphics)
                 
 
@@ -62,8 +65,9 @@ def option_screen(screen,clock,stage_speed, offset, judgement_shown, guide_line_
                 if abs(xp - back_button_x_loc - big_text) < big_text:  # press back button to quit song selection
                     if abs(yp - back_button_y_loc) < big_text:
                         option_screen_run = False
+                       # pygame.quit()
                         return exit_option_screen(stage_speed, offset, judgement_shown, guide_line_shown, high_quality_verifying_graphics)
-
+                        
 
                 if abs(xp - offset_x_level) < big_text * 2:
                     for offset_ in offset_mode_keys:
@@ -113,13 +117,12 @@ def option_screen(screen,clock,stage_speed, offset, judgement_shown, guide_line_
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE or event.key == pygame.K_RETURN:
                     option_screen_run = False
-                    break
                     return exit_option_screen(stage_speed, offset, judgement_shown, guide_line_shown, high_quality_verifying_graphics)
 
         if not option_screen_run:
-            break
+            #pygame.quit()
             return exit_option_screen(stage_speed, offset, judgement_shown, guide_line_shown, high_quality_verifying_graphics)
-
+            
         screen.fill(background_color[0])
 
         # draw keys
