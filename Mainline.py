@@ -2,11 +2,12 @@ import pygame
 import sys
 import os
 import time
+import json
 import random
 import subprocess
 from PIL import Image
-from Ryanstuff import music_manager
-from Ryanstuff import game_save
+from Ryanstuff import music_manager #from Ryanstuff import game_save
+
 
 #Initialize Pygame
 pygame.init()
@@ -17,6 +18,14 @@ FPS = 60
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Knowledge Clicker")
 clock = pygame.time.Clock()
+fullscreen = False
+
+# Auto clicker Delay
+auto_click_timer = 0
+auto_click_delay = 0.1
+
+# Temp upgrade timing
+last_check = time.time()
 
 #Load GIF frames
 def load_gif_frames(path, scale=(64, 64)):
@@ -42,15 +51,18 @@ background_gif_path = "RyanStuff/main_wallpaper.gif"
 background_frames = load_gif_frames(background_gif_path, scale=(WIDTH, HEIGHT))
 
 #Music Path [Rhayyan]
-music_manager.init_music()
-music_manager.play_music("Ryanstuff/Game.mp3")
+#music_manager.init_music()
+#music_manager.play_music("Ryanstuff/Game.mp3")
 
 #Load saved game state or default values [Rhayyan]
-Knowledge, player_state, items = game_save.load_game()
-Knowledge_per_click = 1
+#Knowledge, player_state, items = game_save.load_game()
+#Knowledge_per_click = 1
 
-#Fonts
+# Fonts
 font = pygame.font.SysFont("Arial", 24)
+
+# Pause menu state
+paused = False
 
 #Pause menu state
 paused = False
@@ -68,14 +80,34 @@ GREEN = (0, 200, 0)
 DARK_GREEN = (0, 150, 0)
 RED = (255, 100, 100)
 
-#Pop up Menu Timing
-bonus_interval = 10  #seconds
+# Pop up Menu Timing
+bonus_interval = 5  # seconds
 last_bonus_time = time.time()
 
 #Items
 items = {
-    "Manual research": {"cost": 15, "cps": 0.2, "owned": 0, "elapsed": 0.0, "gif_path": "AdamStuff/assets/gif_0.gif"},
-    "Turbo Learn": {"cost": 100, "cps": 1, "owned": 0, "elapsed": 0.0, "gif_path": "AdamStuff/assets/gif_1.gif"},
+    "Manual research": {
+        "cost": 15,
+        "cps": 1,
+        "owned": 0,
+        "elapsed": 0.0,
+        "gif_path": "AdamStuff/assets/gif_0.gif"
+    },
+    "Turbo Learn": {
+        "cost": 50,
+        "cps": 1,
+        "owned": 0,
+        "elapsed": 0.0,
+        "gif_path": "AdamStuff/assets/gif_1.gif"
+    },
+    "Super Click": {
+        "cost": 10,
+        "cps": 3,
+        "owned": 0,
+        "elapsed": 0.0,
+        "gif_path": "AdamStuff/assets/gif_3.gif",  
+        "click_bonus": 1
+    }
 }
 
 for item in items.values():
@@ -89,17 +121,93 @@ center_gif_frames = load_gif_frames(center_gif_path, scale=(150, 150))
 shop_buttons = {}
 book_button = pygame.Rect(WIDTH // 2 - 50, HEIGHT // 2 - 50, 100, 100)
 
-#Drawing the Pause Menu
+# Upgrade Icons
+upgrade_icons = {
+    "fast_click": pygame.transform.scale(pygame.image.load("AdamStuff/assets/pill_red.png"), (40, 40)),
+    "bonus_click": pygame.transform.scale(pygame.image.load("AdamStuff/assets/pill_blue.png"), (40, 40)),
+}
+
+# Active Upgrades
+active_upgrades = {
+    "fast_click": {
+        "level": 2,                # Temp upgrade level
+        "end_time": 1724341234.123
+    }
+}
+
+#Toggle fullscreen
+def toggle_fullscreen():
+    global screen, fullscreen
+    fullscreen = not fullscreen
+    if fullscreen:
+        screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN)
+    else:
+        screen = pygame.display.set_mode((WIDTH, HEIGHT))
+
+# Upgrade Duration (seconds)
+UPGRADE_DURATION = 30
+
+def activate_upgrade(upgrade_type, duration=10):
+    now = time.time()
+    if upgrade_type in active_upgrades:
+        active_upgrades[upgrade_type]["level"] += 1
+        active_upgrades[upgrade_type]["end_time"] = max(
+            active_upgrades[upgrade_type]["end_time"], now + duration
+        )
+    else:
+        active_upgrades[upgrade_type] = {
+            "level": 1,
+            "end_time": now + duration
+        }
+
+def update_upgrades():
+    global Knowledge, Knowledge_per_click, active_upgrades, auto_click_timer, auto_click_delay
+    now = time.time()
+    expired = []
+
+    for upgrade, info in active_upgrades.items():
+        if info["end_time"] < now:
+            expired.append(upgrade)
+        elif upgrade == "fast_click":
+            # Apply per-frame knowledge bonus
+            if now - auto_click_timer >= auto_click_delay:
+                Knowledge += 1
+                auto_click_timer = now
+        elif upgrade == "bonus_click":
+            Knowledge_per_click = 1 + info["level"]
+
+    for upgrade in expired:
+        del active_upgrades[upgrade]
+
+    # Reset Knowledge_per_click if bonus_click expired
+    if "bonus_click" not in active_upgrades:
+        Knowledge_per_click = 1
+
+def draw_active_upgrades():
+    x = WIDTH - 50  
+    y = 20
+    spacing = 5
+
+    for upgrade_type, data in active_upgrades.items():
+        icon = upgrade_icons.get(upgrade_type)
+        if icon:
+            for i in range(data["level"]):  # draw icon per level
+                screen.blit(icon, (x - (icon.get_width() + spacing) * i, y))
+        y += 50  # move down for next upgrade type
+
+def trigger_random_upgrade():
+    upgrade = random.choice(["fast_click", "bonus_click"])
+    activate_upgrade(upgrade)
+
+# Drawing the Pause Menu
 def draw_pause_menu():
     overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
-    overlay.fill((0, 0, 0, 180))  # semi-transparent background
+    overlay.fill((0, 0, 0, 180))
     screen.blit(overlay, (0, 0))
 
-    # Pause text
     text = font.render("Game Paused", True, WHITE)
     screen.blit(text, (WIDTH // 2 - text.get_width() // 2, 150))
 
-    # Buttons
     resume_button = pygame.Rect(WIDTH // 2 - 100, 250, 200, 60)
     quit_button = pygame.Rect(WIDTH // 2 - 100, 330, 200, 60)
 
@@ -116,7 +224,6 @@ def draw_pause_menu():
 
     return resume_button, quit_button
 
-#Draw Click Button
 def draw_center_gif(current_frame_index):
     if center_gif_frames:
         current_frame = center_gif_frames[current_frame_index]
@@ -141,9 +248,12 @@ def draw_shop():
         screen.blit(cost_text, (button_rect.x + 10, button_rect.y + 30))
         screen.blit(owned_text, (button_rect.x + 200, button_rect.y + 30))
 
-        if item["owned"] > 0 and item["cps"] > 0:
-            interval = 1.0 / item["cps"]
-            progress = min(item["elapsed"] / interval, 1.0)
+        if item["owned"] > 0:
+            if item["cps"] > 0:
+                interval = 1.0 / item["cps"]
+                progress = min(item["elapsed"] / interval, 1.0)
+            else:
+                progress = 1.0
 
             bar_back = pygame.Rect(button_rect.x + 10, button_rect.y + 60, 340, 10)
             pygame.draw.rect(screen, DARK_GREEN, bar_back)
@@ -166,12 +276,15 @@ def handle_shop_click(pos):
             buy_item(item_name)
 
 def buy_item(item_name):
-    global Knowledge
+    global Knowledge, Knowledge_per_click
     item = items[item_name]
     if Knowledge >= item["cost"]:
         Knowledge -= item["cost"]
         item["owned"] += 1
         item["cost"] *= 1.15
+
+        if item_name == "Super Click":
+            Knowledge_per_click += item["click_bonus"]
 
 def update_items(dt):
     global Knowledge
@@ -200,6 +313,8 @@ def draw():
     if center_gif_frames:
         center_frame_index = pygame.time.get_ticks() // 100 % len(center_gif_frames)
         draw_center_gif(center_frame_index)
+
+    draw_active_upgrades()
 
 def show_bonus_popup():
     popup_rect = pygame.Rect(WIDTH // 4, HEIGHT // 3, WIDTH // 2, HEIGHT // 3)
@@ -237,13 +352,30 @@ def show_bonus_popup():
                     return "yes"
                 elif no_button.collidepoint(event.pos):
                     return "no"
+                
+ # Temp upgrade handler
+def check_for_triggered_upgrade():
+    try:
+        with open("shared_state.json", "r") as f:
+            data = json.load(f)
 
-#Mini Game Path
+        upgrade = data.get("trigger_upgrade")
+        if upgrade:
+            activate_upgrade(upgrade)
+            # Reset trigger
+            data["trigger_upgrade"] = None
+            with open("shared_state.json", "w") as f:
+                json.dump(data, f)
+    except Exception as e:
+        print("Error checking upgrade:", e)
+
+
+# Mini Game Path
 def mini_game_1():
-    subprocess.run(["python", "Yeap Stuff/main.py"])
+    subprocess.Popen(["python", "temp_mini_game.py"])
 
 def mini_game_2():
-    subprocess.run(["python", "Yeap Stuff/main.py"])
+    subprocess.Popen(["python", "temp_mini_game.py"])
 
 #Game Loop
 while True:
@@ -257,28 +389,35 @@ while True:
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 paused = not paused
+            elif event.key == pygame.K_f:  # Press 'F' to toggle fullscreen
+                toggle_fullscreen()
 
         elif event.type == pygame.MOUSEBUTTONDOWN and not paused:
             if book_button.collidepoint(event.pos):
-                Knowledge += Knowledge_per_click
+                bonus = 1
+                if "fast_click" in active_upgrades:
+                    bonus += active_upgrades["fast_click"]["level"] * 0.5  # Adjust multiplier here
+                Knowledge += Knowledge_per_click * bonus
             else:
                 handle_shop_click(event.pos)
 
-    #Update only if not paused
+    if time.time() - last_check > 1:
+        check_for_triggered_upgrade()
+        last_check = time.time()
+
     if not paused:
-        # Check for popup interval
         if time.time() - last_bonus_time > bonus_interval:
             if show_bonus_popup() == "yes":
                 random.choice([mini_game_1, mini_game_2])()
             last_bonus_time = time.time()
 
         update_items(dt)
+        update_upgrades()
     draw()
 
-    #Draw pause overlay
     if paused:
         overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
-        overlay.fill((0, 0, 0, 180))  # semi-transparent black
+        overlay.fill((0, 0, 0, 180))
         screen.blit(overlay, (0, 0))
 
         pause_text = font.render("PAUSED - Press ESC to Resume", True, WHITE)

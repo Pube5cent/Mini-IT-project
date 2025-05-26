@@ -94,7 +94,7 @@ reset_game()
 
 clock = pygame.time.Clock()
 FPS = 100
-time_limit = 60
+time_limit = 10
 
 running = True
 while running:
