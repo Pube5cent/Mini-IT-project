@@ -6,8 +6,8 @@ import json
 import random
 import subprocess
 from PIL import Image
-from Ryanstuff import music_manager
-#from Ryanstuff import game_save
+from Ryanstuff import music_manager #from Ryanstuff import game_save
+
 
 #Initialize Pygame
 pygame.init()
@@ -18,6 +18,7 @@ FPS = 60
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Knowledge Clicker")
 clock = pygame.time.Clock()
+fullscreen = False
 
 # Auto clicker Delay
 auto_click_timer = 0
@@ -85,8 +86,28 @@ last_bonus_time = time.time()
 
 #Items
 items = {
-    "Manual research": {"cost": 15, "cps": 0.2, "owned": 0, "elapsed": 0.0, "gif_path": "AdamStuff/assets/gif_0.gif"},
-    "Turbo Learn": {"cost": 100, "cps": 1, "owned": 0, "elapsed": 0.0, "gif_path": "AdamStuff/assets/gif_1.gif"},
+    "Manual research": {
+        "cost": 15,
+        "cps": 1,
+        "owned": 0,
+        "elapsed": 0.0,
+        "gif_path": "AdamStuff/assets/gif_0.gif"
+    },
+    "Turbo Learn": {
+        "cost": 50,
+        "cps": 1,
+        "owned": 0,
+        "elapsed": 0.0,
+        "gif_path": "AdamStuff/assets/gif_1.gif"
+    },
+    "Super Click": {
+        "cost": 10,
+        "cps": 3,
+        "owned": 0,
+        "elapsed": 0.0,
+        "gif_path": "AdamStuff/assets/gif_3.gif",  
+        "click_bonus": 1
+    }
 }
 
 for item in items.values():
@@ -109,13 +130,22 @@ upgrade_icons = {
 # Active Upgrades
 active_upgrades = {
     "fast_click": {
-        "level": 2,                # Number of stacks
-        "end_time": 1724341234.123  # Timestamp when it expires
+        "level": 2,                # Temp upgrade level
+        "end_time": 1724341234.123
     }
 }
 
+#Toggle fullscreen
+def toggle_fullscreen():
+    global screen, fullscreen
+    fullscreen = not fullscreen
+    if fullscreen:
+        screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN)
+    else:
+        screen = pygame.display.set_mode((WIDTH, HEIGHT))
+
 # Upgrade Duration (seconds)
-UPGRADE_DURATION = 10
+UPGRADE_DURATION = 30
 
 def activate_upgrade(upgrade_type, duration=10):
     now = time.time()
@@ -154,7 +184,7 @@ def update_upgrades():
         Knowledge_per_click = 1
 
 def draw_active_upgrades():
-    x = WIDTH - 50  # starting from top-right corner
+    x = WIDTH - 50  
     y = 20
     spacing = 5
 
@@ -218,9 +248,12 @@ def draw_shop():
         screen.blit(cost_text, (button_rect.x + 10, button_rect.y + 30))
         screen.blit(owned_text, (button_rect.x + 200, button_rect.y + 30))
 
-        if item["owned"] > 0 and item["cps"] > 0:
-            interval = 1.0 / item["cps"]
-            progress = min(item["elapsed"] / interval, 1.0)
+        if item["owned"] > 0:
+            if item["cps"] > 0:
+                interval = 1.0 / item["cps"]
+                progress = min(item["elapsed"] / interval, 1.0)
+            else:
+                progress = 1.0
 
             bar_back = pygame.Rect(button_rect.x + 10, button_rect.y + 60, 340, 10)
             pygame.draw.rect(screen, DARK_GREEN, bar_back)
@@ -243,12 +276,15 @@ def handle_shop_click(pos):
             buy_item(item_name)
 
 def buy_item(item_name):
-    global Knowledge
+    global Knowledge, Knowledge_per_click
     item = items[item_name]
     if Knowledge >= item["cost"]:
         Knowledge -= item["cost"]
         item["owned"] += 1
         item["cost"] *= 1.15
+
+        if item_name == "Super Click":
+            Knowledge_per_click += item["click_bonus"]
 
 def update_items(dt):
     global Knowledge
@@ -317,6 +353,7 @@ def show_bonus_popup():
                 elif no_button.collidepoint(event.pos):
                     return "no"
                 
+ # Temp upgrade handler
 def check_for_triggered_upgrade():
     try:
         with open("shared_state.json", "r") as f:
@@ -324,7 +361,7 @@ def check_for_triggered_upgrade():
 
         upgrade = data.get("trigger_upgrade")
         if upgrade:
-            activate_upgrade(upgrade)  # This is your temp upgrade handler
+            activate_upgrade(upgrade)
             # Reset trigger
             data["trigger_upgrade"] = None
             with open("shared_state.json", "w") as f:
@@ -333,7 +370,7 @@ def check_for_triggered_upgrade():
         print("Error checking upgrade:", e)
 
 
-#Mini Game Path
+# Mini Game Path
 def mini_game_1():
     subprocess.Popen(["python", "temp_mini_game.py"])
 
@@ -352,10 +389,8 @@ while True:
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 paused = not paused
-
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:
-                paused = not paused
+            elif event.key == pygame.K_f:  # Press 'F' to toggle fullscreen
+                toggle_fullscreen()
 
         elif event.type == pygame.MOUSEBUTTONDOWN and not paused:
             if book_button.collidepoint(event.pos):
