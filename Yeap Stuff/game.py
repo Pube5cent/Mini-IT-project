@@ -9,7 +9,7 @@ from image_processor import *
 from score_viewer import *
 from chart import *
 from utility_functions import *
-import moviepy.editor
+import moviepy.editor # pip install moviepy==1.0.3
 
 # video = moviepy.editor.VideoFileClip("hhmvid.mp4")
 #clip = video.fx(moviepy.editor.vfx.resize, width=width) # resize (keep aspect ratio)

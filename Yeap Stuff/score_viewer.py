@@ -6,7 +6,7 @@ from text_writer import *
 from image_processor import *
 from utility_functions import *
 from score_saver import *
-
+from Mainline import *
 
 def view_score_menu(screen,clock,song_name,score_pointer,song_difficulty,total_points):
     score = score_pointer[0]
@@ -165,3 +165,31 @@ def score_grader(score_percentage):
         return score_grades[7] #'E'
     else:
         return score_grades[8] #
+
+def reward():
+    if score_grades[0]:
+         Knowledge_per_click=Knowledge_per_click * 5
+         return Knowledge_per_click
+    elif score_grades[1] :
+        Knowledge_per_click=Knowledge_per_click * 4 
+        return Knowledge_per_click
+    elif score_grades[2] :
+        Knowledge_per_click=Knowledge_per_click * 3
+        return Knowledge_per_click
+    elif score_grades[3] :
+        Knowledge_per_click=Knowledge_per_click * 2
+        return Knowledge_per_click 
+    elif score_grades[4] :
+        Knowledge_per_click=Knowledge_per_click + Knowledge_per_click * 0.75
+        return Knowledge_per_click 
+    elif score_grades[5] :
+        Knowledge_per_click=Knowledge_per_click + Knowledge_per_click * 0.5 
+        return Knowledge_per_click
+    elif score_grades[6] :
+        Knowledge_per_click=Knowledge_per_click + Knowledge_per_click * 0.25
+        return Knowledge_per_click 
+    elif score_grades[7] :
+        Knowledge_per_click=Knowledge_per_click + Knowledge_per_click * 0.125
+        return Knowledge_per_click 
+    elif score_grades[8] :
+        return Knowledge_per_click

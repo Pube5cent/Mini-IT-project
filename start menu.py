@@ -1,6 +1,6 @@
 import pygame
 import sys
-import Mainline
+import subprocess
 from PIL import Image  # pip install pygame pillow
 
 # Initialize
@@ -210,7 +210,7 @@ def main():
                 slider.handle_event(event)
             if menu_state == "game":
                 __name__ = "__game__"
-                Mainline.main()
+                subprocess.run(["python", "Mainline.py"])
             if event.type == pygame.MOUSEBUTTONDOWN:
                 active_buttons = main_buttons if menu_state == "main" else options_buttons
                 for button in active_buttons:
