@@ -4,8 +4,8 @@ import os
 import time
 import random
 import subprocess
-from AdamStuff import Shared_Temp
 from PIL import Image
+import Shared_state
 
 
 # Initialize Pygame
@@ -17,6 +17,8 @@ FPS = 60
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Knowledge Clicker")
 clock = pygame.time.Clock()
+auto_click_timer = 0
+auto_click_delay = 0.1
 
 # Load GIF frames
 def load_gif_frames(path, scale=(64, 64)):
@@ -116,7 +118,7 @@ def activate_upgrade(upgrade_type, duration=10):
         }
 
 def update_upgrades():
-    global Knowledge, Knowledge_per_click
+    global Knowledge, Knowledge_per_click, active_upgrades, auto_click_timer, auto_click_delay
     now = time.time()
     expired = []
 
@@ -125,7 +127,9 @@ def update_upgrades():
             expired.append(upgrade)
         elif upgrade == "fast_click":
             # Apply per-frame knowledge bonus
-            Knowledge += 5 * info["level"]
+            if now - auto_click_timer >= auto_click_delay:
+                Knowledge += 1
+                auto_click_timer = now
         elif upgrade == "bonus_click":
             Knowledge_per_click = 1 + info["level"]
 
@@ -301,16 +305,18 @@ def show_bonus_popup():
                     return "no"
 
 def mini_game_1():
-    activate_upgrade("fast_click")
-    if player_wins:
-        Shared_Temp.upgrade_triggered = True
-        Shared_Temp.upgrade_type = random.choice(["fast_click", "bonus_click"])
+    subprocess.Popen(["python", "temp_mini_game.py"])
+    #activate_upgrade("fast_click")
+    #if player_wins:
+    #    Shared_Temp.upgrade_triggered = True
+    #    Shared_Temp.upgrade_type = random.choice(["fast_click", "bonus_click"])
 
 def mini_game_2():
-    activate_upgrade("bonus_click")
-    if player_wins:
-        Shared_Temp.upgrade_triggered = True
-        Shared_Temp.upgrade_type = random.choice(["fast_click", "bonus_click"])
+    subprocess.Popen(["python", "temp_mini_game.py"])
+    #activate_upgrade("bonus_click")
+    #if player_wins:
+    #    Shared_Temp.upgrade_triggered = True
+    #    Shared_Temp.upgrade_type = random.choice(["fast_click", "bonus_click"])
 
 # Game Loop
 while True:
@@ -334,6 +340,9 @@ while True:
             else:
                 handle_shop_click(event.pos)
 
+    if Shared_state.upgrade_triggered:
+        activate_upgrade(Shared_state.upgrade_type)
+        Shared_state.upgrade_triggered = False
 
     if not paused:
         if time.time() - last_bonus_time > bonus_interval:
