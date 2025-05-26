@@ -5,7 +5,7 @@ def init_music():
 
 def play_music(path:str, loop: bool = True):
     pygame.mixer.music.load(path)
-    pygame.mixer.music_play(-1 if loop else 0)
+    pygame.mixer.music.play(-1 if loop else 0)
 
 def pause_music():
     pygame.mixer.music.pause()
