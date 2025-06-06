@@ -1,6 +1,6 @@
 import pygame
 import sys
-import Mainline
+import subprocess
 from PIL import Image  # pip install pygame pillow
 
 # Initialize
@@ -9,7 +9,7 @@ pygame.mixer.init()
 pygame.display.set_caption("Start Menu")
 
 # Wallpaper stuff
-GIF_PATH = "AdamStuff/wallpaper.gif"
+GIF_PATH = "AdamStuff/assets/wallpaper.gif"
 WIDTH, HEIGHT = 1080, 720
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 FPS = 60
@@ -36,7 +36,7 @@ TITLE_Y = 150
 SHADOW_OFFSET = 4
 
 # Music Stuff
-Music_Path = "AdamStuff/AlanWalker.mp3"
+Music_Path = "AdamStuff/assets/AlanWalker.mp3"
 
 # Drawing Button
 class Button:
@@ -210,7 +210,7 @@ def main():
                 slider.handle_event(event)
             if menu_state == "game":
                 __name__ = "__game__"
-                Mainline.main()
+                subprocess.run(["python", "Mainline.py"])
             if event.type == pygame.MOUSEBUTTONDOWN:
                 active_buttons = main_buttons if menu_state == "main" else options_buttons
                 for button in active_buttons:
