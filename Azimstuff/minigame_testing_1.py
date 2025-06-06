@@ -18,8 +18,8 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Catch The Right")
 
 # Load and sort background frames
-frame_files = sorted(os.listdir('Azimstuff/gif_frames'), key=lambda f: int(re.search(r'frame_(\d+)', f).group(1)))
-background_frames = [pygame.transform.scale(pygame.image.load(os.path.join('Azimstuff/gif_frames', f)).convert(), (WIDTH, HEIGHT)) for f in frame_files]
+frame_files = sorted(os.listdir('Azim stuff/gif_frames'), key=lambda f: int(re.search(r'frame_(\d+)', f).group(1)))
+background_frames = [pygame.transform.scale(pygame.image.load(os.path.join('Azim stuff/gif_frames', f)).convert(), (WIDTH, HEIGHT)) for f in frame_files]
 
 current_frame = 0
 frame_interval = 100
