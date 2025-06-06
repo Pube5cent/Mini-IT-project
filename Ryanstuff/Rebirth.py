@@ -14,7 +14,7 @@ class RebirthSystem:
             self.rebirth_count += 1
             self.multiplier *= 2.0  # Increase multiplier per rebirth
             knowledge = 0
-            insight = 0  # Reset or modify insight as needed
+            insight = 0  
             self.current_cost = int(self.current_cost * self.cost_multiplier)
             return knowledge, insight, self.multiplier
         # If can't rebirth, return values unchanged
