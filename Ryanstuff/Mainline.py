@@ -11,6 +11,7 @@ from music_manager import init_music, play_music, pause_music, unpause_music, st
 
 
 
+
 # Initialize Pygame and music
 pygame.init()
 init_music()
