@@ -131,9 +131,22 @@ for item in items.values():
 
 
 #loads the game
-Knowledge, Insight, rebirth_multiplier, rebirth_count = load_game(items)
+Knowledge, Insight, rebirth_multiplier, rebirth_count, last_saved_time = load_game(items)
 rebirth_system = RebirthSystem(saved_multiplier=rebirth_multiplier, saved_count=rebirth_count)
-Rebirth_multiplier = rebirth_system.multiplier  # to keep consistent
+Rebirth_multiplier = rebirth_system.multiplier
+
+# Offline gain
+offline_seconds = time.time() - last_saved_time
+offline_knowledge = 0
+
+for item in items.values():
+    if item["owned"] > 0 and item["cps"] > 0:
+        offline_knowledge += item["owned"] * item["cps"] * offline_seconds * Rebirth_multiplier
+
+Knowledge += offline_knowledge
+
+if offline_knowledge > 0:
+    print(f"Gained {int(offline_knowledge)} Knowledge while offline!")
 
 
 #Centre gif
@@ -423,6 +436,7 @@ while True:
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
+            save_game(Knowledge, insight, rebirth_system.multiplier, rebirth_system.rebirth_count, items)  # Update variables as needed
             pygame.quit()
             sys.exit()
 
