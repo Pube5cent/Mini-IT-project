@@ -11,6 +11,7 @@ from Ryanstuff import Rebirth
 from Ryanstuff import game_save
 from Ryanstuff.Rebirth import RebirthSystem
 from Ryanstuff.game_save import save_game, load_game
+from Ryanstuff.music_manager import init_music, play_music, pause_music, unpause_music, stop_music
 
 
 rebirth_system = RebirthSystem(initial_cost=2)
@@ -19,7 +20,12 @@ rebirth_system = RebirthSystem(initial_cost=2)
 #Initialize Pygame
 pygame.init()
 
+# Initialize Pygame and music
+pygame.init()
+init_music()
 
+# Play background music
+play_music("Ryanstuff/Game.mp3")
 
 #Screen settings
 WIDTH, HEIGHT = 1080, 720
@@ -58,10 +64,6 @@ def load_gif_frames(path, scale=(64, 64)):
 #Background GIF
 background_gif_path = "RyanStuff/main_wallpaper.gif"
 background_frames = load_gif_frames(background_gif_path, scale=(WIDTH, HEIGHT))
-
-#Music Path [Rhayyan]
-#music_manager.init_music()
-#music_manager.play_music("Ryanstuff/Game.mp3")
 
 
 #Knowledge, player_state, items = game_save.load_game()
