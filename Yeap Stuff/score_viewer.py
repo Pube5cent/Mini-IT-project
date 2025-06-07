@@ -1,12 +1,14 @@
 import pygame
 import random
+import sys
+import json
 from variables import *
 from music_ import *
 from text_writer import *
 from image_processor import *
 from utility_functions import *
 from score_saver import *
-from Mainline import *
+
 
 def view_score_menu(screen,clock,song_name,score_pointer,song_difficulty,total_points):
     score = score_pointer[0]
@@ -57,6 +59,7 @@ def view_score_menu(screen,clock,song_name,score_pointer,song_difficulty,total_p
         for event in pygame.event.get():
             if event.type == pygame.QUIT:  
                 viewer_run = False
+                pygame.quit()
                 break
 
             if event.type == pygame.MOUSEMOTION:  
@@ -70,12 +73,14 @@ def view_score_menu(screen,clock,song_name,score_pointer,song_difficulty,total_p
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE or event.key == pygame.K_RETURN:  
                     viewer_run = False
+                    pygame.quit()
                     break
 
         if not viewer_run:
+            pygame.quit()
             break
 
-        write_text(screen, width // 2, height//20 , 'Press Enter to continue', small_text, background_color[0],
+        write_text(screen, width // 2, height//20 , 'Press Enter to quit', small_text, background_color[0],
                    highlight_text_color)
 
         write_text(screen, width // 2, height//4 - big_text, '%s' % (song_name), big_text, background_color[0],
@@ -166,30 +171,63 @@ def score_grader(score_percentage):
     else:
         return score_grades[8] #
 
-def reward():
-    if score_grades[0]:
-         Knowledge_per_click=Knowledge_per_click * 5
-         return Knowledge_per_click
-    elif score_grades[1] :
-        Knowledge_per_click=Knowledge_per_click * 4 
-        return Knowledge_per_click
-    elif score_grades[2] :
-        Knowledge_per_click=Knowledge_per_click * 3
-        return Knowledge_per_click
-    elif score_grades[3] :
-        Knowledge_per_click=Knowledge_per_click * 2
-        return Knowledge_per_click 
-    elif score_grades[4] :
-        Knowledge_per_click=Knowledge_per_click + Knowledge_per_click * 0.75
-        return Knowledge_per_click 
-    elif score_grades[5] :
-        Knowledge_per_click=Knowledge_per_click + Knowledge_per_click * 0.5 
-        return Knowledge_per_click
-    elif score_grades[6] :
-        Knowledge_per_click=Knowledge_per_click + Knowledge_per_click * 0.25
-        return Knowledge_per_click 
-    elif score_grades[7] :
-        Knowledge_per_click=Knowledge_per_click + Knowledge_per_click * 0.125
-        return Knowledge_per_click 
-    elif score_grades[8] :
-        return Knowledge_per_click
+if score_grades[0]:
+         with open("shared_state.json", "r") as f:
+            data = json.load(f)
+
+            data["trigger_upgrade"] = random.choice(["fast_click", "bonus_click"])
+
+            with open("shared_state.json", "w") as f:
+                json.dump(data, f)
+                with open("shared_state.json", "w") as f:
+                        json.dump(data, f)
+elif score_grades[1] :
+         with open("shared_state.json", "r") as f:
+            data = json.load(f)
+
+            data["trigger_upgrade"] = random.choice(["fast_click", "bonus_click"])
+
+            with open("shared_state.json", "w") as f:
+                json.dump(data, f)
+                with open("shared_state.json", "w") as f:
+                        json.dump(data, f)
+elif score_grades[2] :
+         with open("shared_state.json", "r") as f:
+            data = json.load(f)
+
+            data["trigger_upgrade"] = random.choice(["fast_click", "bonus_click"])
+
+            with open("shared_state.json", "w") as f:
+                json.dump(data, f)
+                with open("shared_state.json", "w") as f:
+                        json.dump(data, f)
+elif score_grades[3] :
+         with open("shared_state.json", "r") as f:
+            data = json.load(f)
+
+            data["trigger_upgrade"] = random.choice(["fast_click", "bonus_click"])
+
+            with open("shared_state.json", "w") as f:
+                json.dump(data, f)
+                with open("shared_state.json", "w") as f:
+                        json.dump(data, f)
+elif score_grades[4] :
+         with open("shared_state.json", "r") as f:
+            data = json.load(f)
+
+            data["trigger_upgrade"] = random.choice(["fast_click", "bonus_click"])
+
+            with open("shared_state.json", "w") as f:
+                json.dump(data, f)
+                with open("shared_state.json", "w") as f:
+                        json.dump(data, f)
+elif score_grades[5] :
+         with open("shared_state.json", "r") as f:
+            data = json.load(f)
+
+            data["trigger_upgrade"] = random.choice(["fast_click", "bonus_click"])
+
+            with open("shared_state.json", "w") as f:
+                json.dump(data, f)
+                with open("shared_state.json", "w") as f:
+                        json.dump(data, f)

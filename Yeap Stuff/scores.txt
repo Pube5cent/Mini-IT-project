@@ -1,2 +1,5 @@
 Dogsong,0.00
 test,0.00
+BadApple,0.00
+Crystal,0.00
+Hmm Heu Ming Remix (Rcol),0.00
