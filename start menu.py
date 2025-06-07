@@ -1,6 +1,6 @@
 import pygame
-import sys
 import subprocess
+import sys
 from PIL import Image  # pip install pygame pillow
 
 # Initialize
@@ -10,13 +10,14 @@ pygame.display.set_caption("Start Menu")
 
 # Wallpaper stuff
 GIF_PATH = "AdamStuff/assets/wallpaper.gif"
-WIDTH, HEIGHT = 1080, 720
+info = pygame.display.Info()
+WIDTH, HEIGHT = info.current_w, info.current_h
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 FPS = 60
 
 # Fonts
-FONT = pygame.font.SysFont("Arial", 40)
-TITLE_FONT = pygame.font.SysFont("Arial", 80)
+FONT = pygame.font.SysFont("Arial", int(40 * (HEIGHT / 720)))
+TITLE_FONT = pygame.font.SysFont("Arial", int(80 * (HEIGHT / 720)))
 
 # Colours
 WHITE = (255, 255, 255)
@@ -64,14 +65,14 @@ class VolumeSlider:
         self.y = y
         self.width = width
         self.height = height
-        self.rect = pygame.Rect(x, y, width, height)
-        self.handle_rect = pygame.Rect(x, y, 20, height)
+        self.rect = pygame.Rect(x, y + 50, width, height)  # slider size adjustment here
+        self.handle_rect = pygame.Rect(x, y + 40, 20, height)
         self.dragging = False
         self.volume = pygame.mixer.music.get_volume()
         self.update_handle()
 
-        # Background box like buttons
-        self.background_rect = pygame.Rect(x - 10, y - 20, width + 20, height + 60)
+        # Background box around slider and label
+        self.background_rect = pygame.Rect(x - 10, y, width + 20, height + 80)
 
     def update_handle(self):
         self.handle_rect.x = self.rect.x + int(self.volume * (self.rect.width - self.handle_rect.width))
@@ -88,20 +89,24 @@ class VolumeSlider:
             pygame.mixer.music.set_volume(self.volume)
 
     def draw(self, surface):
-        # Drawing colour and shapes
+        # Draw background panel
         pygame.draw.rect(surface, LIGHT_GRAY, self.background_rect, border_radius=10)
+
+        # Draw volume label above slider
+        label_text = FONT.render(f"Volume: {int(self.volume * 100)}%", True, GRAY)
+        label_rect = label_text.get_rect(center=(self.background_rect.centerx, self.background_rect.y + 25))
+        surface.blit(label_text, label_rect)
+
+        # Draw slider bar and handle
         pygame.draw.rect(surface, GRAY, self.rect)
         pygame.draw.rect(surface, WHITE, self.handle_rect)
 
-        # Draw label
-        text = FONT.render(f"Volume: {int(self.volume * 100)}%", True, GRAY)
-        text_rect = text.get_rect(center=(self.background_rect.centerx, self.background_rect.top + 25))
-        surface.blit(text, text_rect)
 
 # Assign Button Functions
 def start_game():
-    global menu_state
-    menu_state = "game"
+    pygame.quit()
+    subprocess.run(["python", "Mainline.py"])
+    sys.exit()
 
 def open_options():
     global menu_state
@@ -122,12 +127,13 @@ def toggle_music():
         pygame.mixer.music.stop()
 
 def toggle_fullscreen():
-    global fullscreen_on, screen
+    global fullscreen_on, screen, gif_frames
     fullscreen_on = not fullscreen_on
     if fullscreen_on:
         screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN)
     else:
         screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    gif_frames = load_gif_frames(GIF_PATH)  # reload resized frames
 
 def quit_game():
     pygame.quit()
@@ -139,8 +145,9 @@ def load_gif_frames(path):
     frames = []
     try:
         while True:
-            frame = gif.convert("RGB").resize((WIDTH, HEIGHT))
-            surface = pygame.image.fromstring(frame.tobytes(), frame.size, "RGB")
+            frame = gif.convert("RGB")
+            resized = frame.resize((WIDTH, HEIGHT))
+            surface = pygame.image.fromstring(resized.tobytes(), resized.size, "RGB")
             frames.append(surface)
             gif.seek(gif.tell() + 1)
     except EOFError:
@@ -162,7 +169,7 @@ main_buttons = [
 options_buttons = [
     Button(lambda: f"Music: {'ON' if music_on else 'OFF'}", 300, toggle_music),
     Button(lambda: f"Fullscreen: {'ON' if fullscreen_on else 'OFF'}", 390, toggle_fullscreen),
-    Button("Back", 560, back_to_main),
+    Button("Back", 600, back_to_main),
 ]
 
 # Slider POSITION____________
@@ -208,13 +215,18 @@ def main():
                 quit_game()
             elif menu_state == "options":
                 slider.handle_event(event)
-            if menu_state == "game":
-                __name__ = "__game__"
-                subprocess.run(["python", "Mainline.py"])
             if event.type == pygame.MOUSEBUTTONDOWN:
                 active_buttons = main_buttons if menu_state == "main" else options_buttons
                 for button in active_buttons:
                     button.click(event.pos)
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                active_buttons = main_buttons if menu_state == "main" else options_buttons
+                for button in active_buttons:
+                    before_toggle = screen
+                    button.click(event.pos)
+                    # Optional debug print
+                    if before_toggle != screen:
+                        print("Screen surface updated (fullscreen toggled)")
 
         # Draw buttons
         active_buttons = main_buttons if menu_state == "main" else options_buttons

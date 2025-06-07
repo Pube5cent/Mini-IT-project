@@ -129,6 +129,10 @@ upgrade_icons = {
 
 # Active Upgrades
 active_upgrades = {
+    "bonus_click": {
+        "level": 1,
+        "end_time": 1723848381.2
+        },
     "fast_click": {
         "level": 2,                # Temp upgrade level
         "end_time": 1724341234.123
