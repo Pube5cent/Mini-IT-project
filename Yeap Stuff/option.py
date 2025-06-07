@@ -45,13 +45,13 @@ while meta_run:
 
     while run:
         
-        music_list, music_pointer, song_name = song_selection_screen(screen,clock,stage_speed, offset, judgement_shown, guide_line_shown, high_quality_verifying_graphics)
+        stage_speed, offset, judgement_shown, guide_line_shown, high_quality_verifying_graphics = option_screen(screen,clock,stage_speed, offset, judgement_shown, guide_line_shown, high_quality_verifying_graphics)
         
         
         for event in pygame.event.get():
             if event.type == pygame.QUIT:  
                 run, meta_run = exit()
-                pygame.quit()
+                break
             if event.type == pygame.MOUSEMOTION:
                  # point.pos = pygame.mouse.get_pos()
                 pass
@@ -76,14 +76,14 @@ while meta_run:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:  
                     run, meta_run = exit()
-                    pygame.quit()
+                    break
 
                 elif event.key == pygame.K_RETURN:
                     run = False
                     music_list, music_pointer, song_name = song_selection_screen(screen, clock, stage_speed, offset,
                                                                                  judgement_shown, guide_line_shown,
                                                                                  high_quality_verifying_graphics)
-                    pygame.quit()
+                    break
 
        
 

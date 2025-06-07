@@ -74,14 +74,14 @@ def song_selection_screen(screen,clock,stage_speed, offset, judgement_shown, gui
     # back button
     back = load_image('back')
     back = resize_image(back, (big_text,big_text))
-    back_rect = move_image(back, (back_button_x_loc,back_button_y_loc))
+    ack_rect = move_image(back, (back_button_x_loc,back_button_y_loc))
 
 
     while song_selection_run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:  
                 song_selection_run = False
-                return exit_song_selection_screen(music_list, music_pointer, song_name)
+                break
 
             if event.type == pygame.MOUSEMOTION:  
                 # point.pos = pygame.mouse.get_pos()
@@ -92,10 +92,10 @@ def song_selection_screen(screen,clock,stage_speed, offset, judgement_shown, gui
                 mouse_particle_list.append((pygame.time.get_ticks(), (xp, yp)))
                 mouse_click_sound()
 
-                if abs(xp - back_button_x_loc - big_text) < big_text:  # press back button to quit song selection
-                    if abs(yp - back_button_y_loc) < big_text:
-                        song_selection_run = False
-                        return exit_song_selection_screen(music_list, music_pointer, song_name)
+                #if abs(xp - back_button_x_loc - big_text) < big_text:  # press back button to quit song selection
+                #    if abs(yp - back_button_y_loc) < big_text:
+                #        song_selection_run = False
+                #        return exit_song_selection_screen(music_list, music_pointer, song_name)
 
 
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -118,7 +118,8 @@ def song_selection_screen(screen,clock,stage_speed, offset, judgement_shown, gui
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     song_selection_run = False
-                    return exit_song_selection_screen(music_list, music_pointer, song_name)
+                    #return exit_song_selection_screen(music_list, music_pointer, song_name)
+                    break
 
                 # after choosing music
                 elif event.key == pygame.K_RETURN:
@@ -173,6 +174,7 @@ def song_selection_screen(screen,clock,stage_speed, offset, judgement_shown, gui
                     song_name,song_highest_score = update_song_info()
 
         if not song_selection_run:
+            break
             return exit_song_selection_screen(music_list, music_pointer, song_name)
 
         screen.fill(background_color[0])
@@ -240,7 +242,7 @@ def song_selection_screen(screen,clock,stage_speed, offset, judgement_shown, gui
         screen.blit(jacket_image, jacket_rect)
 
         # draw the back button
-        screen.blit(back, back_rect)
+        #screen.blit(back, back_rect)
 
 
         if mouse_particle_list:  # if not empty
