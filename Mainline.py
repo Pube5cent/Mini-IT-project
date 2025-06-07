@@ -8,7 +8,6 @@ import subprocess
 from PIL import Image
 from Ryanstuff import music_manager #from Ryanstuff import game_save
 
-
 #Initialize Pygame
 pygame.init()
 
@@ -61,10 +60,24 @@ background_frames = load_gif_frames(background_gif_path, scale=(WIDTH, HEIGHT))
 # Fonts
 font = pygame.font.SysFont("Arial", 24)
 
-# Pause menu state
-paused = False
+# Pause Button Size
+button_width = 150
+button_height = 40
+padding = 10
 
-#Pause menu state
+pause_button_rect = pygame.Rect(
+    screen.get_width() - button_width - padding,
+    padding,
+    button_width,
+    button_height
+)
+
+pause_button_color = (70, 70, 70) 
+pause_button_text_color = (255, 255, 255)  
+pause_button_text = font.render("Pause", True, pause_button_text_color)
+
+
+# Pause menu state
 paused = False
 
 #Game Variables
@@ -381,7 +394,36 @@ def mini_game_1():
 def mini_game_2():
     subprocess.Popen(["python", "temp_mini_game.py"])
 
-#Game Loop
+paused = False
+volume_on = True  # add volume control state
+
+button_width, button_height = 200, 50
+padding = 10
+WHITE = (255, 255, 255)
+GRAY = (100, 100, 100)
+
+def draw_button(surface, rect, text, active=False):
+    color = (200, 50, 50) if active else (70, 70, 70)
+    pygame.draw.rect(surface, color, rect)
+    pygame.draw.rect(surface, (255, 255, 255), rect, 2)
+    text_surf = font.render(text, True, (255, 255, 255))
+    text_rect = text_surf.get_rect(center=rect.center)
+    surface.blit(text_surf, text_rect)
+
+draw_button(screen, pause_button_rect, "Pause" if not paused else "Resume", active=paused)
+
+def toggle_volume():
+    global volume_on
+    volume_on = not volume_on
+    pygame.mixer.music.set_volume(1.0 if volume_on else 0.0)
+
+def draw_pause_button():
+    pygame.draw.rect(screen, pause_button_color, pause_button_rect)
+    # Center text on button
+    text_rect = pause_button_text.get_rect(center=pause_button_rect.center)
+    screen.blit(pause_button_text, text_rect)
+
+#Main Game Loop
 while True:
     dt = clock.tick(FPS) / 1000
 
@@ -393,17 +435,40 @@ while True:
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 paused = not paused
-            elif event.key == pygame.K_f:  # Press 'F' to toggle fullscreen
+            elif event.key == pygame.K_f:
                 toggle_fullscreen()
 
-        elif event.type == pygame.MOUSEBUTTONDOWN and not paused:
-            if book_button.collidepoint(event.pos):
-                bonus = 1
-                if "fast_click" in active_upgrades:
-                    bonus += active_upgrades["fast_click"]["level"] * 0.5  # Adjust multiplier here
-                Knowledge += Knowledge_per_click * bonus
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            mx, my = event.pos
+
+            # Pause button (always visible top right)
+            if pause_button_rect.collidepoint(mx, my):
+                paused = not paused
+            elif paused:
+                # Pause menu buttons rectangles
+                menu_x = screen.get_width() - button_width - padding
+                menu_y = padding
+                fullscreen_button = pygame.Rect(menu_x, menu_y, button_width, button_height)
+                volume_button = pygame.Rect(menu_x, menu_y + button_height + padding, button_width, button_height)
+                quit_button = pygame.Rect(menu_x, menu_y + 2 * (button_height + padding), button_width, button_height)
+
+                if fullscreen_button.collidepoint(mx, my):
+                    toggle_fullscreen()
+                elif volume_button.collidepoint(mx, my):
+                    toggle_volume()
+                elif quit_button.collidepoint(mx, my):
+                    pygame.quit()
+                    sys.exit()
             else:
-                handle_shop_click(event.pos)
+                # Game clicks when not paused
+                if book_button.collidepoint(event.pos):
+                    bonus = 1
+                    if "fast_click" in active_upgrades:
+                        bonus += active_upgrades["fast_click"]["level"] * 0.5
+                    Knowledge += Knowledge_per_click * bonus
+                else:
+                    handle_shop_click(event.pos)
+
 
     if time.time() - last_check > 1:
         check_for_triggered_upgrade()
@@ -417,14 +482,29 @@ while True:
 
         update_items(dt)
         update_upgrades()
+
     draw()
+    draw_pause_button()
 
     if paused:
+        # Draw transparent overlay
         overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
         overlay.fill((0, 0, 0, 180))
         screen.blit(overlay, (0, 0))
 
+        # Draw pause text
         pause_text = font.render("PAUSED - Press ESC to Resume", True, WHITE)
         screen.blit(pause_text, (WIDTH // 2 - pause_text.get_width() // 2, HEIGHT // 2 - 20))
+
+        # Draw buttons in top-right corner
+        menu_x = screen.get_width() - button_width - padding
+        menu_y = padding
+        fullscreen_button = pygame.Rect(menu_x, menu_y, button_width, button_height)
+        volume_button = pygame.Rect(menu_x, menu_y + button_height + padding, button_width, button_height)
+        quit_button = pygame.Rect(menu_x, menu_y + 2 * (button_height + padding), button_width, button_height)
+
+        draw_button(screen, fullscreen_button, "Toggle Fullscreen")
+        draw_button(screen, volume_button, f"Volume: {'On' if volume_on else 'Off'}")
+        draw_button(screen, quit_button, "Quit Game")
 
     pygame.display.update()
