@@ -10,6 +10,7 @@ from Ryanstuff import music_manager #from Ryanstuff import game_save
 from Ryanstuff import Rebirth
 from Ryanstuff import game_save
 from Ryanstuff.Rebirth import RebirthSystem
+from Ryanstuff.game_save import save_game, load_game
 
 
 rebirth_system = RebirthSystem(initial_cost=2)
@@ -62,7 +63,7 @@ background_frames = load_gif_frames(background_gif_path, scale=(WIDTH, HEIGHT))
 #music_manager.init_music()
 #music_manager.play_music("Ryanstuff/Game.mp3")
 
-#Load saved game state or default values [Rhayyan]
+
 #Knowledge, player_state, items = game_save.load_game()
 #Knowledge_per_click = 1
 
@@ -127,6 +128,13 @@ items = {
 
 for item in items.values():
     item["frames"] = load_gif_frames(item["gif_path"])
+
+
+#loads the game
+Knowledge, Insight, rebirth_multiplier, rebirth_count = load_game(items)
+rebirth_system = RebirthSystem(saved_multiplier=rebirth_multiplier, saved_count=rebirth_count)
+Rebirth_multiplier = rebirth_system.multiplier  # to keep consistent
+
 
 #Centre gif
 center_gif_path = "AdamStuff/assets/floating_book.gif"
@@ -433,8 +441,10 @@ while True:
         
             elif rebirth_button.collidepoint(event.pos):
                 if rebirth_system.can_rebirth(Knowledge):
-                    Knowledge, insight, new_multiplier = rebirth_system.rebirth(Knowledge, insight)
+                    Knowledge, insight, new_multiplier, new_rebirth_count = rebirth_system.rebirth(Knowledge, insight)
                     Rebirth_multiplier = new_multiplier
+                    rebirth_system.rebirth_count = new_rebirth_count
+
                     print(f"Rebirthed! New multiplier: {new_multiplier}")
             
                 

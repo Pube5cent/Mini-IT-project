@@ -1,5 +1,1 @@
-<<<<<<< HEAD
-{"knowledge": 25344.0, "insight": 0, "rebirth_multiplier": 256.0, "items": {"Manual research": {"owned": 6}, "Turbo Learn": {"owned": 3}}, "last_time": 1748256591.3404813}
-=======
-{"knowledge": 10.0, "insight": 0, "rebirth_multiplier": 2.0, "items": {"Manual research": {"owned": 1}, "Turbo Learn": {"owned": 0}}, "last_time": 1749195424.7586603}
->>>>>>> main
+{"knowledge": 3773.7817764282227, "insight": 0, "rebirth_multiplier": 64.0, "items": {"Manual research": {"owned": 1, "cost": 15, "click_bonus": 0}, "Turbo Learn": {"owned": 1, "cost": 100, "click_bonus": 0}}, "last_time": 1749309522.987932}
