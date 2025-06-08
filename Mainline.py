@@ -24,6 +24,7 @@ init_music()
 
 # Play background music
 play_music("Ryanstuff/Game.mp3")
+volume_on = False
 
 #Screen settings
 WIDTH, HEIGHT = 1080, 720
@@ -435,13 +436,6 @@ def mini_game_1():
 def mini_game_2():
     subprocess.Popen(["python", "Yeap Stuff/main.py"])
 
-volume_on = True  # add volume control state
-
-button_width, button_height = 200, 50
-padding = 10
-WHITE = (255, 255, 255)
-GRAY = (100, 100, 100)
-
 def draw_button(surface, rect, text, active=False):
     color = (200, 50, 50) if active else (70, 70, 70)
     pygame.draw.rect(surface, color, rect)
@@ -537,7 +531,6 @@ while True:
                     handle_shop_click(event.pos)
 
             
-
     if time.time() - last_check > 1:
         check_for_triggered_upgrade()
         last_check = time.time()
