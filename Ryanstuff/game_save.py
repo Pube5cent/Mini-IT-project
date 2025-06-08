@@ -1,6 +1,33 @@
 import time
 import json
 
+
+items = {
+    "Manual research": {
+        "cost": 15,
+        "cps": 1,
+        "owned": 0,
+        "elapsed": 0.0,
+        "gif_path": "AdamStuff/assets/gif_0.gif"
+    },
+    "Turbo Learn": {
+        "cost": 50,
+        "cps": 1,
+        "owned": 0,
+        "elapsed": 0.0,
+        "gif_path": "AdamStuff/assets/gif_1.gif"
+    },
+    "Super Click": {
+        "cost": 10,
+        "cps": 3,
+        "owned": 0,
+        "elapsed": 0.0,
+        "gif_path": "AdamStuff/assets/gif_3.gif",  
+        "click_bonus": 1
+    }
+}
+
+
 def save_game(Knowledge, rebirth_multiplier, rebirth_count, items):
     # Prepare items for JSON: exclude non-serializable keys like 'frames'
     serializable_items = {}

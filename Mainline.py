@@ -470,7 +470,7 @@ while True:
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            save_game(Knowledge, insight, rebirth_system.multiplier, rebirth_system.rebirth_count, items)  # Update variables as needed
+            save_game(Knowledge, rebirth_system.multiplier, rebirth_system.rebirth_count, items)  # Update variables as needed
             pygame.quit()
             sys.exit()
 
@@ -518,7 +518,7 @@ while True:
                     bonus += active_upgrades["fast_click"]["level"] * 0.5  # Adjust multiplier here
                 Knowledge += Knowledge_per_click * bonus * Rebirth_multiplier #multiplies the points gain per rebirth
         
-            if rebirth_button.collidepoint(event.pos):
+            elif rebirth_button.collidepoint(event.pos):
                 if rebirth_system.can_rebirth(Knowledge):
                     # Call rebirth and unpack results correctly
                     Knowledge, Knowledge_per_click, items, active_upgrades, rebirth_multiplier, rebirth_count = rebirth_system.rebirth(
