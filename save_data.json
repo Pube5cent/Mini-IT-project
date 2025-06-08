@@ -1,3 +1,5 @@
+<<<<<<< HEAD
+=======
 {
     "Knowledge": 17179869184.0,
     "Insight": 6727118.0,
@@ -5,27 +7,48 @@
     "rebirth_count": 26,
     "items": {
         "Manual research": {
-            "cost": 45.88534293808591,
+            "cost": 15,
             "cps": 1,
+<<<<<<< HEAD
             "owned": 8,
             "elapsed": 0.06200000000000857,
+=======
+            "owned": 0,
+            "elapsed": 0.0,
+>>>>>>> main
             "gif_path": "AdamStuff/assets/gif_0.gif"
         },
         "Turbo Learn": {
-            "cost": 232.61956980320463,
+            "cost": 50,
             "cps": 1,
+<<<<<<< HEAD
             "owned": 11,
             "elapsed": 0.06200000000000857,
+=======
+            "owned": 0,
+            "elapsed": 0.0,
+>>>>>>> main
             "gif_path": "AdamStuff/assets/gif_1.gif"
         },
         "Super Click": {
-            "cost": 23.130607656249992,
+            "cost": 10,
             "cps": 3,
+<<<<<<< HEAD
             "owned": 6,
             "elapsed": 0.06200000000000585,
+=======
+            "owned": 0,
+            "elapsed": 0.0,
+>>>>>>> main
             "gif_path": "AdamStuff/assets/gif_3.gif",
             "click_bonus": 1
         }
     },
+<<<<<<< HEAD
     "last_saved_time": 1749374171.9611073
 }
+=======
+    "last_saved_time": 1749370245.192471
+}
+>>>>>>> ec371584f33b46fe2e7bd4cf15cfe87f3840b416
+>>>>>>> main
