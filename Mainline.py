@@ -84,7 +84,6 @@ Knowledge_per_click = 1
 
 #initialize rebirth
 rebirth = RebirthSystem(initial_cost=2)
-insight = 0
 Rebirth_multiplier = 1
 Rebirth_multiplier = rebirth_system.multiplier
 
@@ -133,7 +132,7 @@ for item in items.values():
 
 
 #loads the game
-Knowledge, Insight, rebirth_multiplier, rebirth_count, last_saved_time = load_game(items)
+Knowledge, rebirth_multiplier, rebirth_count, last_saved_time = load_game(items)
 rebirth_system = RebirthSystem(saved_multiplier=rebirth_multiplier, saved_count=rebirth_count)
 Rebirth_multiplier = rebirth_system.multiplier
 
@@ -360,9 +359,7 @@ def draw():
     screen.blit(rebirth_text, (rebirth_button.centerx - rebirth_text.get_width() // 2,
                                rebirth_button.centery - rebirth_text.get_height() // 2))
 
-    insight_text = font.render(f"Insight: {insight}", True, WHITE)
     multiplier_text = font.render(f"Multiplier: x{Rebirth_multiplier}", True, WHITE)
-    screen.blit(insight_text, (WIDTH - 150, 80))
     screen.blit(multiplier_text, (WIDTH - 150, 110))
 
     draw_active_upgrades()
@@ -438,7 +435,7 @@ while True:
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            save_game(Knowledge, insight, rebirth_system.multiplier, rebirth_system.rebirth_count, items)  # Update variables as needed
+            save_game(Knowledge, rebirth_system.multiplier, rebirth_system.rebirth_count, items)  # Update variables as needed
             pygame.quit()
             sys.exit()
 
@@ -455,18 +452,24 @@ while True:
                     bonus += active_upgrades["fast_click"]["level"] * 0.5  # Adjust multiplier here
                 Knowledge += Knowledge_per_click * bonus * Rebirth_multiplier #multiplies the points gain per rebirth
         
-            elif rebirth_button.collidepoint(event.pos):
+            if rebirth_button.collidepoint(event.pos):
                 if rebirth_system.can_rebirth(Knowledge):
-                    Knowledge, insight, new_multiplier, new_rebirth_count = rebirth_system.rebirth(Knowledge, insight)
-                    Rebirth_multiplier = new_multiplier
-                    rebirth_system.rebirth_count = new_rebirth_count
+                    # Call rebirth and unpack results correctly
+                    Knowledge, Knowledge_per_click, items, active_upgrades, rebirth_multiplier, rebirth_count = rebirth_system.rebirth(
+                        Knowledge,
+                        Knowledge_per_click,
+                        items,
+                        active_upgrades
+                    )
+                    # Update rebirth_system internal states if needed
+                    rebirth_system.multiplier = rebirth_multiplier
+                    rebirth_system.rebirth_count = rebirth_count
 
-                    print(f"Rebirthed! New multiplier: {new_multiplier}")
-            
-                
-              
+                    print(f"Rebirthed! New multiplier: {rebirth_multiplier}")
+
             else:
-                handle_shop_click(event.pos)
+                    handle_shop_click(event.pos)
+
             
 
     if time.time() - last_check > 1:
