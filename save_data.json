@@ -1,8 +1,8 @@
 {
-    "Knowledge": 109,
+    "Knowledge": 62841386.62684658,
     "Insight": 0,
-    "rebirth_multiplier": 1,
-    "rebirth_count": 0,
+    "rebirth_multiplier": 2048.0,
+    "rebirth_count": 11,
     "items": {
         "Manual research": {
             "cost": 15,
