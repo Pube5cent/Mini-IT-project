@@ -194,15 +194,16 @@ while running:
 
         if time_left == 0:
             # Player survived full time
-           with open("shared_state.json", "r") as f:
-            data = json.load(f)
-
-            data["trigger_upgrade"] = random.choice(["fast_click", "bonus_click"])
+            with open("shared_state.json", "r") as f:
+                        data = json.load(f)
+                        data["trigger_upgrade"] = random.choice(["fast_click", "bonus_click"])
 
             with open("shared_state.json", "w") as f:
                 json.dump(data, f)
                 with open("shared_state.json", "w") as f:
                         json.dump(data, f)
+            
+            print("ts works")
             running = False  # Close game
 
         for ball in balls:

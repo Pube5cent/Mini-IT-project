@@ -23,7 +23,7 @@ pygame.init()
 init_music()
 
 # Play background music
-play_music("Ryanstuff/Game.mp3")
+#play_music("Ryanstuff/Game.mp3")
 volume_on = False
 
 #Screen settings
@@ -434,7 +434,8 @@ def mini_game_1():
     subprocess.Popen(["python", "Azim stuff/minigame testing 1.py"])
 
 def mini_game_2():
-    subprocess.Popen(["python", "Yeap Stuff/main.py"])
+    subprocess.Popen(["python", "Azim stuff/minigame testing 1.py"])
+    #subprocess.Popen(["python", "Yeap Stuff/main.py"])
 
 def draw_button(surface, rect, text, active=False):
     color = (200, 50, 50) if active else (70, 70, 70)
