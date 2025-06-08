@@ -2,12 +2,13 @@ import pygame
 import sys
 import random
 import os
+from AdamStuff import Shared_Temp
 
 # Initialize pygame
 pygame.init()
 
 # Load and play background music
-pygame.mixer.music.load("Azimstuff/bgm_music.mp3")
+pygame.mixer.music.load("Azim stuff/bgm_music.mp3")
 pygame.mixer.music.set_volume(0.1)
 pygame.mixer.music.play(-1)
 
@@ -192,8 +193,7 @@ while running:
         time_left = max(0, int(time_limit - seconds_passed))
 
         if time_left == 0:
-            # Player survived full time, trigger friend's upgrade code
-            import Shared_Temp
+            # Player survived full time
             Shared_Temp.upgrade_triggered = True
             Shared_Temp.upgrade_type = random.choice(["fast_click", "bonus_click"])
             running = False  # Close game
