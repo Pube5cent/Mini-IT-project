@@ -433,7 +433,7 @@ def mini_game_1():
     subprocess.Popen(["python", "Azim stuff/minigame testing 1.py"])
 
 def mini_game_2():
-    subprocess.Popen(["python", "Azim stuff/minigame testing 1.py"])
+    subprocess.Popen(["python", "Yeap Stuff/main.py"])
 
 volume_on = True  # add volume control state
 
