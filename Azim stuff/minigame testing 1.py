@@ -2,7 +2,7 @@ import pygame
 import sys
 import random
 import os
-from AdamStuff import Shared_Temp
+import json
 
 # Initialize pygame
 pygame.init()
@@ -194,8 +194,15 @@ while running:
 
         if time_left == 0:
             # Player survived full time
-            Shared_Temp.upgrade_triggered = True
-            Shared_Temp.upgrade_type = random.choice(["fast_click", "bonus_click"])
+           with open("shared_state.json", "r") as f:
+            data = json.load(f)
+
+            data["trigger_upgrade"] = random.choice(["fast_click", "bonus_click"])
+
+            with open("shared_state.json", "w") as f:
+                json.dump(data, f)
+                with open("shared_state.json", "w") as f:
+                        json.dump(data, f)
             running = False  # Close game
 
         for ball in balls:
