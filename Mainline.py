@@ -13,7 +13,6 @@ from Ryanstuff.Rebirth import RebirthSystem
 from Ryanstuff.game_save import save_game, load_game
 from Ryanstuff.music_manager import init_music, play_music, pause_music, unpause_music, stop_music
 
-rebirth_system = RebirthSystem(initial_cost=2)
 
 #Initialize Pygame
 pygame.init()
@@ -93,9 +92,10 @@ Knowledge = 0
 Knowledge_per_click = 1
 
 #initialize rebirth
-rebirth = RebirthSystem(initial_cost=2)
+rebirth_system = RebirthSystem(initial_cost=2)
 Rebirth_multiplier = 1
 Rebirth_multiplier = rebirth_system.multiplier
+
 
 #Colors
 WHITE = (255, 255, 255)
