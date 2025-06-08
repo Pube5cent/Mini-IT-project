@@ -9,21 +9,28 @@ class RebirthSystem:
     def can_rebirth(self, knowledge):
         return knowledge >= self.current_cost
 
-    def rebirth(self, Knowledge, Knowledge_per_click, items, active_upgrades):
-        if not self.can_rebirth(Knowledge):
-            return (Knowledge, Knowledge_per_click, items, active_upgrades, self.multiplier, self.rebirth_count)
+    def rebirth(self, knowledge, knowledge_per_click, items, active_upgrades):
+        if not self.can_rebirth(knowledge):
+            return knowledge, knowledge_per_click, items, active_upgrades, self.multiplier, self.rebirth_count
 
         # Increase rebirth count and multiplier
         self.rebirth_count += 1
-        self.multiplier = 1 + self.rebirth_count * 0.1  # example multiplier scaling
+        self.multiplier = 1 + self.rebirth_count * 0.1  # example scaling
 
-        # Reset Knowledge, Knowledge_per_click, items, and upgrades
-        Knowledge = 0
-        Knowledge_per_click = 1
+        # Scale up the rebirth cost
+        self.current_cost *= self.cost_multiplier
+
+        # Reset core values
+        knowledge = 0
+        knowledge_per_click = 1
+
+        # Reset items
         for item in items.values():
             item["owned"] = 0
-            item["cost"] = item.get("base_cost", item["cost"])  # reset to base cost if stored
+            if "base_cost" in item:
+                item["cost"] = item["base_cost"]
 
+        # Clear active upgrades
         active_upgrades.clear()
 
-        return Knowledge, Knowledge_per_click, items, active_upgrades, self.multiplier, self.rebirth_count
+        return knowledge, knowledge_per_click, items, active_upgrades, self.multiplier, self.rebirth_count
