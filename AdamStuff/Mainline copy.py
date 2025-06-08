@@ -6,24 +6,10 @@ import json
 import random
 import subprocess
 from PIL import Image
-from Ryanstuff import music_manager #from Ryanstuff import game_save
-from Ryanstuff import Rebirth
-from Ryanstuff import game_save
-from Ryanstuff.Rebirth import RebirthSystem
-from Ryanstuff.game_save import save_game, load_game
-from Ryanstuff.music_manager import init_music, play_music, pause_music, unpause_music, stop_music
-
-rebirth_system = RebirthSystem(initial_cost=2)
+#from Ryanstuff import music_manager #from Ryanstuff import game_save
 
 #Initialize Pygame
 pygame.init()
-
-# Initialize Pygame and music
-pygame.init()
-init_music()
-
-# Play background music
-play_music("Ryanstuff/Game.mp3")
 
 #Screen settings
 WIDTH, HEIGHT = 1080, 720
@@ -63,14 +49,16 @@ def load_gif_frames(path, scale=(64, 64)):
 background_gif_path = "RyanStuff/main_wallpaper.gif"
 background_frames = load_gif_frames(background_gif_path, scale=(WIDTH, HEIGHT))
 
+#Music Path [Rhayyan]
+#music_manager.init_music()
+#music_manager.play_music("Ryanstuff/Game.mp3")
+
+#Load saved game state or default values [Rhayyan]
 #Knowledge, player_state, items = game_save.load_game()
 #Knowledge_per_click = 1
 
 # Fonts
 font = pygame.font.SysFont("Arial", 24)
-
-# Pause menu state
-paused = False
 
 # Pause Button Size
 button_width = 150
@@ -88,15 +76,13 @@ pause_button_color = (70, 70, 70)
 pause_button_text_color = (255, 255, 255)  
 pause_button_text = font.render("Pause", True, pause_button_text_color)
 
+
+# Pause menu state
+paused = False
+
 #Game Variables
 Knowledge = 0
 Knowledge_per_click = 1
-
-#initialize rebirth
-rebirth = RebirthSystem(initial_cost=2)
-insight = 0
-Rebirth_multiplier = 1
-Rebirth_multiplier = rebirth_system.multiplier
 
 #Colors
 WHITE = (255, 255, 255)
@@ -106,7 +92,6 @@ LIGHT_GRAY = (230, 230, 230)
 GREEN = (0, 200, 0)
 DARK_GREEN = (0, 150, 0)
 RED = (255, 100, 100)
-BLUE =  (100, 100, 255)
 
 # Pop up Menu Timing
 bonus_interval = 5  # seconds
@@ -141,26 +126,6 @@ items = {
 for item in items.values():
     item["frames"] = load_gif_frames(item["gif_path"])
 
-
-#loads the game
-Knowledge, Insight, rebirth_multiplier, rebirth_count, last_saved_time = load_game(items)
-rebirth_system = RebirthSystem(saved_multiplier=rebirth_multiplier, saved_count=rebirth_count)
-Rebirth_multiplier = rebirth_system.multiplier
-
-# Offline gain
-offline_seconds = time.time() - last_saved_time
-offline_knowledge = 0
-
-for item in items.values():
-    if item["owned"] > 0 and item["cps"] > 0:
-        offline_knowledge += item["owned"] * item["cps"] * offline_seconds * Rebirth_multiplier
-
-Knowledge += offline_knowledge
-
-if offline_knowledge > 0:
-    print(f"Gained {int(offline_knowledge)} Knowledge while offline!")
-
-
 #Centre gif
 center_gif_path = "AdamStuff/assets/floating_book.gif"
 center_gif_frames = load_gif_frames(center_gif_path, scale=(150, 150))
@@ -168,8 +133,6 @@ center_gif_frames = load_gif_frames(center_gif_path, scale=(150, 150))
 #UI Elements
 shop_buttons = {}
 book_button = pygame.Rect(WIDTH // 2 - 50, HEIGHT // 2 - 50, 100, 100)
-rebirth_button = pygame.Rect(WIDTH - 220, HEIGHT - 100, 200, 60)
-
 
 # Upgrade Icons
 upgrade_icons = {
@@ -179,6 +142,10 @@ upgrade_icons = {
 
 # Active Upgrades
 active_upgrades = {
+    "bonus_click": {
+        "level": 1,
+        "end_time": 1723848381.2
+        },
     "fast_click": {
         "level": 2,                # Temp upgrade level
         "end_time": 1724341234.123
@@ -221,7 +188,7 @@ def update_upgrades():
         elif upgrade == "fast_click":
             # Apply per-frame knowledge bonus
             if now - auto_click_timer >= auto_click_delay:
-                Knowledge += 1 * Rebirth_multiplier #idk what this does yet 
+                Knowledge += 1
                 auto_click_timer = now
         elif upgrade == "bonus_click":
             Knowledge_per_click = 1 + info["level"]
@@ -343,7 +310,7 @@ def update_items(dt):
             interval = 1.0 / item["cps"]
             item["elapsed"] += dt
             while item["elapsed"] >= interval:
-                Knowledge += item["cps"] * item["owned"] * Rebirth_multiplier #related to rebirth
+                Knowledge += item["cps"] * item["owned"]
                 item["elapsed"] -= interval
 
 def draw_knowledge_counter():
@@ -364,19 +331,7 @@ def draw():
         center_frame_index = pygame.time.get_ticks() // 100 % len(center_gif_frames)
         draw_center_gif(center_frame_index)
 
-    #draw the rebirth button
-    pygame.draw.rect(screen, BLUE, rebirth_button)
-    rebirth_text = font.render("Rebirth", True, WHITE)
-    screen.blit(rebirth_text, (rebirth_button.centerx - rebirth_text.get_width() // 2,
-                               rebirth_button.centery - rebirth_text.get_height() // 2))
-
-    insight_text = font.render(f"Insight: {insight}", True, WHITE)
-    multiplier_text = font.render(f"Multiplier: x{Rebirth_multiplier}", True, WHITE)
-    screen.blit(insight_text, (WIDTH - 150, 80))
-    screen.blit(multiplier_text, (WIDTH - 150, 110))
-
     draw_active_upgrades()
-    
 
 def show_bonus_popup():
     popup_rect = pygame.Rect(WIDTH // 4, HEIGHT // 3, WIDTH // 2, HEIGHT // 3)
@@ -431,6 +386,7 @@ def check_for_triggered_upgrade():
     except Exception as e:
         print("Error checking upgrade:", e)
 
+
 # Mini Game Path
 def mini_game_1():
     subprocess.Popen(["python", "temp_mini_game.py"])
@@ -438,6 +394,7 @@ def mini_game_1():
 def mini_game_2():
     subprocess.Popen(["python", "temp_mini_game.py"])
 
+paused = False
 volume_on = True  # add volume control state
 
 button_width, button_height = 200, 50
@@ -465,7 +422,6 @@ def draw_pause_button():
     # Center text on button
     text_rect = pause_button_text.get_rect(center=pause_button_rect.center)
     screen.blit(pause_button_text, text_rect)
-
 
 #Main Game Loop
 while True:
@@ -513,20 +469,6 @@ while True:
                 else:
                     handle_shop_click(event.pos)
 
-        elif event.type == pygame.MOUSEBUTTONDOWN and not paused:
-            if book_button.collidepoint(event.pos):
-                bonus = 1
-                if "fast_click" in active_upgrades:
-                    bonus += active_upgrades["fast_click"]["level"] * 0.5  # Adjust multiplier here
-                Knowledge += Knowledge_per_click * bonus * Rebirth_multiplier #multiplies the points gain per rebirth
-        
-            elif rebirth_button.collidepoint(event.pos):
-                if rebirth_system.can_rebirth(Knowledge):
-                    Knowledge, insight, new_multiplier, new_rebirth_count = rebirth_system.rebirth(Knowledge, insight)
-                    Rebirth_multiplier = new_multiplier
-                    rebirth_system.rebirth_count = new_rebirth_count
-
-                    print(f"Rebirthed! New multiplier: {new_multiplier}")
 
     if time.time() - last_check > 1:
         check_for_triggered_upgrade()
