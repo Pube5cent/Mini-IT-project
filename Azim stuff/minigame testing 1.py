@@ -15,7 +15,7 @@ pygame.mixer.music.play(-1)
 # Screen settings
 WIDTH, HEIGHT = 600, 400
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Catch The Right")
+pygame.display.set_caption("Catch The Right Answer")
 
 # Load static background image (jpg)
 background = pygame.image.load("Azim stuff/static_background.jpg")
