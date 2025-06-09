@@ -69,7 +69,7 @@ def init_ambient_particles(num=30):
             "x": random.uniform(0, WIDTH),
             "y": random.uniform(0, HEIGHT),
             "radius": random.uniform(2, 5),
-            "color": (255, 255, 200, 100),  # pale yellow with alpha for glow
+            "color": (255, 255, 200, 100),
             "speed_x": random.uniform(-0.3, 0.3),
             "speed_y": random.uniform(-0.2, 0.2),
             "life": random.randint(100, 300),
@@ -81,19 +81,18 @@ init_ambient_particles()
 
 def generate_question():
     seconds_passed = (pygame.time.get_ticks() - start_ticks) / 1000
-
-    if seconds_passed < 5:  # Easy for first 5 seconds
+    if seconds_passed < 5:
         a = random.randint(1, 9)
         b = random.randint(1, 9)
         return f"{a} + {b}", a + b
-    elif seconds_passed < 15:  # Medium difficulty from 5 to 15 seconds
+    elif seconds_passed < 15:
         a = random.randint(10, 30)
         b = random.randint(1, 20)
         if random.choice([True, False]):
             return f"{a} + {b}", a + b
         else:
             return f"{a} - {b}", a - b
-    else:  # Hard difficulty after 15 seconds
+    else:
         a = random.randint(3, 12)
         b = random.randint(2, 10)
         return f"{a} × {b}", a * b
@@ -122,7 +121,7 @@ def generate_balls():
 def reset_game():
     global score, start_ticks, game_over, question, correct_answer, lives
     score = 0
-    lives = 3  # Start with 3 lives
+    lives = 3
     start_ticks = pygame.time.get_ticks()
     game_over = False
     question, correct_answer = generate_question()
@@ -147,13 +146,11 @@ while running:
     now = pygame.time.get_ticks()
     screen.blit(background, (0, 0))
 
-    # Update and draw ambient particles (glowing floating dots) behind everything
     for particle in ambient_particles:
         particle["x"] += particle["speed_x"]
         particle["y"] += particle["speed_y"]
         particle["life"] -= 1
 
-        # Wrap around screen edges
         if particle["x"] < 0:
             particle["x"] = WIDTH
         elif particle["x"] > WIDTH:
@@ -163,17 +160,14 @@ while running:
         elif particle["y"] > HEIGHT:
             particle["y"] = 0
 
-        # Fade effect based on life
         alpha = int(255 * (particle["life"] / particle["max_life"]))
-        alpha = max(50, alpha)  # don't fade out completely
+        alpha = max(50, alpha)
 
-        # Draw glowing circle with alpha
         surface = pygame.Surface((particle["radius"]*4, particle["radius"]*4), pygame.SRCALPHA)
         pygame.draw.circle(surface, (255, 255, 200, alpha), (particle["radius"]*2, particle["radius"]*2), particle["radius"])
         screen.blit(surface, (particle["x"] - particle["radius"]*2, particle["y"] - particle["radius"]*2))
 
         if particle["life"] <= 0:
-            # Reset particle to keep them going indefinitely
             particle["x"] = random.uniform(0, WIDTH)
             particle["y"] = random.uniform(0, HEIGHT)
             particle["life"] = particle["max_life"]
@@ -193,18 +187,20 @@ while running:
         time_left = max(0, int(time_limit - seconds_passed))
 
         if time_left == 0:
-            # Player survived full time
-            with open("shared_state.json", "r") as f:
+            if score >= 5:
+                try:
+                    with open("shared_state.json", "r") as f:
                         data = json.load(f)
-                        data["trigger_upgrade"] = random.choice(["fast_click", "bonus_click"])
-
-            with open("shared_state.json", "w") as f:
-                json.dump(data, f)
-                with open("shared_state.json", "w") as f:
+                    data["trigger_upgrade"] = random.choice(["fast_click", "bonus_click"])
+                    with open("shared_state.json", "w") as f:
                         json.dump(data, f)
-            
-            print("ts works")
-            running = False  # Close game
+                    print("Upgrade triggered successfully.")
+                except Exception as e:
+                    print("Failed to update shared state:", e)
+                running = False
+            else:
+                print("You lose!")
+                game_over = True
 
         for ball in balls:
             ball["y"] += ball_speed
@@ -215,12 +211,13 @@ while running:
             ):
                 if ball["value"] == correct_answer:
                     score += 1
-                    create_sparkles(ball["x"], ball["y"])  # Sparkle effect here
+                    create_sparkles(ball["x"], ball["y"])
                     new_question()
                     break
                 else:
-                    lives -= 1  # Lose a life for wrong catch
+                    lives -= 1
                     if lives <= 0:
+                        print("You lose!")
                         game_over = True
                     else:
                         ball["x"] = random.randint(ball_radius, WIDTH - ball_radius)
@@ -248,42 +245,35 @@ while running:
 
         screen.blit(basket_image, (basket_x, basket_y))
 
-        # Draw timer box
         pygame.draw.rect(screen, WHITE, (10, 10, 100, 40), 2)
         timer_text = font.render(f"Time: {time_left}", True, WHITE)
         screen.blit(timer_text, (20, 20))
 
-        # Draw lives box next to timer
         pygame.draw.rect(screen, WHITE, (120, 10, 80, 40), 2)
         lives_text = font.render(f"Lives: {lives}", True, WHITE)
         screen.blit(lives_text, (122, 20))
 
-        # Draw question box below basket
         question_box_height = 40
         question_box_y = basket_y + basket_height + 5
         pygame.draw.rect(screen, WHITE, (0, question_box_y, WIDTH, question_box_height), 2)
         question_text = font.render(f"Q: {question}", True, WHITE)
         screen.blit(question_text, (WIDTH // 2 - question_text.get_width() // 2, question_box_y + (question_box_height - question_text.get_height()) // 2))
 
-        # Draw score box
         pygame.draw.rect(screen, WHITE, (WIDTH - 110, 10, 100, 40), 2)
         score_text = font.render(f"Score: {score}", True, WHITE)
         screen.blit(score_text, (WIDTH - 105, 20))
 
-        # Update and draw sparkles
         for particle in particles[:]:
             particle["x"] += particle["speed_x"]
             particle["y"] += particle["speed_y"]
             particle["life"] -= 1
-            particle["radius"] *= 0.95  # shrink particle
-
+            particle["radius"] *= 0.95
             if particle["life"] <= 0 or particle["radius"] <= 0.5:
                 particles.remove(particle)
             else:
                 pygame.draw.circle(screen, particle["color"], (int(particle["x"]), int(particle["y"])), int(particle["radius"]))
 
     else:
-        # Game over screen removed, just close the game window
         running = False
 
     pygame.display.flip()
@@ -291,4 +281,3 @@ while running:
 
 pygame.quit()
 sys.exit()
-
