@@ -14,8 +14,7 @@ from Ryanstuff.game_save import save_game, load_game
 from Ryanstuff.music_manager import init_music, play_music, pause_music, unpause_music, stop_music
 
 
-#Initialize Pygame
-pygame.init()
+
 
 # Initialize Pygame and music
 pygame.init()
@@ -512,25 +511,29 @@ while True:
                     handle_shop_click(event.pos)
 
         elif event.type == pygame.MOUSEBUTTONDOWN and not paused:
-            if book_button.collidepoint(event.pos):
-                bonus = 1
-                if "fast_click" in active_upgrades:
-                    bonus += active_upgrades["fast_click"]["level"] * 0.5
-                Knowledge += Knowledge_per_click * bonus * Rebirth_multiplier 
-        
-            elif rebirth_button.collidepoint(mx, my):
-                if rebirth_system.can_rebirth(Knowledge):
-                    Knowledge = 0
-                    rebirth_system.rebirth()
-                    Rebirth_multiplier = rebirth_system.multiplier
-                    print("Rebirth successful! Multiplier:", Rebirth_multiplier)
+                if book_button.collidepoint(event.pos):
+                    bonus = 1
+                    if "fast_click" in active_upgrades:
+                        bonus += active_upgrades["fast_click"]["level"] * 0.5
+                    Knowledge += Knowledge_per_click * bonus * Rebirth_multiplier
+
+                elif rebirth_button.collidepoint(event.pos):
+                    if rebirth_system.can_rebirth(Knowledge):
+                        Knowledge, rebirthed = rebirth_system.perform_rebirth(Knowledge, items)
+                        if rebirthed:
+                            Rebirth_multiplier = rebirth_system.multiplier
+                            Knowledge_per_click = 1
+                            active_upgrades.clear()
+                            print("Rebirth complete! New multiplier:", Rebirth_multiplier)
+                    else:
+                        print("Not enough knowledge to rebirth.")
+
                 else:
-                    print("Not enough Knowledge to rebirth. Need:", rebirth_system.cost)
-
-
-
-            else:
                     handle_shop_click(event.pos)
+
+
+
+            
 
             
 
