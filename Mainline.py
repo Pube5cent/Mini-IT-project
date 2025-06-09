@@ -511,23 +511,19 @@ while True:
             if book_button.collidepoint(event.pos):
                 bonus = 1
                 if "fast_click" in active_upgrades:
-                    bonus += active_upgrades["fast_click"]["level"] * 0.5  # Adjust multiplier here
-                Knowledge += Knowledge_per_click * bonus * Rebirth_multiplier #multiplies the points gain per rebirth
+                    bonus += active_upgrades["fast_click"]["level"] * 0.5
+                Knowledge += Knowledge_per_click * bonus * Rebirth_multiplier 
         
-            elif rebirth_button.collidepoint(event.pos):
+            elif rebirth_button.collidepoint(mx, my):
                 if rebirth_system.can_rebirth(Knowledge):
-                    # Call rebirth and unpack results correctly
-                    Knowledge, Knowledge_per_click, items, active_upgrades, rebirth_multiplier, rebirth_count = rebirth_system.rebirth(
-                        Knowledge,
-                        Knowledge_per_click,
-                        items,
-                        active_upgrades
-                    )
-                    # Update rebirth_system internal states if needed
-                    rebirth_system.multiplier = rebirth_multiplier
-                    rebirth_system.rebirth_count = rebirth_count
+                    Knowledge = 0
+                    rebirth_system.rebirth()
+                    Rebirth_multiplier = rebirth_system.multiplier
+                    print("Rebirth successful! Multiplier:", Rebirth_multiplier)
+                else:
+                    print("Not enough Knowledge to rebirth. Need:", rebirth_system.cost)
 
-                    print(f"Rebirthed! New multiplier: {rebirth_multiplier}")
+
 
             else:
                     handle_shop_click(event.pos)
