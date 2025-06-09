@@ -194,8 +194,8 @@ def toggle_fullscreen():
     else:
         screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
-# Upgrade Duration (seconds)
-UPGRADE_DURATION = 30
+# Temp Upgrade Duration (seconds)
+UPGRADE_DURATION = 180
 
 def activate_upgrade(upgrade_type, duration=10):
     now = time.time()
@@ -235,7 +235,7 @@ def update_upgrades():
 
 def draw_active_upgrades():
     x = WIDTH - 50  
-    y = 20
+    y = 50
     spacing = 5
 
     for upgrade_type, data in active_upgrades.items():
@@ -431,11 +431,13 @@ def check_for_triggered_upgrade():
 
 # Mini Game Path
 def mini_game_1():
-    subprocess.Popen(["python", "Yeap Stuff/main.py"])
-    # subprocess.Popen(["python", "Azim stuff/minigame testing 1.py"])
+    #subprocess.Popen(["python", "temp_mini_game.py"])
+    subprocess.Popen(["python", "Azim stuff/minigame testing 1.py"])
+    
 
 def mini_game_2():
-    subprocess.Popen(["python", "Yeap Stuff/main.py"])
+    #subprocess.Popen(["python", "temp_mini_game.py"])
+    subprocess.Popen(["python", "Azim stuff/minigame testing 1.py"])
     #subprocess.Popen(["python", "Yeap Stuff/main.py"])
 
 def draw_button(surface, rect, text, active=False):
