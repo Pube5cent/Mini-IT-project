@@ -477,10 +477,11 @@ while True:
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
             mx, my = event.pos
-
+            
             # Pause button (always visible top right)
             if pause_button_rect.collidepoint(mx, my):
                 paused = not paused
+                
             elif paused:
                 # Pause menu buttons rectangles
                 menu_x = screen.get_width() - button_width - padding
@@ -526,6 +527,7 @@ while True:
 
             else:
                     handle_shop_click(event.pos)
+                    #print("Not enough Knowledge to rebirth. Need:", rebirth_system.cost)
 
             
     if time.time() - last_check > 1:
