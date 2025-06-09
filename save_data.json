@@ -1,5 +1,13 @@
 {
+<<<<<<< HEAD
+<<<<<<< HEAD
+    "Knowledge": 61758.97777080536,
+=======
+    "Knowledge": 159.91944885253906,
+>>>>>>> 3aba14e77a7fc258f3af130243748e6d643c462b
+=======
     "Knowledge": 275205.4926300049,
+>>>>>>> 58df1bf2f3df0d0cce1d6215e27a0b33c9a26089
     "rebirth_multiplier": 1,
     "rebirth_count": 0,
     "items": {
@@ -7,24 +15,56 @@
             "cost": 17.25,
             "cps": 1,
             "owned": 1,
+<<<<<<< HEAD
+<<<<<<< HEAD
+            "elapsed": 0.9700000000000436,
+=======
+            "elapsed": 0.6870000000000015,
+>>>>>>> 3aba14e77a7fc258f3af130243748e6d643c462b
+=======
             "elapsed": 0.0930000000000019,
+>>>>>>> 58df1bf2f3df0d0cce1d6215e27a0b33c9a26089
             "gif_path": "AdamStuff/assets/gif_0.gif"
         },
         "Turbo Learn": {
             "cost": 57.49999999999999,
             "cps": 1,
             "owned": 1,
+<<<<<<< HEAD
+<<<<<<< HEAD
+            "elapsed": 0.9700000000000436,
+=======
+            "elapsed": 0.6870000000000015,
+>>>>>>> 3aba14e77a7fc258f3af130243748e6d643c462b
+=======
             "elapsed": 0.0930000000000019,
+>>>>>>> 58df1bf2f3df0d0cce1d6215e27a0b33c9a26089
             "gif_path": "AdamStuff/assets/gif_1.gif"
         },
         "Super Click": {
             "cost": 11.5,
             "cps": 3,
             "owned": 1,
+<<<<<<< HEAD
+<<<<<<< HEAD
+            "elapsed": 0.3033333333333476,
+=======
+            "elapsed": 0.020333333333334133,
+>>>>>>> 3aba14e77a7fc258f3af130243748e6d643c462b
+=======
             "elapsed": 0.09300000000000079,
+>>>>>>> 58df1bf2f3df0d0cce1d6215e27a0b33c9a26089
             "gif_path": "AdamStuff/assets/gif_3.gif",
             "click_bonus": 1
         }
     },
+<<<<<<< HEAD
+<<<<<<< HEAD
+    "last_saved_time": 1749386410.6296139
+=======
+    "last_saved_time": 1749416666.3694944
+>>>>>>> 3aba14e77a7fc258f3af130243748e6d643c462b
+=======
     "last_saved_time": 1749429093.0908825
+>>>>>>> 58df1bf2f3df0d0cce1d6215e27a0b33c9a26089
 }
