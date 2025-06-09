@@ -231,3 +231,5 @@ elif score_grades[5] :
                 json.dump(data, f)
                 with open("shared_state.json", "w") as f:
                         json.dump(data, f)
+else: 
+    print("NOTHING HAPPENED!")
