@@ -175,7 +175,7 @@ if score_grades[0]:
          with open("shared_state.json", "r") as f:
             data = json.load(f)
 
-            data["trigger_upgrade"] = random.choice(["fast_click", "bonus_click"])
+            data["trigger_upgrade"] = random.choice(["fast_click", "fast_click"])
 
             with open("shared_state.json", "w") as f:
                 json.dump(data, f)
@@ -185,7 +185,7 @@ elif score_grades[1] :
          with open("shared_state.json", "r") as f:
             data = json.load(f)
 
-            data["trigger_upgrade"] = random.choice(["fast_click", "bonus_click"])
+            data["trigger_upgrade"] = random.choice(["fast_click", "fast_click"])
 
             with open("shared_state.json", "w") as f:
                 json.dump(data, f)
@@ -195,7 +195,7 @@ elif score_grades[2] :
          with open("shared_state.json", "r") as f:
             data = json.load(f)
 
-            data["trigger_upgrade"] = random.choice(["fast_click", "bonus_click"])
+            data["trigger_upgrade"] = random.choice(["fast_click", "fast_click"])
 
             with open("shared_state.json", "w") as f:
                 json.dump(data, f)
@@ -205,7 +205,7 @@ elif score_grades[3] :
          with open("shared_state.json", "r") as f:
             data = json.load(f)
 
-            data["trigger_upgrade"] = random.choice(["fast_click", "bonus_click"])
+            data["trigger_upgrade"] = random.choice(["fast_click", "fast_click"])
 
             with open("shared_state.json", "w") as f:
                 json.dump(data, f)
@@ -215,7 +215,7 @@ elif score_grades[4] :
          with open("shared_state.json", "r") as f:
             data = json.load(f)
 
-            data["trigger_upgrade"] = random.choice(["fast_click", "bonus_click"])
+            data["trigger_upgrade"] = random.choice(["fast_click", "fast_click"])
 
             with open("shared_state.json", "w") as f:
                 json.dump(data, f)
@@ -225,9 +225,11 @@ elif score_grades[5] :
          with open("shared_state.json", "r") as f:
             data = json.load(f)
 
-            data["trigger_upgrade"] = random.choice(["fast_click", "bonus_click"])
+            data["trigger_upgrade"] = random.choice(["fast_click", "fast_click"])
 
             with open("shared_state.json", "w") as f:
                 json.dump(data, f)
                 with open("shared_state.json", "w") as f:
                         json.dump(data, f)
+else: 
+    print("NOTHING HAPPENED!")
