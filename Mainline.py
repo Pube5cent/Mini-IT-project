@@ -497,25 +497,17 @@ while True:
                 elif volume_button.collidepoint(mx, my):
                     toggle_volume()
                 elif quit_button.collidepoint(mx, my):
+                    if offline_knowledge > 0:
+                        print(f"Gained {int(offline_knowledge)} Knowledge while offline!")
                     pygame.quit()
                     sys.exit()
-            else:
-                # Game clicks when not paused
-                if book_button.collidepoint(event.pos):
-                    bonus = 1
-                    if "fast_click" in active_upgrades:
-                        bonus += active_upgrades["fast_click"]["level"] * 0.5
-                    Knowledge += Knowledge_per_click * bonus
-                else:
-                    handle_shop_click(event.pos)
 
-        elif event.type == pygame.MOUSEBUTTONDOWN and not paused:
-            if book_button.collidepoint(event.pos):
+            elif book_button.collidepoint(event.pos):
                 bonus = 1
                 if "fast_click" in active_upgrades:
                     bonus += active_upgrades["fast_click"]["level"] * 0.5
-                Knowledge += Knowledge_per_click * bonus * Rebirth_multiplier 
-        
+                    Knowledge += Knowledge_per_click * bonus * Rebirth_multiplier 
+
             elif rebirth_button.collidepoint(mx, my):
                 if rebirth_system.can_rebirth(Knowledge):
                     Knowledge = 0
@@ -525,10 +517,17 @@ while True:
                 else:
                     print("Not enough Knowledge to rebirth. Need:", rebirth_system.cost)
 
-
-
             else:
+                handle_shop_click(event.pos)
+                # Game clicks when not paused
+                if book_button.collidepoint(event.pos):
+                    bonus = 1
+                    if "fast_click" in active_upgrades:
+                        bonus += active_upgrades["fast_click"]["level"] * 0.5
+                    Knowledge += Knowledge_per_click * bonus
+                else:
                     handle_shop_click(event.pos)
+                    print("Not enough Knowledge to rebirth. Need:", rebirth_system.cost)
 
             
     if time.time() - last_check > 1:
