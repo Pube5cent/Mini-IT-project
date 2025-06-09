@@ -1,30 +1,30 @@
 {
-    "Knowledge": 900,
+    "Knowledge": 1679.1981498453465,
     "rebirth_multiplier": 1,
     "rebirth_count": 0,
     "items": {
         "Manual research": {
-            "cost": 15,
+            "cost": 60.68336603561861,
             "cps": 1,
-            "owned": 0,
-            "elapsed": 0.0,
+            "owned": 10,
+            "elapsed": 0.3030000000000051,
             "gif_path": "AdamStuff/assets/gif_0.gif"
         },
         "Turbo Learn": {
-            "cost": 50,
+            "cost": 66.12499999999999,
             "cps": 1,
-            "owned": 0,
-            "elapsed": 0.0,
+            "owned": 2,
+            "elapsed": 0.9030000000000026,
             "gif_path": "AdamStuff/assets/gif_1.gif"
         },
         "Super Click": {
-            "cost": 10,
+            "cost": 13.225,
             "cps": 3,
-            "owned": 0,
-            "elapsed": 0.0,
+            "owned": 2,
+            "elapsed": 0.21800000000000036,
             "gif_path": "AdamStuff/assets/gif_3.gif",
             "click_bonus": 1
         }
     },
-    "last_saved_time": 1749433558.9114602
+    "last_saved_time": 1749435319.0766208
 }

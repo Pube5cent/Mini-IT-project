@@ -23,7 +23,7 @@ pygame.init()
 init_music()
 
 # Play background music
-#play_music("Ryanstuff/Game.mp3")
+play_music("Ryanstuff/Game.mp3")
 volume_on = False
 
 #Screen settings
@@ -432,13 +432,13 @@ def check_for_triggered_upgrade():
 # Mini Game Path
 def mini_game_1():
     #subprocess.Popen(["python", "temp_mini_game.py"])
-    subprocess.Popen(["python", "Azim stuff/minigame testing 1.py"])
-    
+    #subprocess.Popen(["python", "Azim stuff/minigame testing 1.py"])
+    subprocess.Popen(["python", "Yeap Stuff/main.py"])
 
 def mini_game_2():
     #subprocess.Popen(["python", "temp_mini_game.py"])
-    subprocess.Popen(["python", "Azim stuff/minigame testing 1.py"])
-    #subprocess.Popen(["python", "Yeap Stuff/main.py"])
+    #subprocess.Popen(["python", "Azim stuff/minigame testing 1.py"])
+    subprocess.Popen(["python", "Yeap Stuff/main.py"])
 
 def draw_button(surface, rect, text, active=False):
     color = (200, 50, 50) if active else (70, 70, 70)
@@ -480,10 +480,11 @@ while True:
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
             mx, my = event.pos
-
+            
             # Pause button (always visible top right)
             if pause_button_rect.collidepoint(mx, my):
                 paused = not paused
+                
             elif paused:
                 # Pause menu buttons rectangles
                 menu_x = screen.get_width() - button_width - padding
@@ -527,7 +528,7 @@ while True:
                     Knowledge += Knowledge_per_click * bonus
                 else:
                     handle_shop_click(event.pos)
-                    print("Not enough Knowledge to rebirth. Need:", rebirth_system.cost)
+                    #print("Not enough Knowledge to rebirth. Need:", rebirth_system.cost)
 
             
     if time.time() - last_check > 1:
