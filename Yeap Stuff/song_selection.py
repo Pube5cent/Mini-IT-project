@@ -1,4 +1,5 @@
 import pygame
+import random
 from variables import *
 from music_ import *
 from text_writer import *
@@ -74,10 +75,31 @@ def song_selection_screen(screen,clock,stage_speed, offset, judgement_shown, gui
     # back button
     back = load_image('back')
     back = resize_image(back, (big_text,big_text))
-    ack_rect = move_image(back, (back_button_x_loc,back_button_y_loc))
+    back_rect = move_image(back, (back_button_x_loc,back_button_y_loc))
 
 
     while song_selection_run:
+    
+        
+        music_pointer = random.randint(0, len(music_list) - 1)
+        song_name = music_list[music_pointer]
+        song_highest_score = fetch_highest_score(song_name)
+
+        pygame.mixer.music.stop()
+        game_start_sound()
+
+        transition_time = pygame.time.get_ticks()
+        delay_time = 1200
+        while pygame.time.get_ticks() - transition_time < delay_time:
+            screen.fill(background_color[0])
+            jacket_image, jacket_rect = update_jacket(song_name)
+            screen.blit(jacket_image, jacket_rect)
+            pygame.display.flip()
+            clock.tick(main_loop_render_fps)
+
+        run_FGHJ(screen, clock, song_name, stage_speed, offset, judgement_shown, guide_line_shown, high_quality_verifying_graphics)
+        return exit_song_selection_screen(music_list, music_pointer, song_name)
+'''
         for event in pygame.event.get():
             if event.type == pygame.QUIT:  
                 song_selection_run = False
@@ -156,6 +178,7 @@ def song_selection_screen(screen,clock,stage_speed, offset, judgement_shown, gui
                              high_quality_verifying_graphics)
                     song_selection_run = False
                     return exit_song_selection_screen(music_list, music_pointer, song_name)
+                
                 #list going up /down
                 elif event.key == pygame.K_UP:
                     music_pointer -= 1
@@ -172,7 +195,9 @@ def song_selection_screen(screen,clock,stage_speed, offset, judgement_shown, gui
                     min_index = max(music_pointer - 2, 0)
                     max_index = min(music_pointer + 2, number_of_musics - 1)
                     song_name,song_highest_score = update_song_info()
-
+                    
+            
+        
         if not song_selection_run:
             break
             return exit_song_selection_screen(music_list, music_pointer, song_name)
@@ -261,3 +286,4 @@ def song_selection_screen(screen,clock,stage_speed, offset, judgement_shown, gui
 
         pygame.display.flip()
         clock.tick(main_loop_render_fps)
+        '''

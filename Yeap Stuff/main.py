@@ -45,8 +45,9 @@ while meta_run:
 
     while run:
         
-        music_list, music_pointer, song_name = song_selection_screen(screen,clock,stage_speed, offset, judgement_shown, guide_line_shown, high_quality_verifying_graphics)
-        
+        music_list, music_pointer, song_name =song_selection_screen(screen,clock,stage_speed, offset, judgement_shown, guide_line_shown, high_quality_verifying_graphics)
+        #run_FGHJ(screen, clock, song_name, stage_speed, offset, judgement_shown, guide_line_shown,
+        #                     high_quality_verifying_graphics)
         
         for event in pygame.event.get():
             if event.type == pygame.QUIT:  
