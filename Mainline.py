@@ -23,7 +23,8 @@ pygame.init()
 init_music()
 
 # Play background music
-play_music("Ryanstuff/Game.mp3")
+#play_music("Ryanstuff/Game.mp3")
+volume_on = False
 
 #Screen settings
 WIDTH, HEIGHT = 1080, 720
@@ -433,14 +434,8 @@ def mini_game_1():
     subprocess.Popen(["python", "Azim stuff/minigame testing 1.py"])
 
 def mini_game_2():
-    subprocess.Popen(["python", "Yeap Stuff/main.py"])
-
-volume_on = True  # add volume control state
-
-button_width, button_height = 200, 50
-padding = 10
-WHITE = (255, 255, 255)
-GRAY = (100, 100, 100)
+    subprocess.Popen(["python", "Azim stuff/minigame testing 1.py"])
+    #subprocess.Popen(["python", "Yeap Stuff/main.py"])
 
 def draw_button(surface, rect, text, active=False):
     color = (200, 50, 50) if active else (70, 70, 70)
@@ -515,29 +510,24 @@ while True:
             if book_button.collidepoint(event.pos):
                 bonus = 1
                 if "fast_click" in active_upgrades:
-                    bonus += active_upgrades["fast_click"]["level"] * 0.5  # Adjust multiplier here
-                Knowledge += Knowledge_per_click * bonus * Rebirth_multiplier #multiplies the points gain per rebirth
+                    bonus += active_upgrades["fast_click"]["level"] * 0.5
+                Knowledge += Knowledge_per_click * bonus * Rebirth_multiplier 
         
-            elif rebirth_button.collidepoint(event.pos):
+            elif rebirth_button.collidepoint(mx, my):
                 if rebirth_system.can_rebirth(Knowledge):
-                    # Call rebirth and unpack results correctly
-                    Knowledge, Knowledge_per_click, items, active_upgrades, rebirth_multiplier, rebirth_count = rebirth_system.rebirth(
-                        Knowledge,
-                        Knowledge_per_click,
-                        items,
-                        active_upgrades
-                    )
-                    # Update rebirth_system internal states if needed
-                    rebirth_system.multiplier = rebirth_multiplier
-                    rebirth_system.rebirth_count = rebirth_count
+                    Knowledge = 0
+                    rebirth_system.rebirth()
+                    Rebirth_multiplier = rebirth_system.multiplier
+                    print("Rebirth successful! Multiplier:", Rebirth_multiplier)
+                else:
+                    print("Not enough Knowledge to rebirth. Need:", rebirth_system.cost)
 
-                    print(f"Rebirthed! New multiplier: {rebirth_multiplier}")
+
 
             else:
                     handle_shop_click(event.pos)
 
             
-
     if time.time() - last_check > 1:
         check_for_triggered_upgrade()
         last_check = time.time()
