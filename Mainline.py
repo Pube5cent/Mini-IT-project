@@ -23,7 +23,7 @@ pygame.init()
 init_music()
 
 # Play background music
-play_music("Ryanstuff/Game.mp3")
+#play_music("Ryanstuff/Game.mp3")
 volume_on = False
 
 #Screen settings
@@ -194,8 +194,8 @@ def toggle_fullscreen():
     else:
         screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
-# Temp Upgrade Duration (seconds)
-UPGRADE_DURATION = 180
+# Upgrade Duration (seconds)
+UPGRADE_DURATION = 30
 
 def activate_upgrade(upgrade_type, duration=10):
     now = time.time()
@@ -235,7 +235,7 @@ def update_upgrades():
 
 def draw_active_upgrades():
     x = WIDTH - 50  
-    y = 50
+    y = 20
     spacing = 5
 
     for upgrade_type, data in active_upgrades.items():
@@ -431,14 +431,11 @@ def check_for_triggered_upgrade():
 
 # Mini Game Path
 def mini_game_1():
-    #subprocess.Popen(["python", "temp_mini_game.py"])
-    #subprocess.Popen(["python", "Azim stuff/minigame testing 1.py"])
-    subprocess.Popen(["python", "Yeap Stuff/main.py"])
+    subprocess.Popen(["python", "Azim stuff/minigame testing 1.py"])
 
 def mini_game_2():
-    #subprocess.Popen(["python", "temp_mini_game.py"])
-    #subprocess.Popen(["python", "Azim stuff/minigame testing 1.py"])
-    subprocess.Popen(["python", "Yeap Stuff/main.py"])
+    subprocess.Popen(["python", "Azim stuff/minigame testing 1.py"])
+    #subprocess.Popen(["python", "Yeap Stuff/main.py"])
 
 def draw_button(surface, rect, text, active=False):
     color = (200, 50, 50) if active else (70, 70, 70)
@@ -472,6 +469,16 @@ while True:
             pygame.quit()
             sys.exit()
 
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if rebirth_button.collidepoint(event.pos):
+                if rebirth_system.can_rebirth(Knowledge):
+                    Knowledge, Knowledge_per_click, items, active_upgrades, Rebirth_multiplier, rebirth_count = rebirth_system.rebirth(
+                        Knowledge, Knowledge_per_click, items, active_upgrades
+                    )
+                    print("Rebirth successful!")
+                else:
+                    print(f"Need {rebirth_system.current_cost} Knowledge to rebirth!")
+
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 paused = not paused
@@ -498,28 +505,9 @@ while True:
                 elif volume_button.collidepoint(mx, my):
                     toggle_volume()
                 elif quit_button.collidepoint(mx, my):
-                    if offline_knowledge > 0:
-                        print(f"Gained {int(offline_knowledge)} Knowledge while offline!")
                     pygame.quit()
                     sys.exit()
-
-            elif book_button.collidepoint(event.pos):
-                bonus = 1
-                if "fast_click" in active_upgrades:
-                    bonus += active_upgrades["fast_click"]["level"] * 0.5
-                    Knowledge += Knowledge_per_click * bonus * Rebirth_multiplier 
-
-            elif rebirth_button.collidepoint(mx, my):
-                if rebirth_system.can_rebirth(Knowledge):
-                    Knowledge = 0
-                    rebirth_system.rebirth()
-                    Rebirth_multiplier = rebirth_system.multiplier
-                    print("Rebirth successful! Multiplier:", Rebirth_multiplier)
-                else:
-                    print("Not enough Knowledge to rebirth. Need:", rebirth_system.cost)
-
             else:
-                handle_shop_click(event.pos)
                 # Game clicks when not paused
                 if book_button.collidepoint(event.pos):
                     bonus = 1
@@ -528,7 +516,30 @@ while True:
                     Knowledge += Knowledge_per_click * bonus
                 else:
                     handle_shop_click(event.pos)
-                    #print("Not enough Knowledge to rebirth. Need:", rebirth_system.cost)
+
+        elif event.type == pygame.MOUSEBUTTONDOWN and not paused:
+            if book_button.collidepoint(event.pos):
+                bonus = 1
+                if "fast_click" in active_upgrades:
+                    bonus += active_upgrades["fast_click"]["level"] * 0.5
+                Knowledge += Knowledge_per_click * bonus * Rebirth_multiplier 
+        
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if rebirth_button.collidepoint(event.pos):
+                if rebirth_system.can_rebirth(Knowledge):
+                    Knowledge, Knowledge_per_click, items, active_upgrades, Rebirth_multiplier, rebirth_count = rebirth_system.rebirth(
+                        Knowledge, Knowledge_per_click, items, active_upgrades
+                    )
+                    print("Rebirth successful!")
+                else:
+                    print(f"Need {rebirth_system.current_cost} Knowledge to rebirth!")
+
+
+
+
+            else:
+                    handle_shop_click(event.pos)
+                    print("Not enough Knowledge to rebirth. Need:", rebirth_system.cost)
 
             
     if time.time() - last_check > 1:
