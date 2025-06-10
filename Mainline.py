@@ -469,15 +469,6 @@ while True:
             pygame.quit()
             sys.exit()
 
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            if rebirth_button.collidepoint(event.pos):
-                if rebirth_system.can_rebirth(Knowledge):
-                    Knowledge, Knowledge_per_click, items, active_upgrades, Rebirth_multiplier, rebirth_count = rebirth_system.rebirth(
-                        Knowledge, Knowledge_per_click, items, active_upgrades
-                    )
-                    print("Rebirth successful!")
-                else:
-                    print(f"Need {rebirth_system.current_cost} Knowledge to rebirth!")
 
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
@@ -517,29 +508,17 @@ while True:
                 else:
                     handle_shop_click(event.pos)
 
-        elif event.type == pygame.MOUSEBUTTONDOWN and not paused:
-            if book_button.collidepoint(event.pos):
-                bonus = 1
-                if "fast_click" in active_upgrades:
-                    bonus += active_upgrades["fast_click"]["level"] * 0.5
-                Knowledge += Knowledge_per_click * bonus * Rebirth_multiplier 
+                if rebirth_button.collidepoint(event.pos):
+                    if rebirth_system.can_rebirth(Knowledge):
+                        Knowledge, Knowledge_per_click, items, active_upgrades, Rebirth_multiplier, rebirth_count = rebirth_system.rebirth(
+                            Knowledge, Knowledge_per_click, items, active_upgrades
+                        )
+                        print("Rebirth successful!")
+                    else:
+                        print(f"Need {rebirth_system.current_cost} Knowledge to rebirth!")
+
         
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            if rebirth_button.collidepoint(event.pos):
-                if rebirth_system.can_rebirth(Knowledge):
-                    Knowledge, Knowledge_per_click, items, active_upgrades, Rebirth_multiplier, rebirth_count = rebirth_system.rebirth(
-                        Knowledge, Knowledge_per_click, items, active_upgrades
-                    )
-                    print("Rebirth successful!")
-                else:
-                    print(f"Need {rebirth_system.current_cost} Knowledge to rebirth!")
 
-
-
-
-            else:
-                    handle_shop_click(event.pos)
-                    print("Not enough Knowledge to rebirth. Need:", rebirth_system.cost)
 
             
     if time.time() - last_check > 1:
