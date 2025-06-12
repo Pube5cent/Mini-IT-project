@@ -399,7 +399,38 @@ for i, u in enumerate(upgrade_defs):
         "base_interval": u["base_interval"]
     })
 
-Knowledge, rebirth_system.multiplier, rebirth_system.rebirth_count, last_saved_time = load_game(upgrade_defs)
+#this loads the game 
+knowledge, upgrades, multiplier, rebirth_count, last_saved_time = load_game(upgrade_defs)
+
+rebirth_system.multiplier = multiplier
+rebirth_system.rebirth_count = rebirth_count
+
+
+#for the ofline progress
+def get_Knowledge_per_tick(base_rate, level):
+    """Calculate how much knowledge is generated per tick at a given level."""
+    return base_rate * level  # Simple scaling — can customize
+
+def get_interval(base_interval, level):
+    """Calculate interval between ticks at a given level."""
+    return max(0.1, base_interval * (0.98 ** (level - 1)))  # Shorter interval as level increases
+
+
+# Calculate offline progress
+offline_time = time.time() - last_saved_time
+offline_knowledge = 0
+
+for upg_def, upg in zip(upgrade_defs, upgrades):
+    level = upg["level"]
+    if level > 0:
+        rate = get_Knowledge_per_tick(upg_def["base_rate"], level)
+        interval = get_interval(upg_def["base_interval"], level)
+        ticks = int(offline_time // interval)
+        offline_knowledge += ticks * rate * rebirth_system.multiplier
+
+Knowledge += offline_knowledge
+print(f"Offline progress: +{int(offline_knowledge)} knowledge over {int(offline_time)} seconds")
+
 
 # Load placeholder and gifs
 placeholder_icon = pygame.Surface((40, 40))
@@ -531,11 +562,11 @@ def update_upgrades_logic():
 
             if elapsed >= interval:
                 gain = get_Knowledge_per_tick(upg["base_rate"], upg["level"])
-                Knowledge += gain * rebirth_system.multiplie
+                Knowledge += gain * rebirth_system.multiplier
                 upg["last_tick"] = current_time
                 upg["progress"] = 0.0
 
-# Auto Saving System (requires fix)(Afiq)
+# Auto Saving System (requires fix)
 '''SAVE_FILE = "save_data.json"
 autosave_timer = 0
 
@@ -582,7 +613,9 @@ while True:
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            save_game(Knowledge, rebirth_system.multiplier, rebirth_system.rebirth_count, upgrades)
+            
+            save_game(knowledge, rebirth_system.multiplier, rebirth_system.rebirth_count, upgrades)
+
             pygame.quit()
             sys.exit()
 
@@ -661,7 +694,7 @@ while True:
         check_for_triggered_upgrade()
         last_check = time.time()
 
-    if paused: #not (Afiq)
+    if not paused: 
         if time.time() - last_bonus_time > bonus_interval:
             if show_bonus_popup() == "yes":
                 random.choice([mini_game_1, mini_game_2])()
