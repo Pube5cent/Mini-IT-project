@@ -1,69 +1,41 @@
 import time
 import json
+import os
 
+SAVE_FILE = "save_data.json"
 
-items = {
-    "Manual research": {
-        "cost": 15,
-        "cps": 1,
-        "owned": 0,
-        "elapsed": 0.0,
-        "gif_path": "AdamStuff/assets/gif_0.gif"
-    },
-    "Turbo Learn": {
-        "cost": 50,
-        "cps": 1,
-        "owned": 0,
-        "elapsed": 0.0,
-        "gif_path": "AdamStuff/assets/gif_1.gif"
-    },
-    "Super Click": {
-        "cost": 10,
-        "cps": 3,
-        "owned": 0,
-        "elapsed": 0.0,
-        "gif_path": "AdamStuff/assets/gif_3.gif",  
-        "click_bonus": 1
-    }
-}
-
-
-def save_game(Knowledge, rebirth_multiplier, rebirth_count, items):
-    # Prepare items for JSON: exclude non-serializable keys like 'frames'
-    serializable_items = {}
-    for key, val in items.items():
-        filtered_val = {k: v for k, v in val.items() if k != "frames"}
-        serializable_items[key] = filtered_val
-
+def save_game(Knowledge, rebirth_multiplier, rebirth_count, upgrades):
     data = {
         "Knowledge": Knowledge,
         "rebirth_multiplier": rebirth_multiplier,
         "rebirth_count": rebirth_count,
-        "items": serializable_items,
+        "upgrade_levels": [u["level"] for u in upgrades],
         "last_saved_time": time.time()
     }
 
-    with open("save_data.json", "w") as f:
+    with open(SAVE_FILE, "w") as f:
         json.dump(data, f, indent=4)
 
-def load_game(items_template):
+def load_game(upgrades):
+    if not os.path.exists(SAVE_FILE):
+        return 0, 1, 0, time.time()  # default: 0 knowledge, x1 multiplier, 0 rebirths
+
     try:
-        with open("save_data.json", "r") as f:
+        with open(SAVE_FILE, "r") as f:
             data = json.load(f)
 
         Knowledge = data.get("Knowledge", 0)
         multiplier = data.get("rebirth_multiplier", 1)
         count = data.get("rebirth_count", 0)
-        saved_items = data.get("items", {})
         last_saved_time = data.get("last_saved_time", time.time())
+        upgrade_levels = data.get("upgrade_levels", [])
 
-        # Sync saved items into template
-        for key in items_template:
-            if key in saved_items:
-                items_template[key]["owned"] = saved_items[key].get("owned", 0)
-                items_template[key]["cost"] = saved_items[key].get("cost", items_template[key]["cost"])
+        for i, level in enumerate(upgrade_levels):
+            if i < len(upgrades):
+                upgrades[i]["level"] = level
 
         return Knowledge, multiplier, count, last_saved_time
 
-    except (FileNotFoundError, json.JSONDecodeError):
+    except Exception as e:
+        print("Failed to load save:", e)
         return 0, 1, 0, time.time()
