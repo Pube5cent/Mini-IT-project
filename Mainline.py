@@ -6,7 +6,7 @@ import json
 import random
 import subprocess
 from PIL import Image
-from Ryanstuff import music_manager #from Ryanstuff import game_save
+#from Ryanstuff import music_manager #from Ryanstuff import game_save
 from Ryanstuff import Rebirth
 from Ryanstuff import game_save
 from Ryanstuff.Rebirth import RebirthSystem
@@ -19,9 +19,11 @@ from Ryanstuff.music_manager import init_music, play_music, pause_music, unpause
 # Initialize Pygame and music
 pygame.init()
 init_music()
+clock = pygame.time.Clock()
 
 # Play background music
 play_music("Ryanstuff/Game.mp3")
+volume_on = False
 
 #Screen settings
 WIDTH, HEIGHT = 1080, 720
@@ -66,6 +68,7 @@ background_frames = load_gif_frames(background_gif_path, scale=(WIDTH, HEIGHT))
 
 # Fonts
 font = pygame.font.SysFont("Arial", 24)
+small_font = pygame.font.SysFont("Arial", 14)
 
 # Pause menu state
 paused = False
@@ -110,55 +113,6 @@ BLUE =  (100, 100, 255)
 bonus_interval = 5  # seconds
 last_bonus_time = time.time()
 
-#Items
-items = {
-    "Manual research": {
-        "cost": 15,
-        "cps": 1,
-        "owned": 0,
-        "elapsed": 0.0,
-        "gif_path": "AdamStuff/assets/gif_0.gif"
-    },
-    "Turbo Learn": {
-        "cost": 50,
-        "cps": 1,
-        "owned": 0,
-        "elapsed": 0.0,
-        "gif_path": "AdamStuff/assets/gif_1.gif"
-    },
-    "Super Click": {
-        "cost": 10,
-        "cps": 3,
-        "owned": 0,
-        "elapsed": 0.0,
-        "gif_path": "AdamStuff/assets/gif_3.gif",  
-        "click_bonus": 1
-    }
-}
-
-for item in items.values():
-    item["frames"] = load_gif_frames(item["gif_path"])
-
-
-#loads the game
-Knowledge, rebirth_multiplier, rebirth_count, last_saved_time = load_game(items)
-rebirth_system = RebirthSystem(saved_multiplier=rebirth_multiplier, saved_count=rebirth_count)
-Rebirth_multiplier = rebirth_system.multiplier
-
-# Offline gain
-offline_seconds = time.time() - last_saved_time
-offline_knowledge = 0
-
-for item in items.values():
-    if item["owned"] > 0 and item["cps"] > 0:
-        offline_knowledge += item["owned"] * item["cps"] * offline_seconds * Rebirth_multiplier
-
-Knowledge += offline_knowledge
-
-if offline_knowledge > 0:
-    print(f"Gained {int(offline_knowledge)} Knowledge while offline!")
-
-
 #Centre gif
 center_gif_path = "AdamStuff/assets/floating_book.gif"
 center_gif_frames = load_gif_frames(center_gif_path, scale=(150, 150))
@@ -192,8 +146,8 @@ def toggle_fullscreen():
     else:
         screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
-# Upgrade Duration (seconds)
-UPGRADE_DURATION = 30
+# Temp Section Upgrade Duration (seconds)
+UPGRADE_DURATION = 180
 
 def activate_upgrade(upgrade_type, duration=10):
     now = time.time()
@@ -219,7 +173,7 @@ def update_upgrades():
         elif upgrade == "fast_click":
             # Apply per-frame knowledge bonus
             if now - auto_click_timer >= auto_click_delay:
-                Knowledge += 1 * Rebirth_multiplier #idk what this does yet 
+                Knowledge += 1  #idk what this does yet 
                 auto_click_timer = now
         elif upgrade == "bonus_click":
             Knowledge_per_click = 1 + info["level"]
@@ -233,7 +187,7 @@ def update_upgrades():
 
 def draw_active_upgrades():
     x = WIDTH - 50  
-    y = 20
+    y = 50
     spacing = 5
 
     for upgrade_type, data in active_upgrades.items():
@@ -242,6 +196,9 @@ def draw_active_upgrades():
             for i in range(data["level"]):  # draw icon per level
                 screen.blit(icon, (x - (icon.get_width() + spacing) * i, y))
         y += 50  # move down for next upgrade type
+
+    draw_upgrades()
+    draw_tooltip()
 
 def trigger_random_upgrade():
     upgrade = random.choice(["fast_click", "bonus_click"])
@@ -278,71 +235,6 @@ def draw_center_gif(current_frame_index):
         gif_pos = (WIDTH // 2 - current_frame.get_width() // 2, HEIGHT // 2 - current_frame.get_height() // 2)
         screen.blit(current_frame, gif_pos)
 
-def draw_shop():
-    y_offset = 100
-    shop_buttons.clear()
-    for item_name, item in items.items():
-        button_rect = pygame.Rect(20, y_offset, 360, 80)
-        shop_buttons[item_name] = button_rect
-
-        mouse_pos = pygame.mouse.get_pos()
-        pygame.draw.rect(screen, LIGHT_GRAY if button_rect.collidepoint(mouse_pos) else GRAY, button_rect)
-        pygame.draw.rect(screen, BLACK, button_rect, 3)
-
-        item_text = font.render(f"{item_name}", True, BLACK)
-        cost_text = font.render(f"Cost: {int(item['cost'])}", True, BLACK)
-        owned_text = font.render(f"Owned: {item['owned']}", True, BLACK)
-        screen.blit(item_text, (button_rect.x + 10, button_rect.y + 5))
-        screen.blit(cost_text, (button_rect.x + 10, button_rect.y + 30))
-        screen.blit(owned_text, (button_rect.x + 200, button_rect.y + 30))
-
-        if item["owned"] > 0:
-            if item["cps"] > 0:
-                interval = 1.0 / item["cps"]
-                progress = min(item["elapsed"] / interval, 1.0)
-            else:
-                progress = 1.0
-
-            bar_back = pygame.Rect(button_rect.x + 10, button_rect.y + 60, 340, 10)
-            pygame.draw.rect(screen, DARK_GREEN, bar_back)
-            fill_width = int(340 * progress)
-            bar_fill = pygame.Rect(button_rect.x + 10, button_rect.y + 60, fill_width, 10)
-            pygame.draw.rect(screen, GREEN, bar_fill)
-
-            if item["frames"]:
-                frame_count = len(item["frames"])
-                current_frame_index = int(progress * frame_count) % frame_count
-                current_frame = item["frames"][current_frame_index]
-                gif_pos = (button_rect.right + 10, button_rect.y + 10)
-                screen.blit(current_frame, gif_pos)
-
-        y_offset += 100
-
-def handle_shop_click(pos):
-    for item_name, button_rect in shop_buttons.items():
-        if button_rect.collidepoint(pos):
-            buy_item(item_name)
-
-def buy_item(item_name):
-    global Knowledge, Knowledge_per_click
-    item = items[item_name]
-    if Knowledge >= item["cost"]:
-        Knowledge -= item["cost"]
-        item["owned"] += 1
-        item["cost"] *= 1.15
-
-        if item_name == "Super Click":
-            Knowledge_per_click += item["click_bonus"]
-
-def update_items(dt):
-    global Knowledge
-    for item in items.values():
-        if item["owned"] > 0 and item["cps"] > 0:
-            interval = 1.0 / item["cps"]
-            item["elapsed"] += dt
-            while item["elapsed"] >= interval:
-                Knowledge += item["cps"] * item["owned"] * Rebirth_multiplier #related to rebirth
-                item["elapsed"] -= interval
 
 def draw_knowledge_counter():
     text = font.render(f"Knowledge: {int(Knowledge)}", True, WHITE)
@@ -356,20 +248,10 @@ def draw():
         screen.fill(WHITE)
 
     draw_knowledge_counter()
-    draw_shop()
 
     if center_gif_frames:
         center_frame_index = pygame.time.get_ticks() // 100 % len(center_gif_frames)
         draw_center_gif(center_frame_index)
-
-    #draw the rebirth button
-    pygame.draw.rect(screen, BLUE, rebirth_button)
-    rebirth_text = font.render("Rebirth", True, WHITE)
-    screen.blit(rebirth_text, (rebirth_button.centerx - rebirth_text.get_width() // 2,
-                               rebirth_button.centery - rebirth_text.get_height() // 2))
-
-    multiplier_text = font.render(f"Multiplier: x{Rebirth_multiplier}", True, WHITE)
-    screen.blit(multiplier_text, (WIDTH - 150, 110))
 
     draw_active_upgrades()
     
@@ -381,7 +263,6 @@ def show_bonus_popup():
 
     while True:
         dt = clock.tick(FPS) / 1000
-        update_items(dt)
         draw()
 
         overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
@@ -430,16 +311,13 @@ def check_for_triggered_upgrade():
 # Mini Game Path
 def mini_game_1():
     subprocess.Popen(["python", "temp_mini_game.py"])
+    #subprocess.Popen(["python", "Azim stuff/minigame testing 1.py"])
+    #subprocess.Popen(["python", "Yeap Stuff/main.py"])
 
 def mini_game_2():
     subprocess.Popen(["python", "temp_mini_game.py"])
-
-volume_on = True  # add volume control state
-
-button_width, button_height = 200, 50
-padding = 10
-WHITE = (255, 255, 255)
-GRAY = (100, 100, 100)
+    #subprocess.Popen(["python", "Azim stuff/minigame testing 1.py"])
+    #subprocess.Popen(["python", "Yeap Stuff/main.py"])
 
 def draw_button(surface, rect, text, active=False):
     color = (200, 50, 50) if active else (70, 70, 70)
@@ -462,29 +340,253 @@ def draw_pause_button():
     text_rect = pause_button_text.get_rect(center=pause_button_rect.center)
     screen.blit(pause_button_text, text_rect)
 
+# Upgrade configuration
+UPGRADE_CAP = 20
+
+upgrade_defs = [
+    {"name": "Book Stand", "base_cost": 10, "base_rate": 0.1, "base_interval": 5.0},
+    {"name": "Desk Lamp", "base_cost": 50, "base_rate": 0.5, "base_interval": 4.5},
+    {"name": "Whiteboard", "base_cost": 100, "base_rate": 1.0, "base_interval": 4.0},
+    {"name": "Encyclopedia Set", "base_cost": 250, "base_rate": 2.0, "base_interval": 3.5},
+    {"name": "Research Assistant", "base_cost": 500, "base_rate": 4.0, "base_interval": 3.0},
+    {"name": "Study Timer", "base_cost": 750, "base_rate": 6.0, "base_interval": 2.5},
+    {"name": "Learning App", "base_cost": 1000, "base_rate": 10.0, "base_interval": 2.0},
+    {"name": "Brain Supplements", "base_cost": 1500, "base_rate": 15.0, "base_interval": 1.8},
+    {"name": "VR Learning Kit", "base_cost": 2000, "base_rate": 20.0, "base_interval": 1.5},
+    {"name": "AI Tutor", "base_cost": 3000, "base_rate": 30.0, "base_interval": 1.2},
+]
+
+# Upgrade runtime state
+upgrades = []
+for i, u in enumerate(upgrade_defs):
+    upgrades.append({
+        "level": 0,
+        "progress": 0.0,
+        "last_tick": time.time(),
+        "gif": None,  # Placeholder for animation
+        "frames": [],
+        "frame_index": 0,
+        "name": u["name"],
+        "base_cost": u["base_cost"],
+        "base_rate": u["base_rate"],
+        "base_interval": u["base_interval"]
+    })
+
+# Load placeholder and gifs
+placeholder_icon = pygame.Surface((40, 40))
+placeholder_icon.fill((80, 80, 80))
+
+for i in range(len(upgrades)):
+    gif_path = f"assets/upgrades/upgrade_{i}.gif"
+    if os.path.exists(gif_path):
+        try:
+            gif = pygame.image.load(gif_path)
+            upgrades[i]["gif"] = gif
+        except:
+            upgrades[i]["gif"] = placeholder_icon
+    else:
+        upgrades[i]["gif"] = placeholder_icon
+
+# Game state
+scroll_y = 0
+scroll_speed = 20
+upgrade_rects = []
+hovered_upgrade = None
+
+# Calculate cost
+
+def get_cost(base, level):
+    return int(base * (1.15 ** level))
+
+# Upgrade effect
+
+def get_Knowledge_per_tick(base, level):
+    return base * (1.1 ** level)
+
+def get_interval(base, level):
+    return base * (0.95 ** level)
+
+# Draw upgrades
+def draw_upgrades():
+    global upgrade_rects, hovered_upgrade
+    upgrade_rects = []
+    start_y = 100 + scroll_y
+    hovered_upgrade = None
+    mouse_pos = pygame.mouse.get_pos()
+
+    for idx, upg in enumerate(upgrades):
+        y = start_y + idx * 80
+        rect = pygame.Rect(20, y, 300, 65)
+        upgrade_rects.append((rect, idx))
+
+        pygame.draw.rect(screen, (50, 50, 100), rect, border_radius=8)
+        screen.blit(upg["gif"], (rect.x + 10, rect.y + 10))
+
+        level = upg["level"]
+        cost = get_cost(upg["base_cost"], level)
+        name = f"{upg['name']} ({level}/{UPGRADE_CAP})"
+        cost_text = f"Cost: {cost}"
+
+        screen.blit(font.render(name, True, (255, 255, 255)), (rect.x + 60, rect.y + 5))
+        screen.blit(font.render(cost_text, True, (200, 200, 200)), (rect.x + 60, rect.y + 25))  # More space
+
+
+        # Progress bar background
+        pygame.draw.rect(screen, (80, 80, 80), (rect.x + 60, rect.y + 50, 180, 10), border_radius=5)
+
+        # Progress bar fill
+        pygame.draw.rect(screen, (0, 220, 0), (rect.x + 60, rect.y + 50, int(180 * upg["progress"]), 10), border_radius=5)
+
+
+        if rect.collidepoint(mouse_pos):
+            hovered_upgrade = idx
+
+# Tooltip
+def draw_tooltip():
+    if hovered_upgrade is not None:
+        upg = upgrades[hovered_upgrade]
+        level = upg["level"]
+        rate = get_Knowledge_per_tick(upg["base_rate"], level)
+        interval = get_interval(upg["base_interval"], level)
+        tip_lines = [
+            f"{upg['name']}",
+            f"Generates {rate:.2f} knowledge", 
+            f"Every {interval:.2f}s"
+        ]
+        width = max(font.size(line)[0] for line in tip_lines) + 10
+        height = len(tip_lines) * 20 + 10
+        x, y = pygame.mouse.get_pos()
+        pygame.draw.rect(screen, (0, 0, 0), (x, y, width, height))
+        for i, line in enumerate(tip_lines):
+            screen.blit(font.render(line, True, (255, 255, 255)), (x + 5, y + 5 + i * 20))
+
+# Update upgrade timers
+def update_upgrade_progress():
+    global Knowledge
+    now = time.time()
+    for upg in upgrades:
+        if upg["level"] == 0:
+            continue
+        interval = get_interval(upg["base_interval"], upg["level"])
+        elapsed = now - upg["last_tick"]
+        upg["progress"] = min(elapsed / interval, 1.0)
+        if elapsed >= interval:
+            gain = get_Knowledge_per_tick(upg["base_rate"], upg["level"])
+            Knowledge += gain
+            upg["last_tick"] = now
+            upg["progress"] = 0.0
+
+# Handle click
+def handle_click(pos):
+    global Knowledge
+    for rect, idx in upgrade_rects:
+        if rect.collidepoint(pos):
+            upg = upgrades[idx]
+            if upg["level"] >= UPGRADE_CAP:
+                return
+            cost = get_cost(upg["base_cost"], upg["level"])
+            if Knowledge >= cost:
+                Knowledge -= cost
+                upg["level"] += 1
+                upg["last_tick"] = time.time()
+                # Flash effect can be added here
+
+def update_upgrades_logic():
+    global Knowledge
+    current_time = time.time()
+    for upg in upgrades:
+        if upg["level"] > 0:
+            interval = get_interval(upg["base_interval"], upg["level"])
+            elapsed = current_time - upg["last_tick"]
+            upg["progress"] = min(1.0, elapsed / interval)
+
+            if elapsed >= interval:
+                gain = get_Knowledge_per_tick(upg["base_rate"], upg["level"])
+                Knowledge += gain
+                upg["last_tick"] = current_time
+                upg["progress"] = 0.0
+
+# Auto Saving System
+SAVE_FILE = "save_data.json"
+autosave_timer = 0
+
+def save_game():
+    data = {
+        "knowledge": Knowledge,
+        "upgrades": [u["level"] for u in upgrades]
+    }
+    with open(SAVE_FILE, "w") as f:
+        json.dump(data, f)
+
+
+def load_game():
+    global knowledge
+    if os.path.exists(SAVE_FILE):
+        try:
+            with open(SAVE_FILE, "r") as f:
+                content = f.read().strip()
+                if not content:
+                    print("Save file empty. Starting new game.")
+                    return
+                data = json.loads(content)
+                knowledge = data.get("knowledge", 0)
+                upgrade_levels = data.get("upgrades", [])
+                for i, level in enumerate(upgrade_levels):
+                    if i < len(upgrades):
+                        upgrades[i]["level"] = level
+        except Exception as e:
+            print("Failed to load save:", e)
 
 #Main Game Loop
 while True:
     dt = clock.tick(FPS) / 1000
+    screen.blit(font.render(f"Knowledge: {int(Knowledge)}", True, (255, 255, 255)), (20, 20))
+    draw_upgrades()
+    draw_tooltip()
+    update_upgrade_progress()
+    load_game()
+
+    autosave_timer += dt
+    if autosave_timer >= 10:
+        save_game()
+        autosave_timer = 0
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            save_game(Knowledge, rebirth_system.multiplier, rebirth_system.rebirth_count, items)  # Update variables as needed
+            save_game()
             pygame.quit()
             sys.exit()
 
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 paused = not paused
+            if book_button.collidepoint(event.pos):
+                Knowledge += Knowledge_per_click
             elif event.key == pygame.K_f:
                 toggle_fullscreen()
+            if event.key == pygame.K_UP:
+                scroll_y = min(scroll_y + scroll_speed, 0)
+            elif event.key == pygame.K_DOWN:
+                max_scroll = max(0, len(upgrades) * 70 - 400)
+                scroll_y = max(scroll_y - scroll_speed, -max_scroll)
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
             mx, my = event.pos
-
+            
             # Pause button (always visible top right)
             if pause_button_rect.collidepoint(mx, my):
                 paused = not paused
+            elif book_button.collidepoint(event.pos):
+                Knowledge += Knowledge_per_click
+
+            elif event.button == 1:
+                handle_click(event.pos)
+            elif event.button == 4:
+                scroll_y = min(scroll_y + scroll_speed, 0)
+            elif event.button == 5:
+                max_scroll = max(0, len(upgrades) * 70 - 400)
+                scroll_y = max(scroll_y - scroll_speed, -max_scroll)
+                
             elif paused:
                 # Pause menu buttons rectangles
                 menu_x = screen.get_width() - button_width - padding
@@ -498,8 +600,16 @@ while True:
                 elif volume_button.collidepoint(mx, my):
                     toggle_volume()
                 elif quit_button.collidepoint(mx, my):
+                    save_game()
                     pygame.quit()
                     sys.exit()
+
+            elif book_button.collidepoint(event.pos):
+                bonus = 1
+                if "fast_click" in active_upgrades:
+                    bonus += active_upgrades["fast_click"]["level"] * 0.5
+                Knowledge += Knowledge_per_click * bonus
+
             else:
                 # Game clicks when not paused
                 if book_button.collidepoint(event.pos):
@@ -507,6 +617,7 @@ while True:
                     if "fast_click" in active_upgrades:
                         bonus += active_upgrades["fast_click"]["level"] * 0.5
                     Knowledge += Knowledge_per_click * bonus
+<<<<<<< HEAD
                 else:
                     handle_shop_click(event.pos)
 
@@ -530,13 +641,15 @@ while True:
 
                 else:
                     handle_shop_click(event.pos)
+=======
+                    #print("Not enough Knowledge to rebirth. Need:", rebirth_system.cost)
+>>>>>>> main
 
 
 
             
 
             
-
     if time.time() - last_check > 1:
         check_for_triggered_upgrade()
         last_check = time.time()
@@ -547,11 +660,13 @@ while True:
                 random.choice([mini_game_1, mini_game_2])()
             last_bonus_time = time.time()
 
-        update_items(dt)
+        update_upgrades_logic()
         update_upgrades()
 
     draw()
     draw_pause_button()
+    pygame.display.flip()
+    clock.tick(60)
 
     if paused:
         # Draw transparent overlay

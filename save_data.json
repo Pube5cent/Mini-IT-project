@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {
     "Knowledge": 1167321.1003422479,
     "rebirth_multiplier": 1,
@@ -28,3 +29,6 @@
     },
     "last_saved_time": 1749428864.900622
 }
+=======
+{"knowledge": 6, "upgrades": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}
+>>>>>>> main
