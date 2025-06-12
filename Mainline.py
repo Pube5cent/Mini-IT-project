@@ -353,7 +353,7 @@ upgrade_defs = [
 
 # Upgrade runtime state
 upgrades = []
-for i, ud in enumerate(upgrade_defs):
+for i, u in enumerate(upgrade_defs):
     upgrades.append({
         "level": 0,
         "progress": 0.0,
@@ -361,10 +361,10 @@ for i, ud in enumerate(upgrade_defs):
         "gif": None,  # Placeholder for animation
         "frames": [],
         "frame_index": 0,
-        "name": ud["name"],
-        "base_cost": ud["base_cost"],
-        "base_rate": ud["base_rate"],
-        "base_interval": ud["base_interval"]
+        "name": u["name"],
+        "base_cost": u["base_cost"],
+        "base_rate": u["base_rate"],
+        "base_interval": u["base_interval"]
     })
 
 # Load placeholder and gifs
@@ -501,6 +501,37 @@ def update_upgrades_logic():
                 upg["last_tick"] = current_time
                 upg["progress"] = 0.0
 
+# Auto Saving System
+SAVE_FILE = "save_data.json"
+autosave_timer = 0
+
+def save_game():
+    data = {
+        "knowledge": Knowledge,
+        "upgrades": [u["level"] for u in upgrades]
+    }
+    with open(SAVE_FILE, "w") as f:
+        json.dump(data, f)
+
+
+def load_game():
+    global knowledge
+    if os.path.exists(SAVE_FILE):
+        try:
+            with open(SAVE_FILE, "r") as f:
+                content = f.read().strip()
+                if not content:
+                    print("Save file empty. Starting new game.")
+                    return
+                data = json.loads(content)
+                knowledge = data.get("knowledge", 0)
+                upgrade_levels = data.get("upgrades", [])
+                for i, level in enumerate(upgrade_levels):
+                    if i < len(upgrades):
+                        upgrades[i]["level"] = level
+        except Exception as e:
+            print("Failed to load save:", e)
+
 #Main Game Loop
 while True:
     dt = clock.tick(FPS) / 1000
@@ -508,9 +539,16 @@ while True:
     draw_upgrades()
     draw_tooltip()
     update_upgrade_progress()
+    load_game()
+
+    autosave_timer += dt
+    if autosave_timer >= 10:
+        save_game()
+        autosave_timer = 0
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
+            save_game()
             pygame.quit()
             sys.exit()
 
@@ -557,6 +595,7 @@ while True:
                 elif volume_button.collidepoint(mx, my):
                     toggle_volume()
                 elif quit_button.collidepoint(mx, my):
+                    save_game()
                     pygame.quit()
                     sys.exit()
 
