@@ -303,7 +303,7 @@ def draw_shop():
                 interval = 1.0 / item["cps"]
                 progress = min(item["elapsed"] / interval, 1.0)
             else:
-                progress = 1.0
+                progress = 1.07
 
             bar_back = pygame.Rect(button_rect.x + 10, button_rect.y + 60, 340, 10)
             pygame.draw.rect(screen, DARK_GREEN, bar_back)
