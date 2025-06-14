@@ -1,10 +1,10 @@
 {
     "Knowledge": 0,
-    "rebirth_multiplier": 2,
-    "rebirth_count": 1,
+    "rebirth_multiplier": 4,
+    "rebirth_count": 3,
     "upgrade_levels": [
-        20,
         0,
+        1,
         0,
         0,
         0,
@@ -14,5 +14,13 @@
         0,
         0
     ],
+<<<<<<< HEAD
     "last_saved_time": 1749875777.2772665
+=======
+<<<<<<< HEAD
+    "last_saved_time": 1749828997.3779888
+=======
+    "last_saved_time": 1749872334.780604
+>>>>>>> 7322278a98f1850ece25c18c685649cec2e5b6c5
+>>>>>>> 0b44c225480a6351ba666077890ad412e87dd191
 }

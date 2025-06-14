@@ -351,13 +351,13 @@ def check_for_triggered_upgrade():
 
 # Mini Game Path
 def mini_game_1():
-    subprocess.Popen(["python", "temp_mini_game.py"])
-    #subprocess.Popen(["python", "Azim stuff/minigame testing 1.py"])
+    #subprocess.Popen(["python", "temp_mini_game.py"])
+    subprocess.Popen(["python", "Azim stuff/minigame testing 1.py"])
     #subprocess.Popen(["python", "Yeap Stuff/main.py"])
 
 def mini_game_2():
-    subprocess.Popen(["python", "temp_mini_game.py"])
-    #subprocess.Popen(["python", "Azim stuff/minigame testing 1.py"])
+    #subprocess.Popen(["python", "temp_mini_game.py"])
+    subprocess.Popen(["python", "Azim stuff/minigame testing 1.py"])
     #subprocess.Popen(["python", "Yeap Stuff/main.py"])
 
 def draw_button(surface, rect, text, active=False):
