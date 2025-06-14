@@ -11,11 +11,6 @@ from chart import *
 from utility_functions import *
 import moviepy.editor # pip install moviepy==1.0.3
 
-# video = moviepy.editor.VideoFileClip("hhmvid.mp4")
-#clip = video.fx(moviepy.editor.vfx.resize, width=width) # resize (keep aspect ratio)
-#clipresized = video.resize(width = width)
-# clip = video.subclip(0,10)
-
 
 def exit_game(screen, clock, song_name, score,song_difficulty,total_points):
     global change_background_color
@@ -108,7 +103,7 @@ def get_ready(screen,clock,song_name,total_points):
                    red_highlight_text_color)
 
         # ESC
-        write_text(screen, width // 2, 3*(height//4), 'Press ESC to return to the main menu', tiny_text,
+        write_text(screen, width // 2, 3*(height//4), 'Press ESC to QUIT', tiny_text,
                    background_color[change_background_color[0]],
                    red_highlight_text_color)
 

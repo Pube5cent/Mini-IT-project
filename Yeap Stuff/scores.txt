@@ -1,9 +1,0 @@
-test,0.00
-BadApple,0.00
-Crystal,30.38
-Hmm Heu Ming Remix (Rcol),69.77
-None,0.00
-NyanCat (Neuro)_A,0.00
-Bonetrousle,54.60
-Sea Shanty2,44.42
-Dogsong,33.10
