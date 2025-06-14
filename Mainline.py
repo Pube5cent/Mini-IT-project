@@ -101,6 +101,8 @@ rebirth_count = 0
 rebirth_multiplier = 1
 REBIRTH_BUTTON_HEIGHT = 40
 rebirth_ready = False
+pause_toggle_cooldown = 0.3  # seconds
+last_pause_toggle = 0  # initial timestamp
 
 #Colors
 WHITE = (255, 255, 255)
@@ -637,7 +639,7 @@ while True:
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 paused = not paused
-            if book_button.collidepoint(event.pos):
+            elif book_button.collidepoint(event.pos):
                 Knowledge += Knowledge_per_click * rebirth_system.multiplier
             elif event.key == pygame.K_f:
                 toggle_fullscreen()
@@ -661,8 +663,11 @@ while True:
 
  
             # Pause button (always visible top right)
+            current_time = time.time()
             if pause_button_rect.collidepoint(mx, my):
-                paused = not paused
+                if current_time - last_pause_toggle > pause_toggle_cooldown:
+                    paused = not paused
+                    last_pause_toggle = current_time
             elif book_button.collidepoint(event.pos):
                 Knowledge += Knowledge_per_click * rebirth_system.multiplier
 
@@ -723,7 +728,6 @@ while True:
 
     draw()
     draw_pause_button()
-    pygame.display.flip()
     clock.tick(60)
 
     if paused:
