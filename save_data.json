@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
     "Knowledge": 52,
     "rebirth_multiplier": 1,
     "rebirth_count": 0,
@@ -27,4 +28,22 @@
         }
     },
     "last_saved_time": 1749907897.2982705
+=======
+    "Knowledge": 0,
+    "rebirth_multiplier": 1,
+    "rebirth_count": 0,
+    "upgrade_levels": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+    ],
+    "last_saved_time": 1749901858.4035454
+>>>>>>> 5f79e373bb5a5754053ba1a10b0a18134c25d45d
 }

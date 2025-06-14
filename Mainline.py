@@ -130,7 +130,7 @@ center_gif_path = "AdamStuff/assets/floating_book.gif"
 center_gif_frames = load_gif_frames(center_gif_path, scale=(150, 150))
 
 # Ping noise
-ping_sound = pygame.mixer.Sound("AdamStuff/asset/")
+ping_sound = pygame.mixer.Sound("AdamStuff/assets/pingsound.mp3")
 last_mini_game_state = False
 
 #UI Elements
