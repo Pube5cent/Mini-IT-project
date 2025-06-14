@@ -154,6 +154,12 @@ upgrade_animation_phases = {
     "bonus_click": 0
 }
 
+PILL_ROW_Y = {
+    "fast_click": 50,
+    "bonus_click": 100,
+    # add more if needed
+}
+
 #Toggle fullscreen
 def toggle_fullscreen():
     global screen, fullscreen
@@ -177,18 +183,18 @@ def activate_upgrade(upgrade_type, duration=UPGRADE_DURATION):
             "end_time": now + duration
         }
 
-    # Animate from center to destination
+    # Determine which slot (how many pills already exist)
     slot_index = active_upgrades[upgrade_type]["level"] - 1
     target_x = WIDTH - 50 - slot_index * 45
-    target_y = 50  # fixed Y level for all
+    target_y = PILL_ROW_Y.get(upgrade_type, 50)  # fallback if not found
 
     incoming_pills.append({
         "type": upgrade_type,
         "x": WIDTH // 2,
-        "y": target_y,
+        "y": target_y,  # start at y but move x
         "target_x": target_x,
         "target_y": target_y,
-        "progress": 0.0  # 0=start, 1=done
+        "progress": 0.0
     })
 
 def update_upgrades():
@@ -230,6 +236,7 @@ def draw_active_upgrades():
             # Only draw landed pills (not flying)
             flying = sum(1 for p in incoming_pills if p["type"] == upgrade_type)
             for i in range(data["level"] - flying):
+                y = PILL_ROW_Y.get(upgrade_type, 50)
                 screen.blit(icon, (x - (icon.get_width() + spacing) * i, y))
         y += 50
 
@@ -289,7 +296,7 @@ def update_incoming_pills():
         # Interpolate position (linear movement from center to target)
         t = pill["progress"]
         pill["x"] = (1 - t) * (WIDTH // 2) + t * pill["target_x"]
-        pill["y"] = pill["target_y"]  # fixed Y (no vertical change here)
+        pill["y"] = pill["target_y"]
 
         # === Spawn trail particles ===
         for _ in range(2):  # More = thicker trail
