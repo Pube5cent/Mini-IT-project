@@ -121,6 +121,9 @@ BLUE =  (100, 100, 255)
 bonus_interval = 5  # seconds
 last_bonus_time = time.time()
 
+# Temp Section Upgrade Duration (seconds)
+UPGRADE_DURATION = 360
+
 #Centre gif
 center_gif_path = "AdamStuff/assets/floating_book.gif"
 center_gif_frames = load_gif_frames(center_gif_path, scale=(150, 150))
@@ -160,10 +163,7 @@ def toggle_fullscreen():
     else:
         screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
-# Temp Section Upgrade Duration (seconds)
-UPGRADE_DURATION = 180
-
-def activate_upgrade(upgrade_type, duration=10):
+def activate_upgrade(upgrade_type, duration=UPGRADE_DURATION):
     now = time.time()
     if upgrade_type in active_upgrades:
         active_upgrades[upgrade_type]["level"] += 1
@@ -450,13 +450,13 @@ def check_for_triggered_upgrade():
 
 # Mini Game Path
 def mini_game_1():
-    #subprocess.Popen(["python", "temp_mini_game.py"])
-    subprocess.Popen(["python", "Azim stuff/minigame testing 1.py"])
+    subprocess.Popen(["python", "temp_mini_game.py"])
+    #subprocess.Popen(["python", "Azim stuff/minigame testing 1.py"])
     #subprocess.Popen(["python", "Yeap Stuff/main.py"])
 
 def mini_game_2():
-    #subprocess.Popen(["python", "temp_mini_game.py"])
-    subprocess.Popen(["python", "Azim stuff/minigame testing 1.py"])
+    subprocess.Popen(["python", "temp_mini_game.py"])
+    #subprocess.Popen(["python", "Azim stuff/minigame testing 1.py"])
     #subprocess.Popen(["python", "Yeap Stuff/main.py"])
 
 def draw_button(surface, rect, text, active=False):
@@ -484,16 +484,16 @@ def draw_pause_button():
 UPGRADE_CAP = 20
 
 upgrade_defs = [
-    {"name": "Book Stand", "base_cost": 10, "base_rate": 0.1, "base_interval": 5.0},
-    {"name": "Desk Lamp", "base_cost": 50, "base_rate": 0.5, "base_interval": 4.5},
-    {"name": "Whiteboard", "base_cost": 100, "base_rate": 1.0, "base_interval": 4.0},
-    {"name": "Encyclopedia Set", "base_cost": 250, "base_rate": 2.0, "base_interval": 3.5},
-    {"name": "Research Assistant", "base_cost": 500, "base_rate": 4.0, "base_interval": 3.0},
-    {"name": "Study Timer", "base_cost": 750, "base_rate": 6.0, "base_interval": 2.5},
-    {"name": "Learning App", "base_cost": 1000, "base_rate": 10.0, "base_interval": 2.0},
-    {"name": "Brain Supplements", "base_cost": 1500, "base_rate": 15.0, "base_interval": 1.8},
-    {"name": "VR Learning Kit", "base_cost": 2000, "base_rate": 20.0, "base_interval": 1.5},
-    {"name": "AI Tutor", "base_cost": 3000, "base_rate": 30.0, "base_interval": 1.2},
+    {"name": "Book Stand", "base_cost": 100, "base_rate": 0.1, "base_interval": 5.0},
+    {"name": "Desk Lamp", "base_cost": 1600, "base_rate": 0.5, "base_interval": 4.5},
+    {"name": "Whiteboard", "base_cost": 3200, "base_rate": 1.0, "base_interval": 4.0},
+    {"name": "Encyclopedia Set", "base_cost": 8000, "base_rate": 2.0, "base_interval": 3.5},
+    {"name": "Research Assistant", "base_cost": 16000, "base_rate": 4.0, "base_interval": 3.0},
+    {"name": "Study Timer", "base_cost": 24000, "base_rate": 6.0, "base_interval": 2.5},
+    {"name": "Learning App", "base_cost": 32000, "base_rate": 10.0, "base_interval": 2.0},
+    {"name": "Brain Supplements", "base_cost": 50000, "base_rate": 15.0, "base_interval": 1.8},
+    {"name": "VR Learning Kit", "base_cost": 64000, "base_rate": 20.0, "base_interval": 1.5},
+    {"name": "AI Tutor", "base_cost": 200000, "base_rate": 30.0, "base_interval": 1.2},
 ]
 
 
@@ -568,7 +568,7 @@ scroll_speed = 20
 upgrade_rects = []
 hovered_upgrade = None
 UPGRADE_HEIGHT = 80
-VISIBLE_HEIGHT = 700  # make sure to change decrese it when adding a new upograde
+VISIBLE_HEIGHT = 600  # make sure to change decrese it when adding a new upograde
 MAX_SCROLL = max(0, len(upgrades) * UPGRADE_HEIGHT - VISIBLE_HEIGHT)
 
 # Calculate cost
@@ -663,11 +663,11 @@ def handle_click(pos):
             if upg["level"] >= UPGRADE_CAP:
                 return
             cost = get_cost(upg["base_cost"], upg["level"])
-            if Knowledge: #>= cost (afiq)
-                #Knowledge -= cost (Afiq)
+            if Knowledge >= cost:
+                Knowledge -= cost  # ✅ subtract cost here
                 upg["level"] += 1
                 upg["last_tick"] = time.time()
-                # Flash effect can be added here
+
 
 def update_upgrades_logic():
     global Knowledge
