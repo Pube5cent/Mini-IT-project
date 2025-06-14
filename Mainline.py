@@ -106,6 +106,7 @@ pause_toggle_cooldown = 0.3  # seconds
 last_pause_toggle = 0  # initial timestamp
 incoming_pills = []  # pills in animation
 flying_particles = []  # List of trailing particles
+UPGRADE_TOP_MARGIN = 80
 
 #Colors
 WHITE = (255, 255, 255)
@@ -568,7 +569,10 @@ scroll_speed = 20
 upgrade_rects = []
 hovered_upgrade = None
 UPGRADE_HEIGHT = 80
-VISIBLE_HEIGHT = 700  # make sure to change decrese it when adding a new upograde
+#VISIBLE_HEIGHT = 700  # make sure to change decrese it when adding a new upograde
+UPGRADE_TOP_MARGIN = 60
+UPGRADE_OFFSET_Y = 60
+VISIBLE_HEIGHT = HEIGHT - UPGRADE_OFFSET_Y
 MAX_SCROLL = max(0, len(upgrades) * UPGRADE_HEIGHT - VISIBLE_HEIGHT)
 
 # Calculate cost
@@ -586,8 +590,13 @@ def get_interval(base, level):
 def draw_upgrades():
     global upgrade_rects, hovered_upgrade
     upgrade_rects = []
-    start_y = 100 + scroll_y
     hovered_upgrade = None
+
+    # Set up a clipping surface to prevent drawing over the knowledge counter
+    upgrade_surface_height = HEIGHT - 0  # Reduce this if you wanna adjust the margin on the bottom
+    upgrade_surface = pygame.Surface((WIDTH, upgrade_surface_height), pygame.SRCALPHA)
+
+    start_y = UPGRADE_OFFSET_Y + scroll_y
     mouse_pos = pygame.mouse.get_pos()
 
     for idx, upg in enumerate(upgrades):
@@ -595,27 +604,27 @@ def draw_upgrades():
         rect = pygame.Rect(20, y, 300, 65)
         upgrade_rects.append((rect, idx))
 
-        pygame.draw.rect(screen, (50, 50, 100), rect, border_radius=8)
-        screen.blit(upg["gif"], (rect.x + 10, rect.y + 10))
+        pygame.draw.rect(upgrade_surface, (50, 50, 100), rect, border_radius=8)
+        upgrade_surface.blit(upg["gif"], (rect.x + 10, rect.y + 10))
 
         level = upg["level"]
         cost = get_cost(upg["base_cost"], level)
         name = f"{upg['name']} ({level}/{UPGRADE_CAP})"
         cost_text = f"Cost: {cost}"
 
-        screen.blit(font.render(name, True, (255, 255, 255)), (rect.x + 60, rect.y + 5))
-        screen.blit(font.render(cost_text, True, (200, 200, 200)), (rect.x + 60, rect.y + 25))  # More space
+        upgrade_surface.blit(font.render(name, True, (255, 255, 255)), (rect.x + 60, rect.y + 5))
+        upgrade_surface.blit(font.render(cost_text, True, (200, 200, 200)), (rect.x + 60, rect.y + 25))
 
-
-        # Progress bar background
-        pygame.draw.rect(screen, (80, 80, 80), (rect.x + 60, rect.y + 50, 180, 10), border_radius=5)
-
-        # Progress bar fill
-        pygame.draw.rect(screen, (0, 220, 0), (rect.x + 60, rect.y + 50, int(180 * upg["progress"]), 10), border_radius=5)
-
+        # Progress bar
+        pygame.draw.rect(upgrade_surface, (80, 80, 80), (rect.x + 60, rect.y + 50, 180, 10), border_radius=5)
+        pygame.draw.rect(upgrade_surface, (0, 220, 0), (rect.x + 60, rect.y + 50, int(180 * upg["progress"]), 10), border_radius=5)
 
         if rect.collidepoint(mouse_pos):
             hovered_upgrade = idx
+
+    clip_y = 60  # Height of knowledge counter HUD
+    screen.blit(upgrade_surface, (0, clip_y), area=pygame.Rect(0, clip_y, WIDTH, HEIGHT - clip_y))
+
 
 # Tooltip
 def draw_tooltip():
