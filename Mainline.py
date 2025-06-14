@@ -130,7 +130,7 @@ center_gif_path = "AdamStuff/assets/floating_book.gif"
 center_gif_frames = load_gif_frames(center_gif_path, scale=(150, 150))
 
 # Ping noise
-#ing_sound = pygame.mixer.Sound("AdamStuff/asset/")
+ping_sound = pygame.mixer.Sound("AdamStuff/assets/pingsound.mp3")
 last_mini_game_state = False
 
 #UI Elements
@@ -698,8 +698,8 @@ def handle_click(pos):
             if upg["level"] >= UPGRADE_CAP:
                 return
             cost = get_cost(upg["base_cost"], upg["level"])
-            if Knowledge: #>= cost
-                #Knowledge -= cost  # subtract cost here
+            if Knowledge >= cost:
+                Knowledge -= cost  # subtract cost here
                 upg["level"] += 1
                 upg["last_tick"] = time.time()
 
@@ -761,8 +761,8 @@ while True:
     for key in upgrade_animation_phases:
         upgrade_animation_phases[key] += dt
     
-    #load_game() 
-    '''autosave_timer += dt 
+    #load_game() (Afiq)
+    '''autosave_timer += dt (Afiq)
     if autosave_timer >= 10:
         save_game()
         autosave_timer = 0'''
