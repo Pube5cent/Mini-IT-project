@@ -30,7 +30,7 @@ rebirth_system = RebirthSystem()
 volume_on = False
 
 #Screen settings
-WIDTH, HEIGHT = 1080, 720
+WIDTH, HEIGHT = 1280, 720
 FPS = 60
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Knowledge Clicker")

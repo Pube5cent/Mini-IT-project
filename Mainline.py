@@ -28,11 +28,11 @@ display_info = pygame.display.Info()
 FULLSCREEN_SIZE = (display_info.current_w, display_info.current_h)
 
 # Play background music
-play_music("Ryanstuff/Game.mp3")
+#play_music("Ryanstuff/Game.mp3")
 volume_on = True
 
 #Screen settings
-WIDTH, HEIGHT = 1080, 720
+WIDTH, HEIGHT = 1280, 720
 FPS = 60
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Knowledge Clicker")
@@ -69,7 +69,6 @@ def load_gif_frames(path, scale=(64, 64)):
 #Background GIF
 background_gif_path = "RyanStuff/main_wallpaper.gif"
 background_frames = load_gif_frames(background_gif_path, scale=(WIDTH, HEIGHT))
-
 
 #Knowledge_per_click = 1
 
