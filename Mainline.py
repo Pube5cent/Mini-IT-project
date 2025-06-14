@@ -221,27 +221,36 @@ def update_upgrades():
         Knowledge_per_click = 1
 
 # Mini-game Button
-mini_game_button_rect = pygame.Rect(WIDTH - 60, 150, 40, 40)
 mini_game_available = False
 
 def draw_active_upgrades():
     global mini_game_button_rect
     x = WIDTH - 50  
-    y = 50
     spacing = 5
+    active_rows = []  # Collect pill rows that are in use
 
     for upgrade_type, data in active_upgrades.items():
         icon = upgrade_icons.get(upgrade_type)
         if icon:
-            # Only draw landed pills (not flying)
             flying = sum(1 for p in incoming_pills if p["type"] == upgrade_type)
-            for i in range(data["level"] - flying):
-                y = PILL_ROW_Y.get(upgrade_type, 50)
-                screen.blit(icon, (x - (icon.get_width() + spacing) * i, y))
-        y += 50
+            landed = data["level"] - flying
 
-    # Mini-game button
-    mini_game_button_rect = pygame.Rect(x - 40, y + 10, 40, 40)
+            if landed > 0:
+                y = PILL_ROW_Y.get(upgrade_type, 50)
+                active_rows.append(y)
+
+                for i in range(landed):
+                    screen.blit(icon, (x - (icon.get_width() + spacing) * i, y))
+
+    # === Calculate bottom-most row dynamically ===
+    if active_rows:
+        bottom_y = max(active_rows) + 45  # pill row + pill height
+    else:
+        bottom_y = 50  # fallback if no pills active
+
+    # === Draw mini-game button below the last row ===
+    mini_game_button_rect = pygame.Rect(x - 40, bottom_y + 10, 40, 40)
+
     if mini_game_available:
         t = time.time()
         brightness = 200 + int(55 * (math.sin(t * 4) + 1) / 2)
@@ -256,6 +265,7 @@ def draw_active_upgrades():
 
     draw_upgrades()
     draw_tooltip()
+
 
 
 def incoming_pills_update():
