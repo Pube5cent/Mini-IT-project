@@ -1,6 +1,7 @@
 import pygame
 import sys
 import os
+import math
 import time
 import json
 import random
@@ -187,7 +188,12 @@ def update_upgrades():
     if "bonus_click" not in active_upgrades:
         Knowledge_per_click = 1
 
+# Mini-game Button
+mini_game_button_rect = pygame.Rect(WIDTH - 60, 150, 40, 40)
+mini_game_available = False
+
 def draw_active_upgrades():
+    global mini_game_button_rect
     x = WIDTH - 50  
     y = 50
     spacing = 5
@@ -199,6 +205,22 @@ def draw_active_upgrades():
                 screen.blit(icon, (x - (icon.get_width() + spacing) * i, y))
         y += 50  # move down for next upgrade type
 
+    # Draw mini-game button just below the last pill
+    global mini_game_button_rect
+    mini_game_button_rect = pygame.Rect(x - 40, y + 10, 40, 40)
+
+    if mini_game_available:
+        # Glow effect
+        t = time.time()
+        brightness = 200 + int(55 * (math.sin(t * 4) + 1) / 2)  # oscillates between 200 and 255
+        glow_color = (brightness, brightness * 0.84, 0)  # Yellowish glow
+        pygame.draw.rect(screen, glow_color, mini_game_button_rect, border_radius=10)
+    else:
+        pygame.draw.rect(screen, (120, 120, 120), mini_game_button_rect, border_radius=10)  # dimmed
+
+    icon = font.render("!", True, BLACK)
+    screen.blit(icon, (mini_game_button_rect.centerx - icon.get_width() // 2,
+                       mini_game_button_rect.centery - icon.get_height() // 2))
     draw_upgrades()
     draw_tooltip()
 
@@ -632,6 +654,11 @@ while True:
                 rebirth_multiplier = rebirth_system.perform_rebirth(upgrades)
                 Knowledge = 0
 
+            if mini_game_available and mini_game_button_rect.collidepoint(event.pos):
+                mini_game_available = False  # disable right away to prevent re-clicking
+                last_bonus_time = time.time()
+                random.choice([mini_game_1, mini_game_2])()
+
  
             # Pause button (always visible top right)
             if pause_button_rect.collidepoint(mx, my):
@@ -687,9 +714,7 @@ while True:
 
     if not paused: 
         if time.time() - last_bonus_time > bonus_interval:
-            if show_bonus_popup() == "yes":
-                random.choice([mini_game_1, mini_game_2])()
-            last_bonus_time = time.time()
+            mini_game_available = True
 
         update_upgrades_logic()
         update_upgrades()
