@@ -9,7 +9,7 @@ pygame.init()
 
 # Load and play background music
 pygame.mixer.music.load("Azim stuff/bgm_music.mp3")
-pygame.mixer.music.set_volume(0.1)
+pygame.mixer.music.set_volume(1.0)
 pygame.mixer.music.play(-1)
 
 # Screen settings
