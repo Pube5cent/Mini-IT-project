@@ -104,6 +104,8 @@ REBIRTH_BUTTON_HEIGHT = 40
 rebirth_ready = False
 pause_toggle_cooldown = 0.3  # seconds
 last_pause_toggle = 0  # initial timestamp
+incoming_pills = []  # pills in animation
+flying_particles = []  # List of trailing particles
 
 #Colors
 WHITE = (255, 255, 255)
@@ -143,6 +145,11 @@ active_upgrades = {
     }
 }
 
+upgrade_animation_phases = {
+    "fast_click": 0,
+    "bonus_click": 0
+}
+
 #Toggle fullscreen
 def toggle_fullscreen():
     global screen, fullscreen
@@ -168,6 +175,20 @@ def activate_upgrade(upgrade_type, duration=10):
             "level": 1,
             "end_time": now + duration
         }
+
+    # Animate from center to destination
+    slot_index = active_upgrades[upgrade_type]["level"] - 1
+    target_x = WIDTH - 50 - slot_index * 45
+    target_y = 50  # fixed Y level for all
+
+    incoming_pills.append({
+        "type": upgrade_type,
+        "x": WIDTH // 2,
+        "y": target_y,
+        "target_x": target_x,
+        "target_y": target_y,
+        "progress": 0.0  # 0=start, 1=done
+    })
 
 def update_upgrades():
     global Knowledge, Knowledge_per_click, active_upgrades, auto_click_timer, auto_click_delay
@@ -205,32 +226,107 @@ def draw_active_upgrades():
     for upgrade_type, data in active_upgrades.items():
         icon = upgrade_icons.get(upgrade_type)
         if icon:
-            for i in range(data["level"]):  # draw icon per level
+            # Only draw landed pills (not flying)
+            flying = sum(1 for p in incoming_pills if p["type"] == upgrade_type)
+            for i in range(data["level"] - flying):
                 screen.blit(icon, (x - (icon.get_width() + spacing) * i, y))
-        y += 50  # move down for next upgrade type
+        y += 50
 
-    # Draw mini-game button just below the last pill
-    global mini_game_button_rect
+    # Mini-game button
     mini_game_button_rect = pygame.Rect(x - 40, y + 10, 40, 40)
-
     if mini_game_available:
-        # Glow effect
         t = time.time()
-        brightness = 200 + int(55 * (math.sin(t * 4) + 1) / 2)  # oscillates between 200 and 255
-        glow_color = (brightness, brightness * 0.84, 0)  # Yellowish glow
+        brightness = 200 + int(55 * (math.sin(t * 4) + 1) / 2)
+        glow_color = (brightness, brightness * 0.84, 0)
         pygame.draw.rect(screen, glow_color, mini_game_button_rect, border_radius=10)
     else:
-        pygame.draw.rect(screen, (120, 120, 120), mini_game_button_rect, border_radius=10)  # dimmed
+        pygame.draw.rect(screen, (120, 120, 120), mini_game_button_rect, border_radius=10)
 
     icon = font.render("!", True, BLACK)
     screen.blit(icon, (mini_game_button_rect.centerx - icon.get_width() // 2,
                        mini_game_button_rect.centery - icon.get_height() // 2))
+
     draw_upgrades()
     draw_tooltip()
 
-def trigger_random_upgrade():
-    upgrade = random.choice(["fast_click", "bonus_click"])
-    activate_upgrade(upgrade)
+
+def incoming_pills_update():
+    speed = 0.08  # Adjust to control animation speed
+    finished = []
+
+    for pill in incoming_pills:
+        pill["progress"] += speed
+        if pill["progress"] >= 1.0:
+            pill["progress"] = 1.0
+            finished.append(pill)
+
+        # Interpolate position
+        t = pill["progress"]
+        pill["x"] = (1 - t) * (WIDTH // 2) + t * pill["target_x"]
+
+    # Remove finished pills and leave the rest
+    for pill in finished:
+        incoming_pills.remove(pill)
+
+def draw_incoming_pills():
+    for pill in incoming_pills:
+        icon = upgrade_icons.get(pill["type"])
+        if icon:
+            screen.blit(icon, (pill["x"], pill["y"]))
+
+def update_incoming_pills():
+    speed = 0.08  # Controls how fast the pill moves
+    finished = []
+
+    for pill in incoming_pills:
+        # Progress forward
+        pill["progress"] += speed
+        if pill["progress"] >= 1.0:
+            pill["progress"] = 1.0
+            finished.append(pill)
+
+        # Interpolate position (linear movement from center to target)
+        t = pill["progress"]
+        pill["x"] = (1 - t) * (WIDTH // 2) + t * pill["target_x"]
+        pill["y"] = pill["target_y"]  # fixed Y (no vertical change here)
+
+        # === Spawn trail particles ===
+        for _ in range(2):  # More = thicker trail
+            flying_particles.append({
+                "x": pill["x"] + random.randint(-2, 2),
+                "y": pill["y"] + 20 + random.randint(-2, 2),
+                "dx": random.uniform(-0.5, 0.5),
+                "dy": random.uniform(-0.5, 0.5),
+                "radius": random.randint(2, 4),
+                "life": 1.0,
+                "type": pill["type"]  # color based on upgrade
+            })
+
+    # Remove finished pills (they've landed)
+    for pill in finished:
+        incoming_pills.remove(pill)
+
+
+def update_flying_particles():
+    decay = 0.05
+    for p in flying_particles[:]:
+        p["x"] += p["dx"]
+        p["y"] += p["dy"]
+        p["life"] -= decay
+        if p["life"] <= 0:
+            flying_particles.remove(p)
+
+def draw_flying_particles():
+    for p in flying_particles:
+        alpha = int(255 * p["life"])
+        color = {
+            "fast_click": (255, 100, 100),
+            "bonus_click": (100, 100, 255)
+        }.get(p["type"], (255, 255, 255))
+
+        surface = pygame.Surface((p["radius"] * 2, p["radius"] * 2), pygame.SRCALPHA)
+        pygame.draw.circle(surface, (*color, alpha), (p["radius"], p["radius"]), p["radius"])
+        screen.blit(surface, (p["x"], p["y"]))
 
 # Drawing the Pause Menu
 def draw_pause_menu():
@@ -281,9 +377,12 @@ def draw():
         center_frame_index = pygame.time.get_ticks() // 100 % len(center_gif_frames)
         draw_center_gif(center_frame_index)
 
-    draw_active_upgrades()
-
     draw_pause_button()
+    draw_incoming_pills()
+    draw_active_upgrades() 
+    draw_flying_particles()
+    draw_incoming_pills()
+    draw_active_upgrades()
     rebirth_btn = draw_rebirth_button()
     
     #draw rebirth button
@@ -466,11 +565,38 @@ for i in range(len(upgrades)):
 # Game state
 scroll_y = 0
 scroll_speed = 20
-upgrade_rects = []
-hovered_upgrade = None
-UPGRADE_HEIGHT = 80
-VISIBLE_HEIGHT = 700  # make sure to change decrese it when adding a new upograde
-MAX_SCROLL = max(0, len(upgrades) * UPGRADE_HEIGHT - VISIBLE_HEIGHT)
+UPGRADE_HEIGHT = 80  # Height of each upgrade item
+UPGRADE_START_Y = 90 # Starting Y position for upgrades
+UPGRADE_VISIBLE_MIN_Y = 110 # ← The minimum Y an upgrade should appear (not under counter) 
+
+
+#Ryan fixed (remade it)
+def calculate_scroll_bounds():
+    total_upgrades_height = len(upgrades) * UPGRADE_HEIGHT
+    visible_area = HEIGHT - UPGRADE_START_Y - 50
+    scroll_range_needed = total_upgrades_height - visible_area
+
+    # Let upgrades scroll fully offscreen (down), but never above the knowledge bar
+    max_scroll = 0
+    min_scroll = -scroll_range_needed
+
+    if scroll_range_needed <= 0:
+        return 0, 0
+
+    return min_scroll, max_scroll
+
+
+
+#Ryan fixed it (remade it)
+def handle_scroll(direction):
+    global scroll_y
+    min_scroll, max_scroll = calculate_scroll_bounds()
+
+    if direction == "up":
+        scroll_y = min(scroll_y + scroll_speed, max_scroll)  # Move list down
+    elif direction == "down":
+        scroll_y = max(scroll_y - scroll_speed, min_scroll)  # Move list up
+
 
 # Calculate cost
 
@@ -489,13 +615,21 @@ def get_interval(base, level):
 def draw_upgrades():
     global upgrade_rects, hovered_upgrade
     upgrade_rects = []
-    start_y = 100 + scroll_y
     hovered_upgrade = None
-    mouse_pos = pygame.mouse.get_pos()
+    mouse_pos = pygame.mouse.get_pos()              #changed sum stuff and added new variables at the top
 
     for idx, upg in enumerate(upgrades):
-        y = start_y + idx * 80
+        y =  UPGRADE_START_Y + idx * UPGRADE_HEIGHT + scroll_y
         rect = pygame.Rect(20, y, 300, 65)
+        
+        #only draw upgrades that are visisible on screen
+        # Skip upgrades that would appear above the safe margin (the knowledge counter)
+        if y + 65 < UPGRADE_VISIBLE_MIN_Y or y > HEIGHT:
+            continue
+
+ 
+        
+        
         upgrade_rects.append((rect, idx))
 
         pygame.draw.rect(screen, (50, 50, 100), rect, border_radius=8)
@@ -507,7 +641,7 @@ def draw_upgrades():
         cost_text = f"Cost: {cost}"
 
         screen.blit(font.render(name, True, (255, 255, 255)), (rect.x + 60, rect.y + 5))
-        screen.blit(font.render(cost_text, True, (200, 200, 200)), (rect.x + 60, rect.y + 25))  # More space
+        screen.blit(font.render(cost_text, True, (200, 200, 200)), (rect.x + 60, rect.y + 25))
 
 
         # Progress bar background
@@ -515,7 +649,6 @@ def draw_upgrades():
 
         # Progress bar fill
         pygame.draw.rect(screen, (0, 220, 0), (rect.x + 60, rect.y + 50, int(180 * upg["progress"]), 10), border_radius=5)
-
 
         if rect.collidepoint(mouse_pos):
             hovered_upgrade = idx
@@ -623,8 +756,11 @@ while True:
     draw_upgrades()
     draw_tooltip()
     update_upgrade_progress()
-    #load_game() (Afiq)
 
+    for key in upgrade_animation_phases:
+        upgrade_animation_phases[key] += dt
+    
+    #load_game() (Afiq)
     '''autosave_timer += dt (Afiq)
     if autosave_timer >= 10:
         save_game()
@@ -643,17 +779,46 @@ while True:
                 paused = not paused
             elif event.key == pygame.K_f:
                 toggle_fullscreen()
-            elif event.key == pygame.K_UP:
-                scroll_y = min(scroll_y + scroll_speed, 0)
-            elif event.key == pygame.K_DOWN:
-                scroll_y = max(-MAX_SCROLL, scroll_y - scroll_speed)
+
+            #keyboard scroll
+            elif event.key in [pygame.K_UP, pygame.K_w]:
+                handle_scroll("up")
+            elif event.key in [pygame.K_DOWN, pygame.K_s]:
+                handle_scroll("down")
+
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
             mx, my = event.pos
-            current_time = time.time()
+            
+            
+            rebirth_btn = draw_rebirth_button()
+            if rebirth_btn and rebirth_btn.collidepoint(event.pos):
+                rebirth_multiplier = rebirth_system.perform_rebirth(upgrades)
+                Knowledge = 0
 
-            if paused:
-                # === Pause Menu Buttons ===
+ 
+            # Pause button (always visible top right)
+            if pause_button_rect.collidepoint(mx, my):
+                paused = not paused
+            elif book_button.collidepoint(event.pos):
+                Knowledge += Knowledge_per_click * rebirth_system.multiplier
+
+            elif event.button == 1:
+                handle_click(event.pos)
+            
+            
+                #mouse scroll
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 4:
+                    handle_scroll("up")
+                elif event.button == 5:
+                    handle_scroll("down")
+
+
+            
+                
+            elif paused:
+                # Pause menu buttons rectangles
                 menu_x = screen.get_width() - button_width - padding
                 menu_y = padding
                 fullscreen_button = pygame.Rect(menu_x, menu_y, button_width, button_height)
@@ -703,12 +868,15 @@ while True:
         check_for_triggered_upgrade()
         last_check = time.time()
 
-    if not paused: 
+    if not paused:
+        update_incoming_pills()
         if time.time() - last_bonus_time > bonus_interval:
             mini_game_available = True
 
         update_upgrades_logic()
         update_upgrades()
+        update_flying_particles()
+        update_incoming_pills()
 
     rebirth_ready = all(u["level"] >= UPGRADE_CAP for u in upgrades)
 
