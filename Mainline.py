@@ -262,6 +262,13 @@ def draw_active_upgrades():
     icon = font.render("!", True, BLACK)
     screen.blit(icon, (mini_game_button_rect.centerx - icon.get_width() // 2,
                        mini_game_button_rect.centery - icon.get_height() // 2))
+    
+    # Animate upgrade icons
+    for upg in upgrades:
+        if "frames" in upg and upg["frames"]:
+            upg["frame_index"] = (upg["frame_index"] + 1) % len(upg["frames"])
+            upg["gif"] = upg["frames"][upg["frame_index"]]
+
 
     draw_upgrades()
     draw_tooltip()
@@ -568,15 +575,18 @@ placeholder_icon = pygame.Surface((40, 40))
 placeholder_icon.fill((80, 80, 80))
 
 for i in range(len(upgrades)):
-    gif_path = f"assets/upgrades/upgrade_{i}.gif"
+    gif_path = f"Gif/upgrade_{i}.gif"
     if os.path.exists(gif_path):
-        try:
-            gif = pygame.image.load(gif_path)
-            upgrades[i]["gif"] = gif
-        except:
+        frames = load_gif_frames(gif_path, scale=(40, 40))
+        if frames:
+            upgrades[i]["frames"] = frames
+            upgrades[i]["gif"] = frames[0]
+            upgrades[i]["frame_index"] = 0
+        else:
             upgrades[i]["gif"] = placeholder_icon
     else:
         upgrades[i]["gif"] = placeholder_icon
+
 
 # Game state
 scroll_y = 0
