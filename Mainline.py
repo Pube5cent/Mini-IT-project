@@ -1,6 +1,7 @@
 import pygame
 import sys
 import os
+import math
 import time
 import json
 import random
@@ -15,15 +16,17 @@ from Ryanstuff.music_manager import init_music, play_music, pause_music, unpause
 
 
 #Initialize Pygame
+os.environ['SDL_VIDEO_CENTERED'] = '1'
 pygame.init()
 
 # Initialize Pygame and music
 pygame.init()
 init_music()
 clock = pygame.time.Clock()
+rebirth_system = RebirthSystem()
 
 # Play background music
-play_music("Ryanstuff/Game.mp3")
+#play_music("Ryanstuff/Game.mp3")
 volume_on = False
 
 #Screen settings
@@ -99,13 +102,8 @@ rebirth_count = 0
 rebirth_multiplier = 1
 REBIRTH_BUTTON_HEIGHT = 40
 rebirth_ready = False
-
-
-
-
-rebirth_system = RebirthSystem()
-
-
+pause_toggle_cooldown = 0.3  # seconds
+last_pause_toggle = 0  # initial timestamp
 
 #Colors
 WHITE = (255, 255, 255)
@@ -150,7 +148,8 @@ def toggle_fullscreen():
     global screen, fullscreen
     fullscreen = not fullscreen
     if fullscreen:
-        screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN)
+        display_info = pygame.display.Info()
+        screen = pygame.display.set_mode((display_info.current_w, display_info.current_h), pygame.NOFRAME)
     else:
         screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
@@ -193,7 +192,12 @@ def update_upgrades():
     if "bonus_click" not in active_upgrades:
         Knowledge_per_click = 1
 
+# Mini-game Button
+mini_game_button_rect = pygame.Rect(WIDTH - 60, 150, 40, 40)
+mini_game_available = False
+
 def draw_active_upgrades():
+    global mini_game_button_rect
     x = WIDTH - 50  
     y = 50
     spacing = 5
@@ -205,6 +209,22 @@ def draw_active_upgrades():
                 screen.blit(icon, (x - (icon.get_width() + spacing) * i, y))
         y += 50  # move down for next upgrade type
 
+    # Draw mini-game button just below the last pill
+    global mini_game_button_rect
+    mini_game_button_rect = pygame.Rect(x - 40, y + 10, 40, 40)
+
+    if mini_game_available:
+        # Glow effect
+        t = time.time()
+        brightness = 200 + int(55 * (math.sin(t * 4) + 1) / 2)  # oscillates between 200 and 255
+        glow_color = (brightness, brightness * 0.84, 0)  # Yellowish glow
+        pygame.draw.rect(screen, glow_color, mini_game_button_rect, border_radius=10)
+    else:
+        pygame.draw.rect(screen, (120, 120, 120), mini_game_button_rect, border_radius=10)  # dimmed
+
+    icon = font.render("!", True, BLACK)
+    screen.blit(icon, (mini_game_button_rect.centerx - icon.get_width() // 2,
+                       mini_game_button_rect.centery - icon.get_height() // 2))
     draw_upgrades()
     draw_tooltip()
 
@@ -276,10 +296,6 @@ def draw_rebirth_button():
                             rebirth_btn_rect.centery - text.get_height() // 2))
         return rebirth_btn_rect
     return None
-
-
-
-   
 
 def show_bonus_popup():
     popup_rect = pygame.Rect(WIDTH // 4, HEIGHT // 3, WIDTH // 2, HEIGHT // 3)
@@ -452,6 +468,9 @@ scroll_y = 0
 scroll_speed = 20
 upgrade_rects = []
 hovered_upgrade = None
+UPGRADE_HEIGHT = 80
+VISIBLE_HEIGHT = 700  # make sure to change decrese it when adding a new upograde
+MAX_SCROLL = max(0, len(upgrades) * UPGRADE_HEIGHT - VISIBLE_HEIGHT)
 
 # Calculate cost
 
@@ -622,43 +641,19 @@ while True:
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 paused = not paused
-            if book_button.collidepoint(event.pos):
-                Knowledge += Knowledge_per_click * rebirth_system.multiplier
             elif event.key == pygame.K_f:
                 toggle_fullscreen()
-            if event.key == pygame.K_UP:
+            elif event.key == pygame.K_UP:
                 scroll_y = min(scroll_y + scroll_speed, 0)
             elif event.key == pygame.K_DOWN:
-                max_scroll = max(0, len(upgrades) * 70 - 400)
-                scroll_y = max(scroll_y - scroll_speed, -max_scroll)
+                scroll_y = max(-MAX_SCROLL, scroll_y - scroll_speed)
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
             mx, my = event.pos
-            
-            rebirth_btn = draw_rebirth_button()
-            if rebirth_btn and rebirth_btn.collidepoint(event.pos):
-                rebirth_multiplier = rebirth_system.perform_rebirth(upgrades)
-                Knowledge = 0
+            current_time = time.time()
 
- 
-            # Pause button (always visible top right)
-            if pause_button_rect.collidepoint(mx, my):
-                paused = not paused
-            elif book_button.collidepoint(event.pos):
-                Knowledge += Knowledge_per_click * rebirth_system.multiplier
-
-            elif event.button == 1:
-                handle_click(event.pos)
-            elif event.button == 4:
-                scroll_y = min(scroll_y + scroll_speed, 0)
-            elif event.button == 5:
-                max_scroll = max(0, len(upgrades) * 70 - 400)
-                scroll_y = max(scroll_y - scroll_speed, -max_scroll)
-
-            
-                
-            elif paused:
-                # Pause menu buttons rectangles
+            if paused:
+                # === Pause Menu Buttons ===
                 menu_x = screen.get_width() - button_width - padding
                 menu_y = padding
                 fullscreen_button = pygame.Rect(menu_x, menu_y, button_width, button_height)
@@ -670,24 +665,38 @@ while True:
                 elif volume_button.collidepoint(mx, my):
                     toggle_volume()
                 elif quit_button.collidepoint(mx, my):
-                    #save_game() (afiq)
+                    save_game(Knowledge, rebirth_system.multiplier, rebirth_system.rebirth_count, upgrades)
                     pygame.quit()
                     sys.exit()
 
-            elif book_button.collidepoint(event.pos):
-                bonus = 1
-                if "fast_click" in active_upgrades:
-                    bonus += active_upgrades["fast_click"]["level"] * 0.5
-                Knowledge += Knowledge_per_click * bonus * rebirth_system.multiplier
+            elif pause_button_rect.collidepoint(mx, my):
+                if current_time - last_pause_toggle > pause_toggle_cooldown:
+                    paused = not paused
+                    last_pause_toggle = current_time
+
+            elif mini_game_available and mini_game_button_rect.collidepoint(event.pos):
+                mini_game_available = False
+                last_bonus_time = time.time()
+                random.choice([mini_game_1, mini_game_2])()
 
             else:
-                # Game clicks when not paused
-                if book_button.collidepoint(event.pos):
+                rebirth_btn = draw_rebirth_button()
+                if rebirth_btn and rebirth_btn.collidepoint(event.pos):
+                    rebirth_multiplier = rebirth_system.perform_rebirth(upgrades)
+                    Knowledge = 0
+
+                elif book_button.collidepoint(event.pos):
                     bonus = 1
                     if "fast_click" in active_upgrades:
                         bonus += active_upgrades["fast_click"]["level"] * 0.5
                     Knowledge += Knowledge_per_click * bonus * rebirth_system.multiplier
-                    #print("Not enough Knowledge to rebirth. Need:", rebirth_system.cost)
+
+                elif event.button == 1:
+                    handle_click(event.pos)
+                elif event.button == 4:  # Scroll up
+                    scroll_y = min(scroll_y + scroll_speed, 0)
+                elif event.button == 5:  # Scroll down
+                    scroll_y = max(-MAX_SCROLL, scroll_y - scroll_speed)
 
             
     if time.time() - last_check > 1:
@@ -696,9 +705,7 @@ while True:
 
     if not paused: 
         if time.time() - last_bonus_time > bonus_interval:
-            if show_bonus_popup() == "yes":
-                random.choice([mini_game_1, mini_game_2])()
-            last_bonus_time = time.time()
+            mini_game_available = True
 
         update_upgrades_logic()
         update_upgrades()
@@ -707,7 +714,6 @@ while True:
 
     draw()
     draw_pause_button()
-    pygame.display.flip()
     clock.tick(60)
 
     if paused:
