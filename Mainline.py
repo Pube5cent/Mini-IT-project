@@ -21,9 +21,10 @@ pygame.init()
 pygame.init()
 init_music()
 clock = pygame.time.Clock()
+rebirth_system = RebirthSystem()
 
 # Play background music
-play_music("Ryanstuff/Game.mp3")
+#play_music("Ryanstuff/Game.mp3")
 volume_on = False
 
 #Screen settings
@@ -99,13 +100,6 @@ rebirth_count = 0
 rebirth_multiplier = 1
 REBIRTH_BUTTON_HEIGHT = 40
 rebirth_ready = False
-
-
-
-
-rebirth_system = RebirthSystem()
-
-
 
 #Colors
 WHITE = (255, 255, 255)
@@ -276,10 +270,6 @@ def draw_rebirth_button():
                             rebirth_btn_rect.centery - text.get_height() // 2))
         return rebirth_btn_rect
     return None
-
-
-
-   
 
 def show_bonus_popup():
     popup_rect = pygame.Rect(WIDTH // 4, HEIGHT // 3, WIDTH // 2, HEIGHT // 3)
@@ -452,6 +442,9 @@ scroll_y = 0
 scroll_speed = 20
 upgrade_rects = []
 hovered_upgrade = None
+UPGRADE_HEIGHT = 80
+VISIBLE_HEIGHT = 700  # make sure to change decrese it when adding a new upograde
+MAX_SCROLL = max(0, len(upgrades) * UPGRADE_HEIGHT - VISIBLE_HEIGHT)
 
 # Calculate cost
 
@@ -626,11 +619,10 @@ while True:
                 Knowledge += Knowledge_per_click * rebirth_system.multiplier
             elif event.key == pygame.K_f:
                 toggle_fullscreen()
-            if event.key == pygame.K_UP:
+            elif event.key == pygame.K_UP:
                 scroll_y = min(scroll_y + scroll_speed, 0)
             elif event.key == pygame.K_DOWN:
-                max_scroll = max(0, len(upgrades) * 70 - 400)
-                scroll_y = max(scroll_y - scroll_speed, -max_scroll)
+                scroll_y = max(-MAX_SCROLL, scroll_y - scroll_speed)
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
             mx, my = event.pos
@@ -649,13 +641,12 @@ while True:
 
             elif event.button == 1:
                 handle_click(event.pos)
-            elif event.button == 4:
+            elif event.button == 4:  # Scroll up
                 scroll_y = min(scroll_y + scroll_speed, 0)
-            elif event.button == 5:
-                max_scroll = max(0, len(upgrades) * 70 - 400)
-                scroll_y = max(scroll_y - scroll_speed, -max_scroll)
+            elif event.button == 5:  # Scroll down
+                scroll_y = max(-MAX_SCROLL, scroll_y - scroll_speed)
 
-            
+
                 
             elif paused:
                 # Pause menu buttons rectangles
