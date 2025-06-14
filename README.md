@@ -1,6 +1,6 @@
 # Mini-IT-project
 
-Adam: Hello world!
+Adam: Hello world! done
 Yeap:sup.
 Azim: Hello 2
 Ryan: helo gng <3
