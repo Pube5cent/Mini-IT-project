@@ -16,6 +16,7 @@ from Ryanstuff.music_manager import init_music, play_music, pause_music, unpause
 
 
 #Initialize Pygame
+os.environ['SDL_VIDEO_CENTERED'] = '1'
 pygame.init()
 
 # Initialize Pygame and music
@@ -147,7 +148,8 @@ def toggle_fullscreen():
     global screen, fullscreen
     fullscreen = not fullscreen
     if fullscreen:
-        screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN)
+        display_info = pygame.display.Info()
+        screen = pygame.display.set_mode((display_info.current_w, display_info.current_h), pygame.NOFRAME)
     else:
         screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
@@ -639,8 +641,6 @@ while True:
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 paused = not paused
-            elif book_button.collidepoint(event.pos):
-                Knowledge += Knowledge_per_click * rebirth_system.multiplier
             elif event.key == pygame.K_f:
                 toggle_fullscreen()
             elif event.key == pygame.K_UP:
@@ -650,38 +650,10 @@ while True:
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
             mx, my = event.pos
-            
-            rebirth_btn = draw_rebirth_button()
-            if rebirth_btn and rebirth_btn.collidepoint(event.pos):
-                rebirth_multiplier = rebirth_system.perform_rebirth(upgrades)
-                Knowledge = 0
-
-            if mini_game_available and mini_game_button_rect.collidepoint(event.pos):
-                mini_game_available = False  # disable right away to prevent re-clicking
-                last_bonus_time = time.time()
-                random.choice([mini_game_1, mini_game_2])()
-
- 
-            # Pause button (always visible top right)
             current_time = time.time()
-            if pause_button_rect.collidepoint(mx, my):
-                if current_time - last_pause_toggle > pause_toggle_cooldown:
-                    paused = not paused
-                    last_pause_toggle = current_time
-            elif book_button.collidepoint(event.pos):
-                Knowledge += Knowledge_per_click * rebirth_system.multiplier
 
-            elif event.button == 1:
-                handle_click(event.pos)
-            elif event.button == 4:  # Scroll up
-                scroll_y = min(scroll_y + scroll_speed, 0)
-            elif event.button == 5:  # Scroll down
-                scroll_y = max(-MAX_SCROLL, scroll_y - scroll_speed)
-
-
-                
-            elif paused:
-                # Pause menu buttons rectangles
+            if paused:
+                # === Pause Menu Buttons ===
                 menu_x = screen.get_width() - button_width - padding
                 menu_y = padding
                 fullscreen_button = pygame.Rect(menu_x, menu_y, button_width, button_height)
@@ -693,24 +665,38 @@ while True:
                 elif volume_button.collidepoint(mx, my):
                     toggle_volume()
                 elif quit_button.collidepoint(mx, my):
-                    #save_game() (afiq)
+                    save_game(Knowledge, rebirth_system.multiplier, rebirth_system.rebirth_count, upgrades)
                     pygame.quit()
                     sys.exit()
 
-            elif book_button.collidepoint(event.pos):
-                bonus = 1
-                if "fast_click" in active_upgrades:
-                    bonus += active_upgrades["fast_click"]["level"] * 0.5
-                Knowledge += Knowledge_per_click * bonus * rebirth_system.multiplier
+            elif pause_button_rect.collidepoint(mx, my):
+                if current_time - last_pause_toggle > pause_toggle_cooldown:
+                    paused = not paused
+                    last_pause_toggle = current_time
+
+            elif mini_game_available and mini_game_button_rect.collidepoint(event.pos):
+                mini_game_available = False
+                last_bonus_time = time.time()
+                random.choice([mini_game_1, mini_game_2])()
 
             else:
-                # Game clicks when not paused
-                if book_button.collidepoint(event.pos):
+                rebirth_btn = draw_rebirth_button()
+                if rebirth_btn and rebirth_btn.collidepoint(event.pos):
+                    rebirth_multiplier = rebirth_system.perform_rebirth(upgrades)
+                    Knowledge = 0
+
+                elif book_button.collidepoint(event.pos):
                     bonus = 1
                     if "fast_click" in active_upgrades:
                         bonus += active_upgrades["fast_click"]["level"] * 0.5
                     Knowledge += Knowledge_per_click * bonus * rebirth_system.multiplier
-                    #print("Not enough Knowledge to rebirth. Need:", rebirth_system.cost)
+
+                elif event.button == 1:
+                    handle_click(event.pos)
+                elif event.button == 4:  # Scroll up
+                    scroll_y = min(scroll_y + scroll_speed, 0)
+                elif event.button == 5:  # Scroll down
+                    scroll_y = max(-MAX_SCROLL, scroll_y - scroll_speed)
 
             
     if time.time() - last_check > 1:
