@@ -486,14 +486,14 @@ UPGRADE_CAP = 20
 upgrade_defs = [
     {"name": "Book Stand", "base_cost": 10, "base_rate": 0.1, "base_interval": 5.0},
     {"name": "Desk Lamp", "base_cost": 50, "base_rate": 0.5, "base_interval": 4.5},
-    {"name": "Whiteboard", "base_cost": 100, "base_rate": 1.0, "base_interval": 4.0},
-    {"name": "Encyclopedia Set", "base_cost": 250, "base_rate": 2.0, "base_interval": 3.5},
-    {"name": "Research Assistant", "base_cost": 500, "base_rate": 4.0, "base_interval": 3.0},
+    {"name": "Caffeien", "base_cost": 100, "base_rate": 1.0, "base_interval": 4.0},
+    {"name": "Study Music ", "base_cost": 250, "base_rate": 2.0, "base_interval": 3.5},
+    {"name": "Research Laptop", "base_cost": 500, "base_rate": 4.0, "base_interval": 3.0},
     {"name": "Study Timer", "base_cost": 750, "base_rate": 6.0, "base_interval": 2.5},
     {"name": "Learning App", "base_cost": 1000, "base_rate": 10.0, "base_interval": 2.0},
     {"name": "Brain Supplements", "base_cost": 1500, "base_rate": 15.0, "base_interval": 1.8},
     {"name": "VR Learning Kit", "base_cost": 2000, "base_rate": 20.0, "base_interval": 1.5},
-    {"name": "AI Tutor", "base_cost": 3000, "base_rate": 30.0, "base_interval": 1.2},
+    {"name": "AI", "base_cost": 3000, "base_rate": 30.0, "base_interval": 1.2},
 ]
 
 
