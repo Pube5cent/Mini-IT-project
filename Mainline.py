@@ -243,74 +243,6 @@ def draw_center_gif(current_frame_index):
         gif_pos = (WIDTH // 2 - current_frame.get_width() // 2, HEIGHT // 2 - current_frame.get_height() // 2)
         screen.blit(current_frame, gif_pos)
 
-<<<<<<< HEAD
-def draw_shop():
-    y_offset = 100
-    shop_buttons.clear()
-    for item_name, item in items.items():
-        button_rect = pygame.Rect(20, y_offset, 360, 80)
-        shop_buttons[item_name] = button_rect
-
-        mouse_pos = pygame.mouse.get_pos()
-        pygame.draw.rect(screen, LIGHT_GRAY if button_rect.collidepoint(mouse_pos) else GRAY, button_rect)
-        pygame.draw.rect(screen, BLACK, button_rect, 3)
-
-        item_text = font.render(f"{item_name}", True, BLACK)
-        cost_text = font.render(f"Cost: {int(item['cost'])}", True, BLACK)
-        owned_text = font.render(f"Owned: {item['owned']}", True, BLACK)
-        screen.blit(item_text, (button_rect.x + 10, button_rect.y + 5))
-        screen.blit(cost_text, (button_rect.x + 10, button_rect.y + 30))
-        screen.blit(owned_text, (button_rect.x + 200, button_rect.y + 30))
-
-        if item["owned"] > 0:
-            if item["cps"] > 0:
-                interval = 1.0 / item["cps"]
-                progress = min(item["elapsed"] / interval, 1.0)
-            else:
-                progress = 1.07
-
-            bar_back = pygame.Rect(button_rect.x + 10, button_rect.y + 60, 340, 10)
-            pygame.draw.rect(screen, DARK_GREEN, bar_back)
-            fill_width = int(340 * progress)
-            bar_fill = pygame.Rect(button_rect.x + 10, button_rect.y + 60, fill_width, 10)
-            pygame.draw.rect(screen, GREEN, bar_fill)
-
-            if item["frames"]:
-                frame_count = len(item["frames"])
-                current_frame_index = int(progress * frame_count) % frame_count
-                current_frame = item["frames"][current_frame_index]
-                gif_pos = (button_rect.right + 10, button_rect.y + 10)
-                screen.blit(current_frame, gif_pos)
-
-        y_offset += 100
-
-def handle_shop_click(pos):
-    for item_name, button_rect in shop_buttons.items():
-        if button_rect.collidepoint(pos):
-            buy_item(item_name)
-
-def buy_item(item_name):
-    global Knowledge, Knowledge_per_click
-    item = items[item_name]
-    if Knowledge >= item["cost"]:
-        Knowledge -= item["cost"]
-        item["owned"] += 1
-        item["cost"] *= 1.15
-
-        if item_name == "Super Click":
-            Knowledge_per_click += item["click_bonus"]
-
-def update_items(dt):
-    global Knowledge
-    for item in items.values():
-        if item["owned"] > 0 and item["cps"] > 0:
-            interval = 1.0 / item["cps"]
-            item["elapsed"] += dt
-            while item["elapsed"] >= interval:
-                Knowledge += item["cps"] * item["owned"] * Rebirth_multiplier #related to rebirth
-                item["elapsed"] -= interval
-=======
->>>>>>> c5ccb79c52f4c636bb88a172f9c0d6bd513d748a
 
 def draw_knowledge_counter():
     text = font.render(f"Knowledge: {int(Knowledge)}", True, WHITE)
@@ -403,13 +335,13 @@ def check_for_triggered_upgrade():
 
 # Mini Game Path
 def mini_game_1():
-    subprocess.Popen(["python", "temp_mini_game.py"])
-    #subprocess.Popen(["python", "Azim stuff/minigame testing 1.py"])
+    #subprocess.Popen(["python", "temp_mini_game.py"])
+    subprocess.Popen(["python", "Azim stuff/minigame testing 1.py"])
     #subprocess.Popen(["python", "Yeap Stuff/main.py"])
 
 def mini_game_2():
-    subprocess.Popen(["python", "temp_mini_game.py"])
-    #subprocess.Popen(["python", "Azim stuff/minigame testing 1.py"])
+    #subprocess.Popen(["python", "temp_mini_game.py"])
+    subprocess.Popen(["python", "Azim stuff/minigame testing 1.py"])
     #subprocess.Popen(["python", "Yeap Stuff/main.py"])
 
 def draw_button(surface, rect, text, active=False):
