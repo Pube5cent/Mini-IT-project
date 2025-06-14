@@ -26,7 +26,7 @@ clock = pygame.time.Clock()
 rebirth_system = RebirthSystem()
 
 # Play background music
-#play_music("Ryanstuff/Game.mp3")
+play_music("Ryanstuff/Game.mp3")
 volume_on = False
 
 #Screen settings
@@ -262,6 +262,13 @@ def draw_active_upgrades():
     icon = font.render("!", True, BLACK)
     screen.blit(icon, (mini_game_button_rect.centerx - icon.get_width() // 2,
                        mini_game_button_rect.centery - icon.get_height() // 2))
+    
+    # Animate upgrade icons
+    for upg in upgrades:
+        if "frames" in upg and upg["frames"]:
+            upg["frame_index"] = (upg["frame_index"] + 1) % len(upg["frames"])
+            upg["gif"] = upg["frames"][upg["frame_index"]]
+
 
     draw_upgrades()
     draw_tooltip()
@@ -502,9 +509,9 @@ UPGRADE_CAP = 20
 upgrade_defs = [
     {"name": "Book Stand", "base_cost": 100, "base_rate": 0.1, "base_interval": 5.0},
     {"name": "Desk Lamp", "base_cost": 1600, "base_rate": 0.5, "base_interval": 4.5},
-    {"name": "Whiteboard", "base_cost": 3200, "base_rate": 1.0, "base_interval": 4.0},
-    {"name": "Encyclopedia Set", "base_cost": 8000, "base_rate": 2.0, "base_interval": 3.5},
-    {"name": "Research Assistant", "base_cost": 16000, "base_rate": 4.0, "base_interval": 3.0},
+    {"name": "Caffeine", "base_cost": 3200, "base_rate": 1.0, "base_interval": 4.0},
+    {"name": "Research Laptop", "base_cost": 8000, "base_rate": 2.0, "base_interval": 3.5},
+    {"name": "Study Music", "base_cost": 16000, "base_rate": 4.0, "base_interval": 3.0},
     {"name": "Study Timer", "base_cost": 24000, "base_rate": 6.0, "base_interval": 2.5},
     {"name": "Learning App", "base_cost": 32000, "base_rate": 10.0, "base_interval": 2.0},
     {"name": "Brain Supplements", "base_cost": 50000, "base_rate": 15.0, "base_interval": 1.8},
@@ -568,15 +575,18 @@ placeholder_icon = pygame.Surface((40, 40))
 placeholder_icon.fill((80, 80, 80))
 
 for i in range(len(upgrades)):
-    gif_path = f"assets/upgrades/upgrade_{i}.gif"
+    gif_path = f"Gif/upgrade_{i}.gif"
     if os.path.exists(gif_path):
-        try:
-            gif = pygame.image.load(gif_path)
-            upgrades[i]["gif"] = gif
-        except:
+        frames = load_gif_frames(gif_path, scale=(40, 40))
+        if frames:
+            upgrades[i]["frames"] = frames
+            upgrades[i]["gif"] = frames[0]
+            upgrades[i]["frame_index"] = 0
+        else:
             upgrades[i]["gif"] = placeholder_icon
     else:
         upgrades[i]["gif"] = placeholder_icon
+
 
 # Game state
 scroll_y = 0
@@ -686,7 +696,7 @@ def handle_click(pos):
                 return
             cost = get_cost(upg["base_cost"], upg["level"])
             if Knowledge >= cost:
-                Knowledge -= cost  # ✅ subtract cost here
+                Knowledge -= cost  # subtract cost here
                 upg["level"] += 1
                 upg["last_tick"] = time.time()
 
