@@ -27,14 +27,12 @@ rebirth_system = RebirthSystem()
 display_info = pygame.display.Info()
 FULLSCREEN_SIZE = (display_info.current_w, display_info.current_h)
 
-
 # Play background music
-play_music("Ryanstuff/Game.mp3")
+#play_music("Ryanstuff/Game.mp3")
 volume_on = True
 
 #Screen settings
 WIDTH, HEIGHT = 1280, 720
-\
 FPS = 60
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Knowledge Clicker")
@@ -72,7 +70,6 @@ background_gif_path = "RyanStuff/main_wallpaper.gif"
 background_frames = load_gif_frames(background_gif_path, scale=(WIDTH, HEIGHT))
 
 Knowledge_per_click = 1
-
 
 # Fonts
 font = pygame.font.SysFont("Arial", 24)
@@ -123,22 +120,18 @@ BLUE =  (100, 100, 255)
 
 # Pop up Menu Timing
 bonus_interval = 300  # seconds
-
 last_bonus_time = time.time()
 
 # Temp Section Upgrade Duration (seconds)
 UPGRADE_DURATION = 600
-
 
 #Centre gif
 center_gif_path = "AdamStuff/assets/floating_book.gif"
 center_gif_frames = load_gif_frames(center_gif_path, scale=(150, 150))
 
 # Ping noise
-ping_sound = pygame.mixer.Sound("AdamStuff/assets/pingsound.mp3")
+#ing_sound = pygame.mixer.Sound("AdamStuff/asset/")
 last_mini_game_state = False
-
-
 
 #UI Elements
 shop_buttons = {}
@@ -175,10 +168,8 @@ def toggle_fullscreen():
     global screen, fullscreen
     fullscreen = not fullscreen
 
-
     if fullscreen:
         screen = pygame.display.set_mode(FULLSCREEN_SIZE, pygame.NOFRAME)
-        
     else:
         screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
@@ -389,7 +380,6 @@ def draw_pause_menu():
     return resume_button, quit_button
 
 def draw_center_gif(current_frame_index): #for gif to work in the upgrades 
- 
     if center_gif_frames:
         current_frame = center_gif_frames[current_frame_index]
         gif_pos = (WIDTH // 2 - current_frame.get_width() // 2, HEIGHT // 2 - current_frame.get_height() // 2)
@@ -488,15 +478,12 @@ def check_for_triggered_upgrade():
 def mini_game_1():
     #subprocess.Popen(["python", "temp_mini_game.py"])
     subprocess.Popen(["python", "Azim stuff/minigame testing 1.py"])
-    
     #subprocess.Popen(["python", "Yeap Stuff/main.py"])
 
 def mini_game_2():
-    
     #subprocess.Popen(["python", "temp_mini_game.py"])
     #subprocess.Popen(["python", "Azim stuff/minigame testing 1.py"])
     subprocess.Popen(["python", "Yeap Stuff/main.py"])
-    
 
 def draw_button(surface, rect, text, active=False):
     color = (200, 50, 50) if active else (70, 70, 70)
@@ -774,8 +761,8 @@ while True:
     for key in upgrade_animation_phases:
         upgrade_animation_phases[key] += dt
     
-    #load_game() (Afiq)
-    '''autosave_timer += dt (Afiq)
+    #load_game() 
+    '''autosave_timer += dt 
     if autosave_timer >= 10:
         save_game()
         autosave_timer = 0'''
@@ -873,7 +860,6 @@ while True:
             ping_sound.play()
         last_mini_game_state = mini_game_available
 
-        
         update_upgrades_logic()
         update_upgrades()
         update_flying_particles()
