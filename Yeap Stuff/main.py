@@ -45,8 +45,9 @@ while meta_run:
 
     while run:
         
-        music_list, music_pointer, song_name = song_selection_screen(screen,clock,stage_speed, offset, judgement_shown, guide_line_shown, high_quality_verifying_graphics)
-        
+        music_list, music_pointer, song_name =song_selection_screen(screen,clock,stage_speed, offset, judgement_shown, guide_line_shown, high_quality_verifying_graphics)
+        #run_FGHJ(screen, clock, song_name, stage_speed, offset, judgement_shown, guide_line_shown,
+        #                     high_quality_verifying_graphics)
         
         for event in pygame.event.get():
             if event.type == pygame.QUIT:  
@@ -61,18 +62,7 @@ while meta_run:
                 mouse_particle_list.append((pygame.time.get_ticks(),(xp, yp)))
                 mouse_click_sound()
 
-                #if abs(xp - option_key_x_level) < big_text*6:
-                #    if abs(yp - (option_key_y_level)) < big_text:
-                #        run = False
-                #        stage_speed, offset, judgement_shown, guide_line_shown, high_quality_verifying_graphics = option_screen(screen,clock,stage_speed, offset, judgement_shown, guide_line_shown, high_quality_verifying_graphics)
-                #       break
 
-                #if abs(xp - song_selection_key_x_level) < big_text*6:
-                 #   if abs(yp - (song_selection_key_y_level)) < big_text:
-                 #       run = False
-                 #       music_list, music_pointer, song_name = song_selection_screen(screen,clock,stage_speed, offset, judgement_shown, guide_line_shown, high_quality_verifying_graphics)
-                 #       break
-                    
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:  
                     run, meta_run = exit()
@@ -98,16 +88,7 @@ while meta_run:
             
         write_text(screen, width//2, height//8 , 'Beat Rhythm', big_text, background_color[0], highlight_text_color)
 
-    # write_text(screen, option_key_x_level, option_key_y_level,
-    #           'Options/Calibrations', big_text, background_color[0],
-    #               highlight_text_color)
-    #    pygame.draw.rect(screen, highlight_text_color, [width//4 - big_text, option_key_y_level - button_y_offset, button_x_size, button_y_size], 4,8)
-
-    #    write_text(screen, song_selection_key_x_level, song_selection_key_y_level,
-    #               'Song selection', big_text, background_color[0],
-    #               highlight_text_color)
-    #    pygame.draw.rect(screen, highlight_text_color, [width//4 - big_text,  song_selection_key_y_level - button_y_offset, button_x_size, button_y_size], 4,8)
-        
+ 
         write_text(screen, width // 2, height-small_text*4, 'How to play: ', small_text, background_color[0],
                    highlight_text_color)
         write_text(screen, width // 2, height-small_text*2, 'press %s,%s,%s,%s in appropriate timing!'%(guide_keys[0],guide_keys[1],guide_keys[2],guide_keys[3]), small_text, background_color[0],

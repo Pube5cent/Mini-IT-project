@@ -5,6 +5,7 @@ import pygame
 import os,sys
 from variables import *
 
+
 pygame.mixer.init()
 
 mixer_channel_num = 8
@@ -101,3 +102,14 @@ def check_music_ended(song_start_time):
         return False
     # return True if music is still going. returns False if music is paused or ended.
     return not pygame.mixer.music.get_busy()
+
+
+a=[]
+
+def msc_list():
+    global MUSIC_FOLDER
+    with open('music_list.txt','r') as file:
+        for a in file:
+            a.append()
+    print (a)
+    return
