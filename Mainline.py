@@ -379,7 +379,7 @@ def draw_pause_menu():
 
     return resume_button, quit_button
 
-def draw_center_gif(current_frame_index):
+def draw_center_gif(current_frame_index): #for gif to work in the upgrades 
     if center_gif_frames:
         current_frame = center_gif_frames[current_frame_index]
         gif_pos = (WIDTH // 2 - current_frame.get_width() // 2, HEIGHT // 2 - current_frame.get_height() // 2)
