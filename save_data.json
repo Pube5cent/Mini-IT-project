@@ -1,10 +1,10 @@
 {
     "Knowledge": 0,
-    "rebirth_multiplier": 2,
-    "rebirth_count": 1,
+    "rebirth_multiplier": 4,
+    "rebirth_count": 3,
     "upgrade_levels": [
-        20,
         0,
+        1,
         0,
         0,
         0,
