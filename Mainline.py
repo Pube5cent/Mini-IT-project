@@ -106,7 +106,6 @@ pause_toggle_cooldown = 0.3  # seconds
 last_pause_toggle = 0  # initial timestamp
 incoming_pills = []  # pills in animation
 flying_particles = []  # List of trailing particles
-UPGRADE_TOP_MARGIN = 80
 
 #Colors
 WHITE = (255, 255, 255)
@@ -121,9 +120,6 @@ BLUE =  (100, 100, 255)
 # Pop up Menu Timing
 bonus_interval = 5  # seconds
 last_bonus_time = time.time()
-
-# Temp Section Upgrade Duration (seconds)
-UPGRADE_DURATION = 360
 
 #Centre gif
 center_gif_path = "AdamStuff/assets/floating_book.gif"
@@ -154,12 +150,6 @@ upgrade_animation_phases = {
     "bonus_click": 0
 }
 
-PILL_ROW_Y = {
-    "fast_click": 50,
-    "bonus_click": 100,
-    # add more if needed
-}
-
 #Toggle fullscreen
 def toggle_fullscreen():
     global screen, fullscreen
@@ -170,7 +160,10 @@ def toggle_fullscreen():
     else:
         screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
-def activate_upgrade(upgrade_type, duration=UPGRADE_DURATION):
+# Temp Section Upgrade Duration (seconds)
+UPGRADE_DURATION = 180
+
+def activate_upgrade(upgrade_type, duration=10):
     now = time.time()
     if upgrade_type in active_upgrades:
         active_upgrades[upgrade_type]["level"] += 1
@@ -183,18 +176,18 @@ def activate_upgrade(upgrade_type, duration=UPGRADE_DURATION):
             "end_time": now + duration
         }
 
-    # Determine which slot (how many pills already exist)
+    # Animate from center to destination
     slot_index = active_upgrades[upgrade_type]["level"] - 1
     target_x = WIDTH - 50 - slot_index * 45
-    target_y = PILL_ROW_Y.get(upgrade_type, 50)  # fallback if not found
+    target_y = 50  # fixed Y level for all
 
     incoming_pills.append({
         "type": upgrade_type,
         "x": WIDTH // 2,
-        "y": target_y,  # start at y but move x
+        "y": target_y,
         "target_x": target_x,
         "target_y": target_y,
-        "progress": 0.0
+        "progress": 0.0  # 0=start, 1=done
     })
 
 def update_upgrades():
@@ -221,36 +214,26 @@ def update_upgrades():
         Knowledge_per_click = 1
 
 # Mini-game Button
+mini_game_button_rect = pygame.Rect(WIDTH - 60, 150, 40, 40)
 mini_game_available = False
 
 def draw_active_upgrades():
     global mini_game_button_rect
     x = WIDTH - 50  
+    y = 50
     spacing = 5
-    active_rows = []  # Collect pill rows that are in use
 
     for upgrade_type, data in active_upgrades.items():
         icon = upgrade_icons.get(upgrade_type)
         if icon:
+            # Only draw landed pills (not flying)
             flying = sum(1 for p in incoming_pills if p["type"] == upgrade_type)
-            landed = data["level"] - flying
+            for i in range(data["level"] - flying):
+                screen.blit(icon, (x - (icon.get_width() + spacing) * i, y))
+        y += 50
 
-            if landed > 0:
-                y = PILL_ROW_Y.get(upgrade_type, 50)
-                active_rows.append(y)
-
-                for i in range(landed):
-                    screen.blit(icon, (x - (icon.get_width() + spacing) * i, y))
-
-    # === Calculate bottom-most row dynamically ===
-    if active_rows:
-        bottom_y = max(active_rows) + 45  # pill row + pill height
-    else:
-        bottom_y = 50  # fallback if no pills active
-
-    # === Draw mini-game button below the last row ===
-    mini_game_button_rect = pygame.Rect(x - 40, bottom_y + 10, 40, 40)
-
+    # Mini-game button
+    mini_game_button_rect = pygame.Rect(x - 40, y + 10, 40, 40)
     if mini_game_available:
         t = time.time()
         brightness = 200 + int(55 * (math.sin(t * 4) + 1) / 2)
@@ -262,10 +245,15 @@ def draw_active_upgrades():
     icon = font.render("!", True, BLACK)
     screen.blit(icon, (mini_game_button_rect.centerx - icon.get_width() // 2,
                        mini_game_button_rect.centery - icon.get_height() // 2))
+    
+    # Animate upgrade icons
+    for upg in upgrades:
+        if "frames" in upg and upg["frames"]:
+            upg["frame_index"] = (upg["frame_index"] + 1) % len(upg["frames"])
+            upg["gif"] = upg["frames"][upg["frame_index"]]
 
     draw_upgrades()
     draw_tooltip()
-
 
 
 def incoming_pills_update():
@@ -306,7 +294,7 @@ def update_incoming_pills():
         # Interpolate position (linear movement from center to target)
         t = pill["progress"]
         pill["x"] = (1 - t) * (WIDTH // 2) + t * pill["target_x"]
-        pill["y"] = pill["target_y"]
+        pill["y"] = pill["target_y"]  # fixed Y (no vertical change here)
 
         # === Spawn trail particles ===
         for _ in range(2):  # More = thicker trail
@@ -468,13 +456,13 @@ def check_for_triggered_upgrade():
 
 # Mini Game Path
 def mini_game_1():
-    subprocess.Popen(["python", "temp_mini_game.py"])
-    #subprocess.Popen(["python", "Azim stuff/minigame testing 1.py"])
+    #subprocess.Popen(["python", "temp_mini_game.py"])
+    subprocess.Popen(["python", "Azim stuff/minigame testing 1.py"])
     #subprocess.Popen(["python", "Yeap Stuff/main.py"])
 
 def mini_game_2():
-    subprocess.Popen(["python", "temp_mini_game.py"])
-    #subprocess.Popen(["python", "Azim stuff/minigame testing 1.py"])
+    #subprocess.Popen(["python", "temp_mini_game.py"])
+    subprocess.Popen(["python", "Azim stuff/minigame testing 1.py"])
     #subprocess.Popen(["python", "Yeap Stuff/main.py"])
 
 def draw_button(surface, rect, text, active=False):
@@ -502,7 +490,6 @@ def draw_pause_button():
 UPGRADE_CAP = 20
 
 upgrade_defs = [
-<<<<<<< HEAD
     {"name": "Book Stand", "base_cost": 10, "base_rate": 0.1, "base_interval": 5.0},
     {"name": "Desk Lamp", "base_cost": 50, "base_rate": 0.5, "base_interval": 4.5},
     {"name": "Caffeien", "base_cost": 100, "base_rate": 1.0, "base_interval": 4.0},
@@ -513,18 +500,6 @@ upgrade_defs = [
     {"name": "Brain Supplements", "base_cost": 1500, "base_rate": 15.0, "base_interval": 1.8},
     {"name": "VR Learning Kit", "base_cost": 2000, "base_rate": 20.0, "base_interval": 1.5},
     {"name": "AI", "base_cost": 3000, "base_rate": 30.0, "base_interval": 1.2},
-=======
-    {"name": "Book Stand", "base_cost": 100, "base_rate": 0.1, "base_interval": 5.0},
-    {"name": "Desk Lamp", "base_cost": 1600, "base_rate": 0.5, "base_interval": 4.5},
-    {"name": "Whiteboard", "base_cost": 3200, "base_rate": 1.0, "base_interval": 4.0},
-    {"name": "Encyclopedia Set", "base_cost": 8000, "base_rate": 2.0, "base_interval": 3.5},
-    {"name": "Research Assistant", "base_cost": 16000, "base_rate": 4.0, "base_interval": 3.0},
-    {"name": "Study Timer", "base_cost": 24000, "base_rate": 6.0, "base_interval": 2.5},
-    {"name": "Learning App", "base_cost": 32000, "base_rate": 10.0, "base_interval": 2.0},
-    {"name": "Brain Supplements", "base_cost": 50000, "base_rate": 15.0, "base_interval": 1.8},
-    {"name": "VR Learning Kit", "base_cost": 64000, "base_rate": 20.0, "base_interval": 1.5},
-    {"name": "AI Tutor", "base_cost": 200000, "base_rate": 30.0, "base_interval": 1.2},
->>>>>>> main
 ]
 
 
@@ -583,33 +558,62 @@ placeholder_icon = pygame.Surface((40, 40))
 placeholder_icon.fill((80, 80, 80))
 
 for i in range(len(upgrades)):
-    gif_path = f"assets/upgrades/upgrade_{i}.gif"
+    gif_path = f"Gif/upgrade_{i}.gif"
     if os.path.exists(gif_path):
-        try:
-            gif = pygame.image.load(gif_path)
-            upgrades[i]["gif"] = gif
-        except:
+        frames = load_gif_frames(gif_path, scale=(40, 40))
+        if frames:
+            upgrades[i]["frames"] = frames
+            upgrades[i]["gif"] = frames[0]
+            upgrades[i]["frame_index"] = 0  # Needed for animation
+        else:
             upgrades[i]["gif"] = placeholder_icon
     else:
         upgrades[i]["gif"] = placeholder_icon
 
+
 # Game state
 scroll_y = 0
 scroll_speed = 20
-upgrade_rects = []
-hovered_upgrade = None
-UPGRADE_HEIGHT = 80
-#VISIBLE_HEIGHT = 700  # make sure to change decrese it when adding a new upograde
-UPGRADE_TOP_MARGIN = 60
-UPGRADE_OFFSET_Y = 60
-VISIBLE_HEIGHT = HEIGHT - UPGRADE_OFFSET_Y
-MAX_SCROLL = max(0, len(upgrades) * UPGRADE_HEIGHT - VISIBLE_HEIGHT)
+UPGRADE_HEIGHT = 80  # Height of each upgrade item
+UPGRADE_START_Y = 90 # Starting Y position for upgrades
+UPGRADE_VISIBLE_MIN_Y = 110 # ← The minimum Y an upgrade should appear (not under counter) 
+
+
+#Ryan fixed (remade it)
+def calculate_scroll_bounds():
+    total_upgrades_height = len(upgrades) * UPGRADE_HEIGHT
+    visible_area = HEIGHT - UPGRADE_START_Y - 50
+    scroll_range_needed = total_upgrades_height - visible_area
+
+    # Let upgrades scroll fully offscreen (down), but never above the knowledge bar
+    max_scroll = 0
+    min_scroll = -scroll_range_needed
+
+    if scroll_range_needed <= 0:
+        return 0, 0
+
+    return min_scroll, max_scroll
+
+
+
+#Ryan fixed it (remade it)
+def handle_scroll(direction):
+    global scroll_y
+    min_scroll, max_scroll = calculate_scroll_bounds()
+
+    if direction == "up":
+        scroll_y = min(scroll_y + scroll_speed, max_scroll)  # Move list down
+    elif direction == "down":
+        scroll_y = max(scroll_y - scroll_speed, min_scroll)  # Move list up
+
 
 # Calculate cost
+
 def get_cost(base, level):
     return int(base * (1.15 ** level))
 
 # Upgrade effect
+
 def get_Knowledge_per_tick(base, level):
     return base * (1.1 ** level)
 
@@ -621,40 +625,42 @@ def draw_upgrades():
     global upgrade_rects, hovered_upgrade
     upgrade_rects = []
     hovered_upgrade = None
-
-    # Set up a clipping surface to prevent drawing over the knowledge counter
-    upgrade_surface_height = HEIGHT - 0  # Reduce this if you wanna adjust the margin on the bottom
-    upgrade_surface = pygame.Surface((WIDTH, upgrade_surface_height), pygame.SRCALPHA)
-
-    start_y = UPGRADE_OFFSET_Y + scroll_y
-    mouse_pos = pygame.mouse.get_pos()
+    mouse_pos = pygame.mouse.get_pos()              #changed sum stuff and added new variables at the top
 
     for idx, upg in enumerate(upgrades):
-        y = start_y + idx * 80
+        y =  UPGRADE_START_Y + idx * UPGRADE_HEIGHT + scroll_y
         rect = pygame.Rect(20, y, 300, 65)
+        
+        #only draw upgrades that are visisible on screen
+        # Skip upgrades that would appear above the safe margin (the knowledge counter)
+        if y + 65 < UPGRADE_VISIBLE_MIN_Y or y > HEIGHT:
+            continue
+
+ 
+        
+        
         upgrade_rects.append((rect, idx))
 
-        pygame.draw.rect(upgrade_surface, (50, 50, 100), rect, border_radius=8)
-        upgrade_surface.blit(upg["gif"], (rect.x + 10, rect.y + 10))
+        pygame.draw.rect(screen, (50, 50, 100), rect, border_radius=8)
+        screen.blit(upg["gif"], (rect.x + 10, rect.y + 10))
 
         level = upg["level"]
         cost = get_cost(upg["base_cost"], level)
         name = f"{upg['name']} ({level}/{UPGRADE_CAP})"
         cost_text = f"Cost: {cost}"
 
-        upgrade_surface.blit(font.render(name, True, (255, 255, 255)), (rect.x + 60, rect.y + 5))
-        upgrade_surface.blit(font.render(cost_text, True, (200, 200, 200)), (rect.x + 60, rect.y + 25))
+        screen.blit(font.render(name, True, (255, 255, 255)), (rect.x + 60, rect.y + 5))
+        screen.blit(font.render(cost_text, True, (200, 200, 200)), (rect.x + 60, rect.y + 25))
 
-        # Progress bar
-        pygame.draw.rect(upgrade_surface, (80, 80, 80), (rect.x + 60, rect.y + 50, 180, 10), border_radius=5)
-        pygame.draw.rect(upgrade_surface, (0, 220, 0), (rect.x + 60, rect.y + 50, int(180 * upg["progress"]), 10), border_radius=5)
+
+        # Progress bar background
+        pygame.draw.rect(screen, (80, 80, 80), (rect.x + 60, rect.y + 50, 180, 10), border_radius=5)
+
+        # Progress bar fill
+        pygame.draw.rect(screen, (0, 220, 0), (rect.x + 60, rect.y + 50, int(180 * upg["progress"]), 10), border_radius=5)
 
         if rect.collidepoint(mouse_pos):
             hovered_upgrade = idx
-
-    clip_y = 60  # Height of knowledge counter HUD
-    screen.blit(upgrade_surface, (0, clip_y), area=pygame.Rect(0, clip_y, WIDTH, HEIGHT - clip_y))
-
 
 # Tooltip
 def draw_tooltip():
@@ -701,10 +707,10 @@ def handle_click(pos):
                 return
             cost = get_cost(upg["base_cost"], upg["level"])
             if Knowledge >= cost:
-                Knowledge -= cost  # ✅ subtract cost here
+                Knowledge -= cost 
                 upg["level"] += 1
                 upg["last_tick"] = time.time()
-
+                # Flash effect can be added here
 
 def update_upgrades_logic():
     global Knowledge
@@ -782,16 +788,24 @@ while True:
                 paused = not paused
             elif event.key == pygame.K_f:
                 toggle_fullscreen()
-            elif event.key == pygame.K_UP:
-                scroll_y = min(scroll_y + scroll_speed, 0)
-            elif event.key == pygame.K_DOWN:
-                scroll_y = max(-MAX_SCROLL, scroll_y - scroll_speed)
+
+            #keyboard scroll
+            elif event.key in [pygame.K_UP, pygame.K_w]:
+                handle_scroll("up")
+            elif event.key in [pygame.K_DOWN, pygame.K_s]:
+                handle_scroll("down")
 
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
             mx, my = event.pos
-            current_time = time.time()
+            
+            
+            rebirth_btn = draw_rebirth_button()
+            if rebirth_btn and rebirth_btn.collidepoint(event.pos):
+                rebirth_multiplier = rebirth_system.perform_rebirth(upgrades)
+                Knowledge = 0
 
+ 
             # Pause button (always visible top right)
             if pause_button_rect.collidepoint(mx, my):
                 paused = not paused
@@ -800,9 +814,20 @@ while True:
 
             elif event.button == 1:
                 handle_click(event.pos)
+            
+            
+                #mouse scroll
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 4:
+                    handle_scroll("up")
+                elif event.button == 5:
+                    handle_scroll("down")
 
-            if paused:
-                # === Pause Menu Buttons ===
+
+            
+                
+            elif paused:
+                # Pause menu buttons rectangles
                 menu_x = screen.get_width() - button_width - padding
                 menu_y = padding
                 fullscreen_button = pygame.Rect(menu_x, menu_y, button_width, button_height)
