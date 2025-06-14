@@ -104,6 +104,8 @@ REBIRTH_BUTTON_HEIGHT = 40
 rebirth_ready = False
 pause_toggle_cooldown = 0.3  # seconds
 last_pause_toggle = 0  # initial timestamp
+incoming_pills = []  # pills in animation
+flying_particles = []  # List of trailing particles
 
 #Colors
 WHITE = (255, 255, 255)
@@ -143,6 +145,11 @@ active_upgrades = {
     }
 }
 
+upgrade_animation_phases = {
+    "fast_click": 0,
+    "bonus_click": 0
+}
+
 #Toggle fullscreen
 def toggle_fullscreen():
     global screen, fullscreen
@@ -168,6 +175,20 @@ def activate_upgrade(upgrade_type, duration=10):
             "level": 1,
             "end_time": now + duration
         }
+
+    # Animate from center to destination
+    slot_index = active_upgrades[upgrade_type]["level"] - 1
+    target_x = WIDTH - 50 - slot_index * 45
+    target_y = 50  # fixed Y level for all
+
+    incoming_pills.append({
+        "type": upgrade_type,
+        "x": WIDTH // 2,
+        "y": target_y,
+        "target_x": target_x,
+        "target_y": target_y,
+        "progress": 0.0  # 0=start, 1=done
+    })
 
 def update_upgrades():
     global Knowledge, Knowledge_per_click, active_upgrades, auto_click_timer, auto_click_delay
@@ -205,32 +226,107 @@ def draw_active_upgrades():
     for upgrade_type, data in active_upgrades.items():
         icon = upgrade_icons.get(upgrade_type)
         if icon:
-            for i in range(data["level"]):  # draw icon per level
+            # Only draw landed pills (not flying)
+            flying = sum(1 for p in incoming_pills if p["type"] == upgrade_type)
+            for i in range(data["level"] - flying):
                 screen.blit(icon, (x - (icon.get_width() + spacing) * i, y))
-        y += 50  # move down for next upgrade type
+        y += 50
 
-    # Draw mini-game button just below the last pill
-    global mini_game_button_rect
+    # Mini-game button
     mini_game_button_rect = pygame.Rect(x - 40, y + 10, 40, 40)
-
     if mini_game_available:
-        # Glow effect
         t = time.time()
-        brightness = 200 + int(55 * (math.sin(t * 4) + 1) / 2)  # oscillates between 200 and 255
-        glow_color = (brightness, brightness * 0.84, 0)  # Yellowish glow
+        brightness = 200 + int(55 * (math.sin(t * 4) + 1) / 2)
+        glow_color = (brightness, brightness * 0.84, 0)
         pygame.draw.rect(screen, glow_color, mini_game_button_rect, border_radius=10)
     else:
-        pygame.draw.rect(screen, (120, 120, 120), mini_game_button_rect, border_radius=10)  # dimmed
+        pygame.draw.rect(screen, (120, 120, 120), mini_game_button_rect, border_radius=10)
 
     icon = font.render("!", True, BLACK)
     screen.blit(icon, (mini_game_button_rect.centerx - icon.get_width() // 2,
                        mini_game_button_rect.centery - icon.get_height() // 2))
+
     draw_upgrades()
     draw_tooltip()
 
-def trigger_random_upgrade():
-    upgrade = random.choice(["fast_click", "bonus_click"])
-    activate_upgrade(upgrade)
+
+def incoming_pills_update():
+    speed = 0.08  # Adjust to control animation speed
+    finished = []
+
+    for pill in incoming_pills:
+        pill["progress"] += speed
+        if pill["progress"] >= 1.0:
+            pill["progress"] = 1.0
+            finished.append(pill)
+
+        # Interpolate position
+        t = pill["progress"]
+        pill["x"] = (1 - t) * (WIDTH // 2) + t * pill["target_x"]
+
+    # Remove finished pills and leave the rest
+    for pill in finished:
+        incoming_pills.remove(pill)
+
+def draw_incoming_pills():
+    for pill in incoming_pills:
+        icon = upgrade_icons.get(pill["type"])
+        if icon:
+            screen.blit(icon, (pill["x"], pill["y"]))
+
+def update_incoming_pills():
+    speed = 0.08  # Controls how fast the pill moves
+    finished = []
+
+    for pill in incoming_pills:
+        # Progress forward
+        pill["progress"] += speed
+        if pill["progress"] >= 1.0:
+            pill["progress"] = 1.0
+            finished.append(pill)
+
+        # Interpolate position (linear movement from center to target)
+        t = pill["progress"]
+        pill["x"] = (1 - t) * (WIDTH // 2) + t * pill["target_x"]
+        pill["y"] = pill["target_y"]  # fixed Y (no vertical change here)
+
+        # === Spawn trail particles ===
+        for _ in range(2):  # More = thicker trail
+            flying_particles.append({
+                "x": pill["x"] + random.randint(-2, 2),
+                "y": pill["y"] + 20 + random.randint(-2, 2),
+                "dx": random.uniform(-0.5, 0.5),
+                "dy": random.uniform(-0.5, 0.5),
+                "radius": random.randint(2, 4),
+                "life": 1.0,
+                "type": pill["type"]  # color based on upgrade
+            })
+
+    # Remove finished pills (they've landed)
+    for pill in finished:
+        incoming_pills.remove(pill)
+
+
+def update_flying_particles():
+    decay = 0.05
+    for p in flying_particles[:]:
+        p["x"] += p["dx"]
+        p["y"] += p["dy"]
+        p["life"] -= decay
+        if p["life"] <= 0:
+            flying_particles.remove(p)
+
+def draw_flying_particles():
+    for p in flying_particles:
+        alpha = int(255 * p["life"])
+        color = {
+            "fast_click": (255, 100, 100),
+            "bonus_click": (100, 100, 255)
+        }.get(p["type"], (255, 255, 255))
+
+        surface = pygame.Surface((p["radius"] * 2, p["radius"] * 2), pygame.SRCALPHA)
+        pygame.draw.circle(surface, (*color, alpha), (p["radius"], p["radius"]), p["radius"])
+        screen.blit(surface, (p["x"], p["y"]))
 
 # Drawing the Pause Menu
 def draw_pause_menu():
@@ -281,9 +377,12 @@ def draw():
         center_frame_index = pygame.time.get_ticks() // 100 % len(center_gif_frames)
         draw_center_gif(center_frame_index)
 
-    draw_active_upgrades()
-
     draw_pause_button()
+    draw_incoming_pills()
+    draw_active_upgrades() 
+    draw_flying_particles()
+    draw_incoming_pills()
+    draw_active_upgrades()
     rebirth_btn = draw_rebirth_button()
     
     #draw rebirth button
@@ -623,8 +722,11 @@ while True:
     draw_upgrades()
     draw_tooltip()
     update_upgrade_progress()
-    #load_game() (Afiq)
 
+    for key in upgrade_animation_phases:
+        upgrade_animation_phases[key] += dt
+    
+    #load_game() (Afiq)
     '''autosave_timer += dt (Afiq)
     if autosave_timer >= 10:
         save_game()
@@ -703,12 +805,15 @@ while True:
         check_for_triggered_upgrade()
         last_check = time.time()
 
-    if not paused: 
+    if not paused:
+        update_incoming_pills()
         if time.time() - last_bonus_time > bonus_interval:
             mini_game_available = True
 
         update_upgrades_logic()
         update_upgrades()
+        update_flying_particles()
+        update_incoming_pills()
 
     rebirth_ready = all(u["level"] >= UPGRADE_CAP for u in upgrades)
 
