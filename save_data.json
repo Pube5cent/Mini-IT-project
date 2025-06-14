@@ -1,7 +1,7 @@
 {
     "Knowledge": 0,
-    "rebirth_multiplier": 1,
-    "rebirth_count": 0,
+    "rebirth_multiplier": 2,
+    "rebirth_count": 1,
     "upgrade_levels": [
         0,
         0,
@@ -14,5 +14,5 @@
         0,
         0
     ],
-    "last_saved_time": 1749891596.6229985
+    "last_saved_time": 1749893288.92614
 }
