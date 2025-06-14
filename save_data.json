@@ -1,37 +1,18 @@
 {
-<<<<<<< HEAD
-    "Knowledge": 18,
+    "Knowledge": 0,
     "rebirth_multiplier": 1,
     "rebirth_count": 0,
     "upgrade_levels": [
-        20,
-        19,
-        2,
         0,
         0,
         0,
         0,
-        8,
         0,
-        0
-    ],
-    "last_saved_time": 1749875946.8124614
-=======
-    "Knowledge": 0,
-    "rebirth_multiplier": 2,
-    "rebirth_count": 1,
-    "upgrade_levels": [
-        8,
-        4,
-        3,
-        3,
-        2,
-        3,
-        3,
-        4,
+        0,
+        0,
+        0,
         0,
         0
     ],
-    "last_saved_time": 1749876400.3973634
->>>>>>> 909bd98c055ea58518c99ebe04bbd4e5f1ad7552
+    "last_saved_time": 1749877288.6863663
 }
