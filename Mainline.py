@@ -39,7 +39,6 @@ pygame.display.set_caption("Knowledge Clicker")
 clock = pygame.time.Clock()
 fullscreen = False
 
-
 # Auto clicker Delay
 auto_click_timer = 0
 auto_click_delay = 0.1
@@ -70,7 +69,7 @@ def load_gif_frames(path, scale=(64, 64)):
 background_gif_path = "RyanStuff/main_wallpaper.gif"
 background_frames = load_gif_frames(background_gif_path, scale=(WIDTH, HEIGHT))
 
-#Knowledge_per_click = 1
+Knowledge_per_click = 1
 
 # Fonts
 font = pygame.font.SysFont("Arial", 24)
@@ -120,15 +119,19 @@ RED = (255, 100, 100)
 BLUE =  (100, 100, 255)
 
 # Pop up Menu Timing
-bonus_interval = 5  # seconds
+bonus_interval = 300  # seconds
 last_bonus_time = time.time()
 
 # Temp Section Upgrade Duration (seconds)
-UPGRADE_DURATION = 360
+UPGRADE_DURATION = 600
 
 #Centre gif
 center_gif_path = "AdamStuff/assets/floating_book.gif"
 center_gif_frames = load_gif_frames(center_gif_path, scale=(150, 150))
+
+# Ping noise
+ping_sound = pygame.mixer.Sound("AdamStuff/asset/")
+last_mini_game_state = False
 
 #UI Elements
 shop_buttons = {}
@@ -473,14 +476,14 @@ def check_for_triggered_upgrade():
 
 # Mini Game Path
 def mini_game_1():
-    subprocess.Popen(["python", "temp_mini_game.py"])
-    #subprocess.Popen(["python", "Azim stuff/minigame testing 1.py"])
+    #subprocess.Popen(["python", "temp_mini_game.py"])
+    subprocess.Popen(["python", "Azim stuff/minigame testing 1.py"])
     #subprocess.Popen(["python", "Yeap Stuff/main.py"])
 
 def mini_game_2():
-    subprocess.Popen(["python", "temp_mini_game.py"])
+    #subprocess.Popen(["python", "temp_mini_game.py"])
     #subprocess.Popen(["python", "Azim stuff/minigame testing 1.py"])
-    #subprocess.Popen(["python", "Yeap Stuff/main.py"])
+    subprocess.Popen(["python", "Yeap Stuff/main.py"])
 
 def draw_button(surface, rect, text, active=False):
     color = (200, 50, 50) if active else (70, 70, 70)
@@ -851,6 +854,11 @@ while True:
         update_incoming_pills()
         if time.time() - last_bonus_time > bonus_interval:
             mini_game_available = True
+
+        # Play ping sound once when it becomes available
+        if mini_game_available and not last_mini_game_state:
+            ping_sound.play()
+        last_mini_game_state = mini_game_available
 
         update_upgrades_logic()
         update_upgrades()

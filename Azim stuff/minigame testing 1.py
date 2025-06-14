@@ -217,7 +217,7 @@ while running:
             try:
                 with open("shared_state.json", "r") as f:
                     data = json.load(f)
-                data["trigger_upgrade"] = random.choice(["fast_click", "bonus_click"])
+                data["trigger_upgrade"] = random.choice(["bonus_click", "bonus_click"])
                 with open("shared_state.json", "w") as f:
                     json.dump(data, f)
                 print("Upgrade triggered successfully.")

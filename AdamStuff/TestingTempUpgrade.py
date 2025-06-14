@@ -26,7 +26,7 @@ clock = pygame.time.Clock()
 rebirth_system = RebirthSystem()
 
 # Play background music
-#play_music("Ryanstuff/Game.mp3")
+play_music("Ryanstuff/Game.mp3")
 volume_on = False
 
 #Screen settings
