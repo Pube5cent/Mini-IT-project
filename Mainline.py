@@ -28,7 +28,7 @@ display_info = pygame.display.Info()
 FULLSCREEN_SIZE = (display_info.current_w, display_info.current_h)
 
 # Play background music
-#play_music("Ryanstuff/Game.mp3")
+play_music("Ryanstuff/Game.mp3")
 volume_on = True
 
 #Screen settings
