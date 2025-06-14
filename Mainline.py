@@ -130,7 +130,7 @@ center_gif_path = "AdamStuff/assets/floating_book.gif"
 center_gif_frames = load_gif_frames(center_gif_path, scale=(150, 150))
 
 # Ping noise
-ping_sound = pygame.mixer.Sound("AdamStuff/asset/")
+ping_sound = pygame.mixer.Sound("AdamStuff/assets/pingsound.mp3")
 last_mini_game_state = False
 
 #UI Elements
@@ -379,7 +379,7 @@ def draw_pause_menu():
 
     return resume_button, quit_button
 
-def draw_center_gif(current_frame_index): #for gif to work in the upgrades 
+def draw_center_gif(current_frame_index):
     if center_gif_frames:
         current_frame = center_gif_frames[current_frame_index]
         gif_pos = (WIDTH // 2 - current_frame.get_width() // 2, HEIGHT // 2 - current_frame.get_height() // 2)
