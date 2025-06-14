@@ -24,10 +24,12 @@ pygame.init()
 init_music()
 clock = pygame.time.Clock()
 rebirth_system = RebirthSystem()
+display_info = pygame.display.Info()
+FULLSCREEN_SIZE = (display_info.current_w, display_info.current_h)
 
 # Play background music
 play_music("Ryanstuff/Game.mp3")
-volume_on = False
+volume_on = True
 
 #Screen settings
 WIDTH, HEIGHT = 1080, 720
@@ -157,16 +159,15 @@ upgrade_animation_phases = {
 PILL_ROW_Y = {
     "fast_click": 50,
     "bonus_click": 100,
-    # add more if needed
 }
 
 #Toggle fullscreen
 def toggle_fullscreen():
     global screen, fullscreen
     fullscreen = not fullscreen
+
     if fullscreen:
-        display_info = pygame.display.Info()
-        screen = pygame.display.set_mode((display_info.current_w, display_info.current_h), pygame.NOFRAME)
+        screen = pygame.display.set_mode(FULLSCREEN_SIZE, pygame.NOFRAME)
     else:
         screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
